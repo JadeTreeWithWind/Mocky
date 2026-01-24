@@ -148,11 +148,49 @@ watch(
     // 忽略初次載入或切換路由時的變更
     if (newVal?.id !== oldVal?.id) {
       saveStatus.value = 'saved'
+      // 切換路由時，立即驗證新內容
+      if (newVal?.response?.body) {
+        validateJSON(newVal.response.body)
+      } else {
+        jsonError.value = null
+      }
       return
     }
     debouncedSave()
   },
   { deep: true }
+)
+
+// --- Stage 23: JSON Validation ---
+const jsonError = ref<string | null>(null)
+
+/**
+ * 驗證 JSON 格式
+ */
+const validateJSON = (content: string): void => {
+  if (!content.trim()) {
+    jsonError.value = null
+    return
+  }
+  try {
+    JSON.parse(content)
+    jsonError.value = null
+  } catch (e: unknown) {
+    // 截取錯誤訊息的第一行或簡化顯示
+    if (e instanceof Error) {
+      jsonError.value = e.message
+    } else {
+      jsonError.value = 'Invalid JSON format'
+    }
+  }
+}
+
+// 監聽 Body 變更以即時驗證
+watch(
+  () => route.value?.response?.body,
+  (newBody) => {
+    validateJSON(newBody || '')
+  }
 )
 
 // 鍵盤快捷鍵監聽
@@ -361,11 +399,50 @@ onUnmounted(() => {
         <div v-else class="flex h-full items-center justify-center text-zinc-500">
           Response body not available
         </div>
+
+        <!-- Stage 23: Error Bar -->
+        <Transition
+          enter-active-class="transition ease-out duration-200"
+          enter-from-class="opacity-0 translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition ease-in duration-150"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 translate-y-2"
+        >
+          <div
+            v-if="jsonError"
+            class="absolute right-0 bottom-0 left-0 z-10 flex items-center gap-3 border-t border-red-500/30 bg-red-900/90 px-4 py-2 text-red-200 backdrop-blur-md"
+          >
+            <div
+              class="flex h-5 w-5 items-center justify-center rounded-full bg-red-500/20 text-red-300"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" x2="12" y1="8" y2="12" />
+                <line x1="12" x2="12.01" y1="16" y2="16" />
+              </svg>
+            </div>
+            <span class="font-mono text-xs">{{ jsonError }}</span>
+          </div>
+        </Transition>
       </div>
     </div>
 
     <!-- Stage 20: Save Status Indicator -->
-    <div class="absolute right-6 bottom-4 text-xs font-medium transition-colors duration-300">
+    <div
+      class="absolute right-6 text-xs font-medium transition-all duration-300"
+      :class="jsonError ? 'bottom-12' : 'bottom-4'"
+    >
       <span v-if="saveStatus === 'saving'" class="flex items-center gap-1 text-blue-400">
         <span class="animate-pulse">●</span> Saving...
       </span>

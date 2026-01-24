@@ -20,16 +20,42 @@ class ServerManager {
     // 2. 建立 Fastify 實例
     const server = Fastify({ logger: true })
 
-    // 3. 註冊路由 (暫時只做簡單的 Log，Stage 27 會完善動態掛載)
-    // 即使是 Stage 26，我們也可以先把路由掛上去，或者至少讓傳入的 routes 有地方放
-    // 這裡我們先做一個簡單的歡迎路由，證明 server 活著
-    server.get('/', async () => {
-      return { message: 'Mocky Server is running', projectId }
-    })
+    // 3. 註冊路由
+    console.log(`[Server] Project ${projectId} mounting ${routes.length} routes...`)
 
-    // TODO: Stage 27 - 遍歷 routes 並動態掛載
-    // 目前先簡單印出路由數量
-    console.log(`[Server] Project ${projectId} has ${routes.length} routes to mount.`)
+    routes.forEach((route) => {
+      // Skip inactive routes
+      if (!route.isActive) return
+
+      try {
+        server.route({
+          method: route.method,
+          url: route.path,
+          handler: async (_request, reply) => {
+            // 1. Delay
+            if (route.response.delay > 0) {
+              await new Promise((resolve) => setTimeout(resolve, route.response.delay))
+            }
+
+            // 2. Status Code
+            reply.code(route.response.statusCode)
+
+            // 3. Body
+            try {
+              // Attempt to parse JSON strings
+              const jsonBody = JSON.parse(route.response.body)
+              return jsonBody
+            } catch {
+              // If not JSON, return as string
+              return route.response.body
+            }
+          }
+        })
+        console.log(`[Server] Mounted ${route.method} ${route.path}`)
+      } catch (err) {
+        console.error(`[Server] Failed to mount route ${route.method} ${route.path}:`, err)
+      }
+    })
 
     try {
       // 4. 啟動伺服器

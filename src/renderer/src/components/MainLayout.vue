@@ -1,34 +1,23 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Plus } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
+import { useProjectStore } from '../stores/project'
 import TitleBar from './TitleBar.vue'
 import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
 import CreateProjectModal from './CreateProjectModal.vue'
 
-interface Project {
-  id: string
-  name: string
-  port: number
-  description?: string
-}
-
 const router = useRouter()
 const route = useRoute()
+const projectStore = useProjectStore()
+const { projects } = storeToRefs(projectStore)
 
 // 1. State
 const isCreateModalOpen = ref(false)
 
-// 2. Mock Data
-const projects = ref<Project[]>([
-  { id: '1', name: 'E-commerce API', port: 8000 },
-  { id: '2', name: 'User Auth Service', port: 8001 },
-  { id: '3', name: 'Payment Gateway', port: 8002 },
-  { id: '4', name: 'Analytics Dashboard', port: 8003 },
-  { id: '5', name: 'Mobile App Backend', port: 8004 }
-])
-
+// 2. State from Store
 const selectedProjectId = ref<string>('')
 
 // 3. Methods
@@ -37,18 +26,17 @@ const selectProject = (id: string): void => {
   router.push(`/project/${id}`)
 }
 
-const handleCreateProject = (payload: {
+const handleCreateProject = async (payload: {
   name: string
   port: number
   description: string
-}): void => {
-  // TODO: (Stage 8) Replace with actual API call to Main Process
-  const newProject: Project = {
-    id: window.crypto.randomUUID(),
-    ...payload
+}): Promise<void> => {
+  try {
+    const newProject = await projectStore.createProject(payload)
+    selectProject(newProject.id)
+  } catch (error) {
+    console.error('Failed to create project:', error)
   }
-  projects.value.push(newProject)
-  selectProject(newProject.id)
 }
 
 watch(
@@ -62,6 +50,10 @@ watch(
   },
   { immediate: true }
 )
+
+onMounted(() => {
+  projectStore.fetchProjects()
+})
 </script>
 
 <template>

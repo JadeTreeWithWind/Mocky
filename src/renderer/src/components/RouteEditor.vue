@@ -376,6 +376,46 @@ onUnmounted(() => {
               {{ getStatusLabel(route.response?.statusCode) }}
             </span>
           </div>
+
+          <!-- Stage 24: Latency Setting -->
+          <div class="flex items-center gap-2 border-l border-zinc-700 pl-4">
+            <span
+              class="flex h-5 items-center rounded bg-zinc-800 px-1.5 text-[10px] font-bold tracking-wider text-zinc-400 uppercase"
+            >
+              Latency
+            </span>
+            <div class="flex items-center gap-1">
+              <div class="relative flex items-center">
+                <input
+                  v-if="route.response"
+                  v-model.number="route.response.delay"
+                  type="number"
+                  min="0"
+                  step="100"
+                  class="w-16 rounded-md border border-zinc-700 bg-zinc-800 px-2 py-1 pr-6 text-right text-xs font-bold text-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                />
+                <span class="pointer-events-none absolute right-2 text-xs text-zinc-500">ms</span>
+              </div>
+
+              <!-- Quick Options -->
+              <div v-if="route.response" class="ml-1 flex items-center gap-px">
+                <button
+                  v-for="ms in [0, 500, 2000]"
+                  :key="ms"
+                  type="button"
+                  class="rounded border border-transparent px-1.5 py-1 text-[10px] font-medium transition-colors"
+                  :class="
+                    route.response.delay === ms
+                      ? 'border-blue-500/30 bg-blue-500/20 text-blue-400'
+                      : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                  "
+                  @click="route.response!.delay = ms"
+                >
+                  {{ ms }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

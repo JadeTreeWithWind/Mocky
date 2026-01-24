@@ -3,7 +3,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Search } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
 import RouteItem from '../components/RouteItem.vue'
 
@@ -15,6 +15,8 @@ const { routes, isLoading } = storeToRefs(projectStore)
 // --- 4. 響應式狀態 (State) ---
 /** 當前選中的路由 ID */
 const selectedRouteId = ref('')
+/** 路由列表搜尋關鍵字 */
+const searchQuery = ref('')
 
 // --- 5. 計算屬性 (Computed Properties) ---
 
@@ -24,6 +26,20 @@ const selectedRouteId = ref('')
 const projectId = computed(() => {
   const id = route.params.id
   return typeof id === 'string' ? id : ''
+})
+
+/**
+ * 根據搜尋關鍵字過濾路由列表
+ */
+const filteredRoutes = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return routes.value
+
+  return routes.value.filter(
+    (r) =>
+      r.path.toLowerCase().includes(query) ||
+      (r.description && r.description.toLowerCase().includes(query))
+  )
 })
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
@@ -109,6 +125,22 @@ onMounted(() => {
         </div>
       </div>
 
+      <!-- Search Box -->
+      <div class="p-2 pb-0">
+        <div class="group relative">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search routes..."
+            class="w-full rounded border border-zinc-800 bg-zinc-950/50 py-1.5 pr-2 pl-8 text-xs text-zinc-300 placeholder-zinc-600 transition-colors focus:border-zinc-700 focus:outline-none"
+          />
+          <Search
+            :size="12"
+            class="absolute top-1/2 left-2.5 -translate-y-1/2 text-zinc-600 transition-colors group-focus-within:text-zinc-400"
+          />
+        </div>
+      </div>
+
       <div class="flex-1 space-y-1 overflow-y-auto p-2">
         <div v-if="isLoading" class="flex h-32 items-center justify-center">
           <div
@@ -117,15 +149,18 @@ onMounted(() => {
         </div>
 
         <div
-          v-else-if="routes.length === 0"
-          class="flex h-32 items-center justify-center px-4 text-center"
+          v-else-if="filteredRoutes.length === 0"
+          class="flex h-32 flex-col items-center justify-center space-y-2 px-4 text-center"
         >
-          <p class="text-xs text-zinc-600 italic">No routes yet. Click + to add one.</p>
+          <p v-if="routes.length === 0" class="text-xs text-zinc-600 italic">
+            No routes yet. Click + to add one.
+          </p>
+          <p v-else class="text-xs text-zinc-600 italic">No routes match your search.</p>
         </div>
 
         <template v-else>
           <RouteItem
-            v-for="item in routes"
+            v-for="item in filteredRoutes"
             :key="item.id"
             :method="item.method"
             :path="item.path"

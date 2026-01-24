@@ -6,6 +6,7 @@ import { storeToRefs } from 'pinia'
 import { Plus, Search } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
 import RouteItem from '../components/RouteItem.vue'
+import RouteEditor from '../components/RouteEditor.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 // --- 3. 初始化 (Initialization) ---
@@ -212,12 +213,9 @@ onMounted(() => {
         <div
           v-if="selectedRouteId"
           :key="selectedRouteId"
-          class="flex flex-1 flex-col items-center justify-center"
+          class="flex flex-1 flex-col overflow-hidden"
         >
-          <div class="text-center">
-            <p class="mb-2 text-lg font-medium text-zinc-400">Route Editor</p>
-            <p class="font-mono text-xs text-zinc-600">ID: {{ selectedRouteId }}</p>
-          </div>
+          <RouteEditor :route-id="selectedRouteId" />
         </div>
 
         <div v-else class="flex flex-1 flex-col items-center justify-center text-center">

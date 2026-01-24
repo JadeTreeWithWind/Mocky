@@ -120,6 +120,28 @@ class DBService {
     const routes = this.db.data.routes ?? []
     return routes.filter((r) => r.projectId === projectId)
   }
+
+  /**
+   * 新增路由
+   * @param route - 路由資料 (不含 ID)
+   */
+  async addRoute(route: Omit<Route, 'id'>): Promise<Route> {
+    await this.init()
+    if (!this.db) throw new Error('DB not initialized')
+
+    const newRoute: Route = {
+      ...route,
+      id: randomUUID()
+    }
+
+    // 確保 routes 陣列存在
+    if (!this.db.data.routes) {
+      this.db.data.routes = []
+    }
+
+    await this.db.update(({ routes }) => routes.push(newRoute))
+    return newRoute
+  }
 }
 
 // --- 10. 對外暴露 (Expose/Exports) ---

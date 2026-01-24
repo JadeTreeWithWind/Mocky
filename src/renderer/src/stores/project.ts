@@ -97,6 +97,41 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /**
+   * 建立新路由 (預設值)
+   * @param projectId - 專案 UUID
+   * @returns {Promise<string>} 新增的路由 ID
+   */
+  const createRoute = async (projectId: string): Promise<string> => {
+    if (!projectId) throw new Error('Project ID is required')
+
+    lastError.value = null
+
+    try {
+      const payload = {
+        projectId,
+        method: 'GET' as const,
+        path: '/new-endpoint',
+        description: 'New API Endpoint',
+        isActive: true,
+        response: {
+          statusCode: 200,
+          body: '{\n  "message": "Hello World"\n}',
+          delay: 0
+        }
+      }
+
+      // @ts-ignore - The preload api types might not appear updated in compilation context immediately
+      const newRoute = await window.api.db.addRoute(payload)
+      routes.value.push(newRoute)
+      return newRoute.id
+    } catch (error) {
+      console.error('[Store] Create route failed:', error)
+      lastError.value = '無法建立新路由'
+      throw error
+    }
+  }
+
   // --- 10. 對外暴露 (Exports) ---
   return {
     // State
@@ -108,6 +143,7 @@ export const useProjectStore = defineStore('project', () => {
     fetchProjects,
     createProject,
     deleteProject,
-    fetchRoutes
+    fetchRoutes,
+    createRoute
   }
 })

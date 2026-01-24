@@ -3,6 +3,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import { Plus } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
 import RouteItem from '../components/RouteItem.vue'
 
@@ -29,7 +30,6 @@ const projectId = computed(() => {
 
 /**
  * 載入當前專案的所有路由設定
- * - 若無有已選取的路由，或選取的路由不在清單中時，預設選取第一個
  */
 const loadProjectRoutes = async (): Promise<void> => {
   if (!projectId.value) return // 衛句模式
@@ -45,10 +45,24 @@ const loadProjectRoutes = async (): Promise<void> => {
 
 /**
  * 處理路由項目的選取動作
- * @param id - 路由 UUID
  */
 const handleSelectRoute = (id: string): void => {
   selectedRouteId.value = id
+}
+
+/**
+ * 快速新增路由
+ */
+const handleAddRoute = async (): Promise<void> => {
+  if (!projectId.value) return
+
+  try {
+    const newRouteId = await projectStore.createRoute(projectId.value)
+    // 新增後自動選中該路由
+    selectedRouteId.value = newRouteId
+  } catch (error) {
+    console.error('Failed to quick add route', error)
+  }
 }
 
 // --- 6. 偵聽器 (Watchers) ---
@@ -79,9 +93,20 @@ onMounted(() => {
     <aside class="flex w-64 flex-col border-r border-zinc-800 bg-zinc-900/30">
       <div class="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
         <h3 class="text-xs font-semibold tracking-wider text-zinc-500 uppercase">Routes</h3>
-        <span class="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">
-          {{ routes.length }}
-        </span>
+
+        <div class="flex items-center gap-2">
+          <span class="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">
+            {{ routes.length }}
+          </span>
+
+          <button
+            class="flex items-center justify-center rounded p-1 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+            aria-label="Add Route"
+            @click="handleAddRoute"
+          >
+            <Plus :size="14" />
+          </button>
+        </div>
       </div>
 
       <div class="flex-1 space-y-1 overflow-y-auto p-2">

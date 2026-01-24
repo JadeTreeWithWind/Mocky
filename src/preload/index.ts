@@ -17,7 +17,8 @@ const IPC_CHANNELS = {
     GET_PROJECTS: 'db:getProjects',
     ADD_PROJECT: 'db:addProject',
     DELETE_PROJECT: 'db:deleteProject',
-    GET_ROUTES: 'db:getRoutesByProjectId'
+    GET_ROUTES: 'db:getRoutesByProjectId',
+    ADD_ROUTE: 'db:addRoute'
   }
 } as const
 
@@ -51,7 +52,11 @@ const api = {
 
     /** 根據專案 ID 獲取路由 */
     getRoutesByProjectId: (projectId: string): Promise<Route[]> =>
-      ipcRenderer.invoke(IPC_CHANNELS.DB.GET_ROUTES, projectId)
+      ipcRenderer.invoke(IPC_CHANNELS.DB.GET_ROUTES, projectId),
+
+    /** 新增路由 */
+    addRoute: (route: Omit<Route, 'id'>): Promise<Route> =>
+      ipcRenderer.invoke(IPC_CHANNELS.DB.ADD_ROUTE, route)
   }
 }
 

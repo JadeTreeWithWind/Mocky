@@ -20,7 +20,8 @@ const IPC_CHANNELS = {
     GET_PROJECTS: 'db:getProjects',
     ADD_PROJECT: 'db:addProject',
     DELETE_PROJECT: 'db:deleteProject',
-    GET_ROUTES: 'db:getRoutesByProjectId'
+    GET_ROUTES: 'db:getRoutesByProjectId',
+    ADD_ROUTE: 'db:addRoute'
   }
 } as const // 使用 const assertion 確保字串不可變
 
@@ -133,6 +134,17 @@ function registerIpcHandlers(): void {
     } catch (error) {
       console.error('[IPC] Failed to get routes:', error)
       return []
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.DB.ADD_ROUTE, async (_, route) => {
+    try {
+      // 這裡應該要做更嚴格的驗證 (Zod parse)，但暫時先做基本檢查
+      if (!route || !route.projectId) throw new Error('Missing route data')
+      return await dbService.addRoute(route)
+    } catch (error) {
+      console.error('[IPC] Failed to add route:', error)
+      throw error
     }
   })
 }

@@ -2,6 +2,7 @@ import { app } from 'electron'
 import { join } from 'path'
 import { z } from 'zod'
 import { randomUUID } from 'node:crypto'
+import type { Low } from 'lowdb'
 
 export const ProjectSchema = z.object({
   id: z.string().uuid(),
@@ -22,14 +23,14 @@ export const DBSchema = z.object({
 export type DBSchemaType = z.infer<typeof DBSchema>
 
 class DBService {
-  private db: any = null
+  private db: Low<DBSchemaType> | null = null
   private dbPath: string = ''
 
   constructor() {
     // path resolution deferred to init
   }
 
-  async init() {
+  async init(): Promise<void> {
     if (this.db) return
 
     // Ensure we are getting the path after app is ready effectively,
@@ -52,6 +53,7 @@ class DBService {
 
   async getProjects(): Promise<Project[]> {
     await this.init()
+    if (!this.db) throw new Error('DB not initialized')
     await this.db.read()
     console.log('[DB] Projects loaded:', this.db.data.projects)
     return this.db.data.projects
@@ -61,6 +63,7 @@ class DBService {
     project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'status'>
   ): Promise<Project> {
     await this.init()
+    if (!this.db) throw new Error('DB not initialized')
 
     const newProject: Project = {
       ...project,
@@ -72,6 +75,19 @@ class DBService {
 
     await this.db.update(({ projects }: DBSchemaType) => projects.push(newProject))
     return newProject
+  }
+
+  async deleteProject(id: string): Promise<boolean> {
+    await this.init()
+    if (!this.db) throw new Error('DB not initialized')
+    const initialLength = this.db.data.projects.length
+    await this.db.update(({ projects }: DBSchemaType) => {
+      const index = projects.findIndex((p) => p.id === id)
+      if (index !== -1) {
+        projects.splice(index, 1)
+      }
+    })
+    return this.db.data.projects.length < initialLength
   }
 }
 

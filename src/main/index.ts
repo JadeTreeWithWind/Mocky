@@ -85,6 +85,10 @@ app.whenReady().then(() => {
     return await dbService.addProject(project)
   })
 
+  ipcMain.handle('db:deleteProject', async (_, id) => {
+    return await dbService.deleteProject(id)
+  })
+
   createWindow()
 
   app.on('activate', function () {

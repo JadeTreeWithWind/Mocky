@@ -10,7 +10,8 @@ const api = {
   },
   db: {
     getProjects: () => ipcRenderer.invoke('db:getProjects'),
-    addProject: (project) => ipcRenderer.invoke('db:addProject', project)
+    addProject: (project) => ipcRenderer.invoke('db:addProject', project),
+    deleteProject: (id: string) => ipcRenderer.invoke('db:deleteProject', id)
   }
 }
 

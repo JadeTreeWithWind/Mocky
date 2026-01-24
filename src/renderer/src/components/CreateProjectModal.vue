@@ -77,6 +77,7 @@ const resetForm = (): void => {
       >
         <div
           class="w-[480px] scale-100 transform overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl transition-all"
+          style="-webkit-app-region: no-drag"
         >
           <!-- Header -->
           <div class="mb-5 flex items-center justify-between">

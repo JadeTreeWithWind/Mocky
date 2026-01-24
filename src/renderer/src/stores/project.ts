@@ -43,9 +43,20 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  const deleteProject = async (id: string): Promise<void> => {
+    try {
+      await window.api.db.deleteProject(id)
+      projects.value = projects.value.filter((p) => p.id !== id)
+    } catch (error) {
+      console.error('Failed to delete project:', error)
+      throw error
+    }
+  }
+
   return {
     projects,
     fetchProjects,
-    createProject
+    createProject,
+    deleteProject
   }
 })

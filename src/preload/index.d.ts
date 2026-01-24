@@ -14,6 +14,7 @@ declare global {
         addProject: (
           project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'status'>
         ) => Promise<Project>
+        deleteProject: (id: string) => Promise<boolean>
       }
     }
   }

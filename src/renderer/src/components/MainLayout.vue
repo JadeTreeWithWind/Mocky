@@ -8,6 +8,7 @@ import TitleBar from './TitleBar.vue'
 import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
 import CreateProjectModal from './CreateProjectModal.vue'
+import ConfirmDialog from './ConfirmDialog.vue'
 import ContextMenu from './ContextMenu.vue'
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 
@@ -18,6 +19,8 @@ const { projects } = storeToRefs(projectStore)
 
 // 1. State
 const isCreateModalOpen = ref(false)
+const isConfirmDeleteOpen = ref(false)
+const projectToDelete = ref<string | null>(null)
 
 // 2. State from Store
 const selectedProjectId = ref<string>('')
@@ -44,8 +47,8 @@ const contextMenuItems = computed(() => [
     icon: Trash2,
     danger: true,
     action: (): void => {
-      console.log('Delete project:', contextMenu.value.projectId)
-      // TODO: Implement Delete Flow (Stage 10)
+      projectToDelete.value = contextMenu.value.projectId
+      isConfirmDeleteOpen.value = true
     }
   }
 ])
@@ -75,6 +78,23 @@ const handleContextMenu = (event: MouseEvent, projectId: string): void => {
     x: event.clientX,
     y: event.clientY,
     projectId
+  }
+}
+
+const handleConfirmDelete = async (): Promise<void> => {
+  if (!projectToDelete.value) return
+
+  try {
+    const idToDelete = projectToDelete.value
+    await projectStore.deleteProject(idToDelete)
+
+    if (selectedProjectId.value === idToDelete) {
+      router.push('/')
+    }
+  } catch (error) {
+    console.error('Failed to delete project:', error)
+  } finally {
+    projectToDelete.value = null
   }
 }
 
@@ -140,6 +160,16 @@ onMounted(() => {
       :is-open="isCreateModalOpen"
       @close="isCreateModalOpen = false"
       @create="handleCreateProject"
+    />
+
+    <ConfirmDialog
+      :is-open="isConfirmDeleteOpen"
+      title="Delete Project"
+      message="Are you sure you want to delete this project? This action cannot be undone."
+      confirm-text="Delete"
+      :is-danger="true"
+      @close="isConfirmDeleteOpen = false"
+      @confirm="handleConfirmDelete"
     />
 
     <ContextMenu

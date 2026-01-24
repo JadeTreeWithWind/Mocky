@@ -22,6 +22,7 @@ const IPC_CHANNELS = {
     DELETE_PROJECT: 'db:deleteProject',
     GET_ROUTES: 'db:getRoutesByProjectId',
     ADD_ROUTE: 'db:addRoute',
+    UPDATE_ROUTE: 'db:updateRoute',
     DELETE_ROUTE: 'db:deleteRoute'
   }
 } as const // 使用 const assertion 確保字串不可變
@@ -145,6 +146,16 @@ function registerIpcHandlers(): void {
       return await dbService.addRoute(route)
     } catch (error) {
       console.error('[IPC] Failed to add route:', error)
+      throw error
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.DB.UPDATE_ROUTE, async (_, route) => {
+    try {
+      if (!route || !route.id) throw new Error('Missing route data')
+      return await dbService.updateRoute(route)
+    } catch (error) {
+      console.error('[IPC] Failed to update route:', error)
       throw error
     }
   })

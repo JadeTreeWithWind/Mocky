@@ -152,6 +152,22 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /**
+   * 更新路由
+   * @param route - 完整的路由資料
+   */
+  const updateRoute = async (route: Route): Promise<void> => {
+    lastError.value = null
+    try {
+      // @ts-ignore - Preload API types are manually maintained and may lag
+      await window.api.db.updateRoute(JSON.parse(JSON.stringify(route))) // 確保移除 Proxy
+    } catch (error) {
+      console.error('[Store] Update route failed:', error)
+      lastError.value = '無法更新路由'
+      throw error
+    }
+  }
+
   // --- 10. 對外暴露 (Exports) ---
   return {
     // State
@@ -165,6 +181,7 @@ export const useProjectStore = defineStore('project', () => {
     deleteProject,
     fetchRoutes,
     createRoute,
-    deleteRoute
+    deleteRoute,
+    updateRoute
   }
 })

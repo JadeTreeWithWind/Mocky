@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
-import { computed } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useProjectStore } from '../stores/project'
 import { HTTP_METHODS as HTTP_METHODS_SCHEMA } from '../../../shared/types'
 
@@ -77,10 +77,78 @@ const methodSelectClasses = computed(() => {
 
   return `h-10 appearance-none rounded-md border px-4 py-2 pr-8 text-sm font-bold focus:ring-1 focus:outline-none transition-colors ${themeClass}`
 })
+
+// --- 6. 狀態管理 (State) ---
+type SaveStatus = 'saved' | 'saving' | 'unsaved'
+const saveStatus = ref<SaveStatus>('saved')
+const saveTimeout = ref<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+/**
+ * 執行儲存操作
+ */
+const save = async (): Promise<void> => {
+  if (!route.value) return
+
+  saveStatus.value = 'saving'
+  try {
+    // 深拷貝以避免 Proxy 問題 (雖 Store 已處裡，但這裡斷開參照較安全)
+    await projectStore.updateRoute({ ...route.value })
+    // 短暫延遲以顯示 Saving 狀態 (UX 優化)
+    setTimeout(() => {
+      saveStatus.value = 'saved'
+    }, 500)
+  } catch (error) {
+    console.error('Failed to save route:', error)
+    saveStatus.value = 'unsaved'
+  }
+}
+
+/**
+ * 防抖自動儲存 (Debounce)
+ */
+const debouncedSave = (): void => {
+  saveStatus.value = 'unsaved'
+  clearTimeout(saveTimeout.value)
+  saveTimeout.value = setTimeout(() => {
+    save()
+  }, 1000) // 1秒後自動儲存
+}
+
+// 監聽路由資料變更
+watch(
+  () => route.value,
+  (newVal, oldVal) => {
+    // 忽略初次載入或切換路由時的變更
+    if (newVal?.id !== oldVal?.id) {
+      saveStatus.value = 'saved'
+      return
+    }
+    debouncedSave()
+  },
+  { deep: true }
+)
+
+// 鍵盤快捷鍵監聽
+const handleKeydown = (e: KeyboardEvent): void => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault()
+    clearTimeout(saveTimeout.value) // 清除自動儲存計時
+    save()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+  clearTimeout(saveTimeout.value)
+})
 </script>
 
 <template>
-  <div v-if="route" class="flex h-full w-full flex-col">
+  <div v-if="route" class="relative flex h-full w-full flex-col">
     <!-- Stage 16: Editor Header -->
     <header class="border-b border-zinc-800 bg-zinc-900/30 px-6 py-4">
       <div class="flex items-start gap-4">
@@ -181,6 +249,19 @@ const methodSelectClasses = computed(() => {
       <div class="rounded-lg border border-dashed border-zinc-800 p-8 text-center">
         <p class="text-sm text-zinc-500">Response Editor will be implemented in future stages.</p>
       </div>
+    </div>
+
+    <!-- Stage 20: Save Status Indicator -->
+    <div class="absolute right-6 bottom-4 text-xs font-medium transition-colors duration-300">
+      <span v-if="saveStatus === 'saving'" class="flex items-center gap-1 text-blue-400">
+        <span class="animate-pulse">●</span> Saving...
+      </span>
+      <span v-else-if="saveStatus === 'saved'" class="flex items-center gap-1 text-zinc-500">
+        <span class="text-emerald-500">✓</span> Saved
+      </span>
+      <span v-else-if="saveStatus === 'unsaved'" class="flex items-center gap-1 text-amber-500">
+        <span class="animate-bounce">●</span> Unsaved
+      </span>
     </div>
   </div>
 

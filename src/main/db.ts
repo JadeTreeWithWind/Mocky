@@ -165,6 +165,30 @@ class DBService {
     const currentLength = this.db.data.routes?.length ?? 0
     return currentLength < initialLength
   }
+
+  /**
+   * 更新路由
+   * @param route - 更新後的路由資料
+   * @returns {Promise<Route | null>} 更新後的路由，若找不到則回傳 null
+   */
+  async updateRoute(route: Route): Promise<Route | null> {
+    await this.init()
+    if (!this.db) throw new Error('DB not initialized')
+
+    let updatedRoute: Route | null = null
+
+    await this.db.update((data) => {
+      if (!data.routes) return
+      const index = data.routes.findIndex((r) => r.id === route.id)
+      if (index !== -1) {
+        // 更新該筆資料 (保持 ID 與 ProjectID 不變)
+        data.routes[index] = { ...data.routes[index], ...route }
+        updatedRoute = data.routes[index]
+      }
+    })
+
+    return updatedRoute
+  }
 }
 
 // --- 10. 對外暴露 (Expose/Exports) ---

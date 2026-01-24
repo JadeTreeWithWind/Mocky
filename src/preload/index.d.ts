@@ -46,6 +46,12 @@ interface DatabaseAPI {
    * @param projectId - 專案 UUID
    */
   getRoutesByProjectId: (projectId: string) => Promise<Route[]>
+
+  /**
+   * 更新路由
+   * @param route - 完整的路由物件
+   */
+  updateRoute: (route: Route) => Promise<Route | null>
 }
 
 // --- 9. 全域擴充 (Global Augmentation) ---

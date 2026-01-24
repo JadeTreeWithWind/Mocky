@@ -24,7 +24,35 @@ const route = computed(() => {
 })
 
 // --- 常量定義 ---
+// --- 常量定義 ---
 const httpMethodOptions = HTTP_METHODS_SCHEMA.options
+
+/**
+ * HTTP 方法對應的顏色主題 (與 RouteItem 保持一致或更強烈)
+ */
+const METHOD_THEMES: Record<string, string> = {
+  GET: 'text-blue-400 border-blue-500/50 bg-blue-500/10 focus:border-blue-500 focus:ring-blue-500/30',
+  POST: 'text-yellow-400 border-yellow-500/50 bg-yellow-500/10 focus:border-yellow-500 focus:ring-yellow-500/30',
+  PUT: 'text-orange-400 border-orange-500/50 bg-orange-500/10 focus:border-orange-500 focus:ring-orange-500/30',
+  DELETE: 'text-red-400 border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500/30',
+  PATCH:
+    'text-green-400 border-green-500/50 bg-green-500/10 focus:border-green-500 focus:ring-green-500/30',
+  OPTIONS:
+    'text-purple-400 border-purple-500/50 bg-purple-500/10 focus:border-purple-500 focus:ring-purple-500/30',
+  HEAD: 'text-teal-400 border-teal-500/50 bg-teal-500/10 focus:border-teal-500 focus:ring-teal-500/30'
+}
+
+/**
+ * 下拉選單動態樣式
+ */
+const methodSelectClasses = computed(() => {
+  if (!route.value) return ''
+  const defaultClass =
+    'border-zinc-700 bg-zinc-800 text-zinc-100 focus:border-blue-500 focus:ring-blue-500'
+  const themeClass = METHOD_THEMES[route.value.method] || defaultClass
+
+  return `h-10 appearance-none rounded-md border px-4 py-2 pr-8 text-sm font-bold focus:ring-1 focus:outline-none transition-colors ${themeClass}`
+})
 </script>
 
 <template>
@@ -34,11 +62,13 @@ const httpMethodOptions = HTTP_METHODS_SCHEMA.options
       <div class="flex items-center gap-3">
         <!-- Method Select -->
         <div class="relative">
-          <select
-            v-model="route.method"
-            class="h-10 appearance-none rounded-md border border-zinc-700 bg-zinc-800 px-4 py-2 pr-8 text-sm font-bold text-zinc-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-          >
-            <option v-for="method in httpMethodOptions" :key="method" :value="method">
+          <select v-model="route.method" :class="methodSelectClasses">
+            <option
+              v-for="method in httpMethodOptions"
+              :key="method"
+              :value="method"
+              class="bg-zinc-800 text-zinc-100"
+            >
               {{ method }}
             </option>
           </select>

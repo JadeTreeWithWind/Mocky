@@ -7,30 +7,10 @@ import icon from '../../resources/icon.png?asset'
 // 內部資源
 import { dbService } from './db'
 import { serverManager } from './server'
+import { IPC_CHANNELS } from '../shared/ipc-channels'
 
 // --- 3. 常量宣告 (Constants) ---
 const APP_USER_MODEL_ID = 'com.electron.app' // TODO: 正式發布時應替換為具體的 Bundle ID
-
-const IPC_CHANNELS = {
-  WINDOW: {
-    MINIMIZE: 'window:minimize',
-    MAXIMIZE: 'window:maximize',
-    CLOSE: 'window:close'
-  },
-  DB: {
-    GET_PROJECTS: 'db:getProjects',
-    ADD_PROJECT: 'db:addProject',
-    DELETE_PROJECT: 'db:deleteProject',
-    GET_ROUTES: 'db:getRoutesByProjectId',
-    ADD_ROUTE: 'db:addRoute',
-    UPDATE_ROUTE: 'db:updateRoute',
-    DELETE_ROUTE: 'db:deleteRoute'
-  },
-  SERVER: {
-    START: 'server:start',
-    STOP: 'server:stop'
-  }
-} as const // 使用 const assertion 確保字串不可變
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
 
@@ -184,9 +164,10 @@ function registerIpcHandlers(): void {
         payload.port || 8000,
         payload.routes || []
       )
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[IPC] Failed to start server:', error)
-      throw new Error(error.message || 'Failed to start server')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to start server'
+      throw new Error(errorMessage)
     }
   })
 

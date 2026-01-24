@@ -4,25 +4,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // 匯入類型作為 Single Source of Truth
 import type { Project, Route } from '../shared/types'
-
-// --- 3. 常量宣告 (Constants) ---
-// 必須與主進程(main/index.ts)定義的通道名稱完全一致
-const IPC_CHANNELS = {
-  WINDOW: {
-    MINIMIZE: 'window:minimize',
-    MAXIMIZE: 'window:maximize',
-    CLOSE: 'window:close'
-  },
-  DB: {
-    GET_PROJECTS: 'db:getProjects',
-    ADD_PROJECT: 'db:addProject',
-    DELETE_PROJECT: 'db:deleteProject',
-    GET_ROUTES: 'db:getRoutesByProjectId',
-    ADD_ROUTE: 'db:addRoute',
-    UPDATE_ROUTE: 'db:updateRoute',
-    DELETE_ROUTE: 'db:deleteRoute'
-  }
-} as const
+import { IPC_CHANNELS } from '../shared/ipc-channels'
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
 
@@ -71,9 +53,10 @@ const api = {
 
   server: {
     start: (payload: { projectId: string; port: number; routes: Route[] }): Promise<number> =>
-      ipcRenderer.invoke('server:start', payload),
+      ipcRenderer.invoke(IPC_CHANNELS.SERVER.START, payload),
 
-    stop: (projectId: string): Promise<boolean> => ipcRenderer.invoke('server:stop', projectId)
+    stop: (projectId: string): Promise<boolean> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SERVER.STOP, projectId)
   }
 }
 

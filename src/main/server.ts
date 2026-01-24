@@ -1,5 +1,10 @@
+// --- 1. 外部引用 (Imports) ---
 import Fastify, { FastifyInstance } from 'fastify'
+import { AddressInfo } from 'net'
+
 import { Route } from '../shared/types'
+
+// --- 7. 核心邏輯與函數 (Functions/Methods) ---
 
 class ServerManager {
   private servers: Map<string, FastifyInstance> = new Map()
@@ -61,7 +66,8 @@ class ServerManager {
       // 4. 啟動伺服器
       // host 設為 '0.0.0.0' 或 'localhost'
       const address = await server.listen({ port, host: '0.0.0.0' })
-      const actualPort = (server.server.address() as any).port
+      const serverAddress = server.server.address() as AddressInfo | null
+      const actualPort = serverAddress?.port ?? port
 
       console.log(
         `[Server] Project ${projectId} listening on ${address}, actual port: ${actualPort}`

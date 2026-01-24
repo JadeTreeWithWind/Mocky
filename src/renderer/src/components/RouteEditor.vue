@@ -24,9 +24,8 @@ const route = computed(() => {
   return projectStore.routes.find((r) => r.id === props.routeId)
 })
 
-// --- 常量定義 ---
-// --- 常量定義 ---
-const httpMethodOptions = HTTP_METHODS_SCHEMA.options
+// --- 3. 常量宣告 (Constants) ---
+const HTTP_METHOD_OPTIONS = HTTP_METHODS_SCHEMA.options
 
 const HTTP_STATUS_CODES = [
   { code: 200, label: 'OK' },
@@ -47,12 +46,6 @@ const HTTP_STATUS_CODES = [
   { code: 502, label: 'Bad Gateway' },
   { code: 503, label: 'Service Unavailable' }
 ]
-
-const getStatusLabel = (code?: number): string => {
-  if (!code) return ''
-  const status = HTTP_STATUS_CODES.find((s) => s.code === code)
-  return status ? status.label : 'Unknown Status'
-}
 
 /**
  * HTTP 方法對應的顏色主題 (與 RouteItem 保持一致或更強烈)
@@ -95,6 +88,19 @@ const pathSegments = computed(() => {
       isParam: seg.startsWith(':')
     }))
 })
+
+// --- 7. 核心邏輯與函數 (Functions/Methods) ---
+
+/**
+ * 根據 HTTP 狀態碼取得標籤名稱
+ * @param code - HTTP 狀態碼
+ * @returns 狀態碼對應的標籤
+ */
+const getStatusLabel = (code?: number): string => {
+  if (!code) return ''
+  const status = HTTP_STATUS_CODES.find((s) => s.code === code)
+  return status ? status.label : 'Unknown Status'
+}
 
 const methodSelectClasses = computed(() => {
   if (!route.value) return ''
@@ -244,7 +250,7 @@ onUnmounted(() => {
         <div class="relative shrink-0">
           <select v-model="route.method" :class="methodSelectClasses">
             <option
-              v-for="method in httpMethodOptions"
+              v-for="method in HTTP_METHOD_OPTIONS"
               :key="method"
               :value="method"
               class="bg-zinc-800 text-zinc-100"

@@ -1,6 +1,9 @@
 // --- 1. 外部引用 (Imports) ---
 import { z } from 'zod'
 
+// --- 2. 類型定義 (Type Definitions) ---
+// ※ Zod Schema 在這裡定義，作為型別與驗證的 Single Source of Truth
+
 // --- 3. 常量宣告 (Constants) ---
 export const PROJECT_STATUS = {
   STOPPED: 'stopped',
@@ -9,7 +12,7 @@ export const PROJECT_STATUS = {
 
 export const HTTP_METHODS = z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
 
-// --- 2. 類型定義 (Schema Definitions) ---
+// --- 4. Schema Definitions ---
 export const ProjectSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
@@ -39,7 +42,7 @@ export const DBSchema = z.object({
   routes: z.array(RouteSchema)
 })
 
-// --- 2. 類型匯出 (Type Exports) ---
+// --- 10. 對外暴露 (Exports) ---
 export type Project = z.infer<typeof ProjectSchema>
 export type Route = z.infer<typeof RouteSchema>
 export type DBSchemaType = z.infer<typeof DBSchema>

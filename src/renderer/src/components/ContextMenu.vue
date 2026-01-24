@@ -144,8 +144,8 @@ onUnmounted(() => {
     >
       <div class="flex flex-col gap-0.5">
         <button
-          v-for="(item, index) in items"
-          :key="index"
+          v-for="item in items"
+          :key="item.label"
           type="button"
           class="group flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors"
           :class="[

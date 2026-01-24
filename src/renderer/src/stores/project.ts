@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 // 直接使用全域定義的型別，確保 Single Source of Truth
-import type { Project, Route } from '../../../shared/types'
+import { type Project, type Route, PROJECT_STATUS } from '../../../shared/types'
 
 // --- 7. 核心邏輯與 Store 定義 ---
 
@@ -121,7 +121,6 @@ export const useProjectStore = defineStore('project', () => {
         }
       }
 
-      // @ts-ignore - The preload api types might not appear updated in compilation context immediately
       const newRoute = await window.api.db.addRoute(payload)
       routes.value.push(newRoute)
       return newRoute.id
@@ -140,7 +139,6 @@ export const useProjectStore = defineStore('project', () => {
     if (!id) return
 
     try {
-      // @ts-ignore - deleteRoute is dynamic via preload
       const success = await window.api.db.deleteRoute(id)
       if (success) {
         routes.value = routes.value.filter((r) => r.id !== id)
@@ -159,7 +157,6 @@ export const useProjectStore = defineStore('project', () => {
   const updateRoute = async (route: Route): Promise<void> => {
     lastError.value = null
     try {
-      // @ts-ignore - Preload API types are manually maintained and may lag
       await window.api.db.updateRoute(JSON.parse(JSON.stringify(route))) // 確保移除 Proxy
     } catch (error) {
       console.error('[Store] Update route failed:', error)
@@ -176,7 +173,6 @@ export const useProjectStore = defineStore('project', () => {
     if (!project) return
 
     try {
-      // @ts-ignore
       const actualPort = await window.api.server.start({
         projectId,
         port: project.port,
@@ -184,9 +180,7 @@ export const useProjectStore = defineStore('project', () => {
       })
 
       // 更新狀態
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      project.status = 'running'
+      project.status = PROJECT_STATUS.RUNNING
       console.log(`[Store] Server started on port ${actualPort}`)
     } catch (error) {
       console.error('[Store] Failed to start server:', error)
@@ -200,14 +194,11 @@ export const useProjectStore = defineStore('project', () => {
    */
   const stopServer = async (projectId: string): Promise<void> => {
     try {
-      // @ts-ignore
       const success = await window.api.server.stop(projectId)
       if (success) {
         const project = projects.value.find((p) => p.id === projectId)
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         if (project) {
-          project.status = 'stopped'
+          project.status = PROJECT_STATUS.STOPPED
         }
       }
     } catch (error) {

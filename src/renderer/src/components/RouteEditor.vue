@@ -193,12 +193,35 @@ watch(
   }
 )
 
+// --- Stage 25: Prettify JSON ---
+/**
+ * 格式化 JSON 內容
+ */
+const prettifyJSON = (): void => {
+  if (!route.value?.response?.body) return
+
+  try {
+    const jsonObj = JSON.parse(route.value.response.body)
+    route.value.response.body = JSON.stringify(jsonObj, null, 2)
+    // 格式化後不需要顯示錯誤
+    jsonError.value = null
+  } catch (e) {
+    // 如果是無效的 JSON，不執行格式化，保留錯誤提示
+    console.warn('Cannot prettify invalid JSON', e)
+  }
+}
+
 // 鍵盤快捷鍵監聽
 const handleKeydown = (e: KeyboardEvent): void => {
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault()
     clearTimeout(saveTimeout.value) // 清除自動儲存計時
     save()
+  }
+  // Alt + Shift + F (Common formatting shortcut)
+  if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'f') {
+    e.preventDefault()
+    prettifyJSON()
   }
 }
 
@@ -417,6 +440,30 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
+
+        <!-- Stage 25: Format JSON Button -->
+        <button
+          type="button"
+          class="flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-zinc-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          title="Format JSON (Alt+Shift+F)"
+          @click="prettifyJSON"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          Format
+        </button>
       </div>
 
       <!-- Body / Monaco Editor (Stage 22) -->

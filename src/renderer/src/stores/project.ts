@@ -20,7 +20,7 @@ export const useProjectStore = defineStore('project', () => {
   const fetchProjects = async (): Promise<void> => {
     try {
       const data = await window.api.db.getProjects()
-      // @ts-ignore - TS might complain about Project type mismatch between preload and usage here
+      // @ts-ignore: Internal Project type mismatch with DB schema
       projects.value = data
     } catch (error) {
       console.error('Failed to fetch projects:', error)
@@ -33,7 +33,7 @@ export const useProjectStore = defineStore('project', () => {
     description: string
   }): Promise<Project> => {
     try {
-      // @ts-ignore - TS might complain about addProject payload or return type mismatch
+      // @ts-ignore: Preload API payload type mismatch
       const newProject = await window.api.db.addProject(payload)
       projects.value.push(newProject)
       return newProject
@@ -53,10 +53,38 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  const routes = ref<Route[]>([])
+
+  const fetchRoutes = async (projectId: string): Promise<void> => {
+    try {
+      // @ts-ignore: Preload API return type mismatch
+      const data = await window.api.db.getRoutesByProjectId(projectId)
+      routes.value = data
+    } catch (error) {
+      console.error('Failed to fetch routes', error)
+    }
+  }
+
   return {
     projects,
+    routes,
     fetchProjects,
     createProject,
-    deleteProject
+    deleteProject,
+    fetchRoutes
   }
 })
+
+export interface Route {
+  id: string
+  projectId: string
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD'
+  path: string
+  description?: string
+  isActive: boolean
+  response: {
+    statusCode: number
+    body: string
+    delay: number
+  }
+}

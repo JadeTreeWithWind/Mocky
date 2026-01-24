@@ -16,8 +16,25 @@ export const ProjectSchema = z.object({
 
 export type Project = z.infer<typeof ProjectSchema>
 
+export const RouteSchema = z.object({
+  id: z.string().uuid(),
+  projectId: z.string().uuid(),
+  method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD']),
+  path: z.string().startsWith('/'),
+  description: z.string().optional(),
+  isActive: z.boolean().default(true),
+  response: z.object({
+    statusCode: z.number().int(),
+    body: z.string(), // Storing as string to allow flexible editing
+    delay: z.number().int().default(0)
+  })
+})
+
+export type Route = z.infer<typeof RouteSchema>
+
 export const DBSchema = z.object({
-  projects: z.array(ProjectSchema)
+  projects: z.array(ProjectSchema),
+  routes: z.array(RouteSchema)
 })
 
 export type DBSchemaType = z.infer<typeof DBSchema>
@@ -42,8 +59,16 @@ class DBService {
     try {
       // Dynamic import for ESM compatibility in likely CJS environment
       const { JSONFilePreset } = await import('lowdb/node')
-      const defaultData: DBSchemaType = { projects: [] }
+      const defaultData: DBSchemaType = { projects: [], routes: [] }
       this.db = await JSONFilePreset(this.dbPath, defaultData)
+
+      // Migration: Ensure routes exists if the file was created by an older version
+      if (!this.db.data.routes) {
+        this.db.data.routes = []
+        await this.db.write()
+        console.log('Migrated DB: added missing routes array')
+      }
+
       console.log('DB initialized at:', this.dbPath)
     } catch (error) {
       console.error('Failed to init DB:', error)
@@ -81,13 +106,28 @@ class DBService {
     await this.init()
     if (!this.db) throw new Error('DB not initialized')
     const initialLength = this.db.data.projects.length
-    await this.db.update(({ projects }: DBSchemaType) => {
-      const index = projects.findIndex((p) => p.id === id)
+
+    // Also delete associated routes
+    await this.db.update((data: DBSchemaType) => {
+      const index = data.projects.findIndex((p) => p.id === id)
       if (index !== -1) {
-        projects.splice(index, 1)
+        data.projects.splice(index, 1)
+        // Filter out routes belonging to this project
+        if (data.routes) {
+          data.routes = data.routes.filter((r) => r.projectId !== id)
+        }
       }
     })
     return this.db.data.projects.length < initialLength
+  }
+
+  async getRoutesByProjectId(projectId: string): Promise<Route[]> {
+    await this.init()
+    if (!this.db) throw new Error('DB not initialized')
+    await this.db.read()
+    const routes = (this.db.data.routes || []).filter((r) => r.projectId === projectId)
+    console.log(`[DB] Routes loaded for project ${projectId}:`, routes)
+    return routes
   }
 }
 

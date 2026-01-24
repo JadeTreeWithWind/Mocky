@@ -89,6 +89,10 @@ app.whenReady().then(() => {
     return await dbService.deleteProject(id)
   })
 
+  ipcMain.handle('db:getRoutesByProjectId', async (_, projectId) => {
+    return await dbService.getRoutesByProjectId(projectId)
+  })
+
   createWindow()
 
   app.on('activate', function () {

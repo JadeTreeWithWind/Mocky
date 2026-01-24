@@ -5,17 +5,22 @@ import { Plus } from 'lucide-vue-next'
 import TitleBar from './TitleBar.vue'
 import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
+import CreateProjectModal from './CreateProjectModal.vue'
 
 interface Project {
   id: string
   name: string
   port: number
+  description?: string
 }
 
 const router = useRouter()
 const route = useRoute()
 
-// Mock Data
+// 1. State
+const isCreateModalOpen = ref(false)
+
+// 2. Mock Data
 const projects = ref<Project[]>([
   { id: '1', name: 'E-commerce API', port: 8000 },
   { id: '2', name: 'User Auth Service', port: 8001 },
@@ -26,9 +31,24 @@ const projects = ref<Project[]>([
 
 const selectedProjectId = ref<string>('')
 
+// 3. Methods
 const selectProject = (id: string): void => {
   selectedProjectId.value = id
   router.push(`/project/${id}`)
+}
+
+const handleCreateProject = (payload: {
+  name: string
+  port: number
+  description: string
+}): void => {
+  // TODO: (Stage 8) Replace with actual API call to Main Process
+  const newProject: Project = {
+    id: window.crypto.randomUUID(),
+    ...payload
+  }
+  projects.value.push(newProject)
+  selectProject(newProject.id)
 }
 
 watch(
@@ -51,12 +71,12 @@ watch(
 
     <div class="flex flex-1 overflow-hidden">
       <!-- Sidebar -->
-      <!-- Sidebar -->
       <aside class="flex w-[250px] shrink-0 flex-col border-r border-zinc-800 bg-zinc-900">
         <div class="flex items-center justify-between px-4 py-3">
           <h2 class="text-xs font-semibold tracking-wider text-zinc-500 uppercase">Projects</h2>
           <button
             class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+            @click="isCreateModalOpen = true"
           >
             <Plus :size="14" />
           </button>
@@ -82,5 +102,12 @@ watch(
 
     <!-- Status Bar -->
     <StatusBar />
+
+    <!-- Modals -->
+    <CreateProjectModal
+      :is-open="isCreateModalOpen"
+      @close="isCreateModalOpen = false"
+      @create="handleCreateProject"
+    />
   </div>
 </template>

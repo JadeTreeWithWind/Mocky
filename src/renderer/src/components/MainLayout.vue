@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Plus } from 'lucide-vue-next'
 import TitleBar from './TitleBar.vue'
+import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
 
 interface Project {
@@ -78,5 +79,8 @@ watch(
         <slot />
       </main>
     </div>
+
+    <!-- Status Bar -->
+    <StatusBar />
   </div>
 </template>

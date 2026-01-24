@@ -7,6 +7,10 @@ const api = {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),
     close: () => ipcRenderer.send('window:close')
+  },
+  db: {
+    getProjects: () => ipcRenderer.invoke('db:getProjects'),
+    addProject: (project) => ipcRenderer.invoke('db:addProject', project)
   }
 }
 

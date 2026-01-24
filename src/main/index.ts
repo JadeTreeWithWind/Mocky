@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { dbService } from './db'
 
 function createWindow(): void {
   // Create the browser window.
@@ -73,6 +74,15 @@ app.whenReady().then(() => {
   ipcMain.on('window:close', () => {
     const win = BrowserWindow.getFocusedWindow()
     win?.close()
+  })
+
+  // DB IPC
+  ipcMain.handle('db:getProjects', async () => {
+    return await dbService.getProjects()
+  })
+
+  ipcMain.handle('db:addProject', async (_, project) => {
+    return await dbService.addProject(project)
   })
 
   createWindow()

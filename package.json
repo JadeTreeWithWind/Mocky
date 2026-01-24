@@ -25,16 +25,20 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@tailwindcss/vite": "^4.1.18",
     "electron-updater": "^6.7.3",
+    "lowdb": "^7.0.1",
     "lucide-vue-next": "^0.563.0",
     "pinia": "^3.0.4",
     "tailwindcss": "^4.1.18",
-    "vue-router": "^4.6.4"
+    "uuid": "^13.0.0",
+    "vue-router": "^4.6.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "3.0.0",
     "@electron-toolkit/eslint-config-ts": "^3.1.0",
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@types/node": "^22.19.7",
+    "@types/uuid": "^11.0.0",
     "@vitejs/plugin-vue": "^6.0.3",
     "electron": "^39.3.0",
     "electron-builder": "^26.4.0",

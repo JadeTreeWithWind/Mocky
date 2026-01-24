@@ -9,6 +9,22 @@ declare global {
         maximize: () => void
         close: () => void
       }
+      db: {
+        getProjects: () => Promise<Project[]>
+        addProject: (
+          project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'status'>
+        ) => Promise<Project>
+      }
     }
   }
+}
+
+export interface Project {
+  id: string
+  name: string
+  description?: string
+  port: number
+  createdAt: string
+  updatedAt: string
+  status: 'stopped' | 'running'
 }

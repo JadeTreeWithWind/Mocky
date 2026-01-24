@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Plus } from 'lucide-vue-next'
 import TitleBar from './TitleBar.vue'
 import ProjectItem from './ProjectItem.vue'
@@ -10,6 +11,9 @@ interface Project {
   port: number
 }
 
+const router = useRouter()
+const route = useRoute()
+
 // Mock Data
 const projects = ref<Project[]>([
   { id: '1', name: 'E-commerce API', port: 8000 },
@@ -19,11 +23,24 @@ const projects = ref<Project[]>([
   { id: '5', name: 'Mobile App Backend', port: 8004 }
 ])
 
-const selectedProjectId = ref<string>('1')
+const selectedProjectId = ref<string>('')
 
 const selectProject = (id: string): void => {
   selectedProjectId.value = id
+  router.push(`/project/${id}`)
 }
+
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (typeof newId === 'string') {
+      selectedProjectId.value = newId
+    } else {
+      selectedProjectId.value = ''
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>

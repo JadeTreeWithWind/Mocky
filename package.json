@@ -27,7 +27,8 @@
     "electron-updater": "^6.7.3",
     "lucide-vue-next": "^0.563.0",
     "pinia": "^3.0.4",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "3.0.0",

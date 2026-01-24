@@ -6,6 +6,7 @@ import icon from '../../resources/icon.png?asset'
 
 // 內部資源
 import { dbService } from './db'
+import { serverManager } from './server'
 
 // --- 3. 常量宣告 (Constants) ---
 const APP_USER_MODEL_ID = 'com.electron.app' // TODO: 正式發布時應替換為具體的 Bundle ID
@@ -24,6 +25,10 @@ const IPC_CHANNELS = {
     ADD_ROUTE: 'db:addRoute',
     UPDATE_ROUTE: 'db:updateRoute',
     DELETE_ROUTE: 'db:deleteRoute'
+  },
+  SERVER: {
+    START: 'server:start',
+    STOP: 'server:stop'
   }
 } as const // 使用 const assertion 確保字串不可變
 
@@ -166,6 +171,31 @@ function registerIpcHandlers(): void {
       return await dbService.deleteRoute(id)
     } catch (error) {
       console.error('[IPC] Failed to delete route:', error)
+      return false
+    }
+  })
+
+  // --- 伺服器 IPC ---
+  ipcMain.handle(IPC_CHANNELS.SERVER.START, async (_, payload) => {
+    try {
+      if (!payload || !payload.projectId) throw new Error('Missing server payload')
+      return await serverManager.start(
+        payload.projectId,
+        payload.port || 8000,
+        payload.routes || []
+      )
+    } catch (error: any) {
+      console.error('[IPC] Failed to start server:', error)
+      throw new Error(error.message || 'Failed to start server')
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.SERVER.STOP, async (_, projectId) => {
+    try {
+      if (!projectId) return false
+      return await serverManager.stop(projectId)
+    } catch (error) {
+      console.error('[IPC] Failed to stop server:', error)
       return false
     }
   })

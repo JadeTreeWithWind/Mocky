@@ -168,6 +168,55 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /**
+   * 啟動 Mock 伺服器
+   */
+  const startServer = async (projectId: string): Promise<void> => {
+    const project = projects.value.find((p) => p.id === projectId)
+    if (!project) return
+
+    try {
+      // @ts-ignore
+      const actualPort = await window.api.server.start({
+        projectId,
+        port: project.port,
+        routes: JSON.parse(JSON.stringify(routes.value))
+      })
+
+      // 更新狀態
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      project.status = 'running'
+      console.log(`[Store] Server started on port ${actualPort}`)
+    } catch (error) {
+      console.error('[Store] Failed to start server:', error)
+      lastError.value = '無法啟動伺服器'
+      throw error
+    }
+  }
+
+  /**
+   * 停止 Mock 伺服器
+   */
+  const stopServer = async (projectId: string): Promise<void> => {
+    try {
+      // @ts-ignore
+      const success = await window.api.server.stop(projectId)
+      if (success) {
+        const project = projects.value.find((p) => p.id === projectId)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (project) {
+          project.status = 'stopped'
+        }
+      }
+    } catch (error) {
+      console.error('[Store] Failed to stop server:', error)
+      lastError.value = '無法停止伺服器'
+      throw error
+    }
+  }
+
   // --- 10. 對外暴露 (Exports) ---
   return {
     // State
@@ -182,6 +231,8 @@ export const useProjectStore = defineStore('project', () => {
     fetchRoutes,
     createRoute,
     deleteRoute,
-    updateRoute
+    updateRoute,
+    startServer,
+    stopServer
   }
 })

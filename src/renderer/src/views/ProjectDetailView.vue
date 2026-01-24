@@ -3,8 +3,9 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { Plus, Search } from 'lucide-vue-next'
+import { Plus, Search, Play, Square } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
+import { PROJECT_STATUS } from '../../../shared/types'
 import RouteItem from '../components/RouteItem.vue'
 import RouteEditor from '../components/RouteEditor.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
@@ -12,7 +13,7 @@ import ConfirmDialog from '../components/ConfirmDialog.vue'
 // --- 3. 初始化 (Initialization) ---
 const route = useRoute()
 const projectStore = useProjectStore()
-const { routes, isLoading } = storeToRefs(projectStore)
+const { routes, isLoading, projects } = storeToRefs(projectStore)
 
 // --- 4. 響應式狀態 (State) ---
 /** 當前選中的路由 ID */
@@ -25,6 +26,16 @@ const isDeleteConfirmOpen = ref(false)
 const routeToDeleteId = ref<string | null>(null)
 
 // --- 5. 計算屬性 (Computed Properties) ---
+
+/**
+ * 從專案列表取得當前專案資料
+ */
+const currentProject = computed(() => projects.value.find((p) => p.id === projectId.value))
+
+/**
+ * 伺服器是否運行中
+ */
+const isServerRunning = computed(() => currentProject.value?.status === PROJECT_STATUS.RUNNING)
 
 /**
  * 從路由衍生當前專案 ID (單一事實來源)
@@ -49,6 +60,23 @@ const filteredRoutes = computed(() => {
 })
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
+
+/**
+ * 切換伺服器運行狀態
+ */
+const toggleServer = async (): Promise<void> => {
+  if (!projectId.value) return
+
+  try {
+    if (isServerRunning.value) {
+      await projectStore.stopServer(projectId.value)
+    } else {
+      await projectStore.startServer(projectId.value)
+    }
+  } catch (error) {
+    console.error('Failed to toggle server:', error)
+  }
+}
 
 /**
  * 載入當前專案的所有路由設定
@@ -143,6 +171,28 @@ onMounted(() => {
 <template>
   <div class="flex h-full w-full overflow-hidden bg-zinc-950">
     <aside class="flex w-64 flex-col border-r border-zinc-800 bg-zinc-900/30">
+      <!-- Server Control -->
+      <div v-if="currentProject" class="flex flex-col border-b border-zinc-800 bg-zinc-900/50 p-3">
+        <div class="mb-2 flex items-center justify-between">
+          <h2 class="truncate text-sm font-bold text-zinc-100" :title="currentProject.name">
+            {{ currentProject.name }}
+          </h2>
+          <span class="text-[10px] text-zinc-500">Port: {{ currentProject.port }}</span>
+        </div>
+        <button
+          class="flex w-full cursor-pointer items-center justify-center gap-2 rounded px-3 py-1.5 text-xs font-medium transition-colors"
+          :class="
+            isServerRunning
+              ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
+              : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20'
+          "
+          @click="toggleServer"
+        >
+          <component :is="isServerRunning ? Square : Play" :size="12" class="fill-current" />
+          {{ isServerRunning ? 'Stop Server' : 'Start Server' }}
+        </button>
+      </div>
+
       <div class="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
         <h3 class="text-xs font-semibold tracking-wider text-zinc-500 uppercase">Routes</h3>
 

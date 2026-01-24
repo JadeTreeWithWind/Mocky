@@ -48,10 +48,25 @@ interface DatabaseAPI {
   getRoutesByProjectId: (projectId: string) => Promise<Route[]>
 
   /**
+   * 新增路由 (修正遺漏的定義)
+   */
+  addRoute: (route: Omit<Route, 'id'>) => Promise<Route>
+
+  /**
+   * 根據 ID 刪除路由 (修正遺漏的定義)
+   */
+  deleteRoute: (id: string) => Promise<boolean>
+
+  /**
    * 更新路由
    * @param route - 完整的路由物件
    */
   updateRoute: (route: Route) => Promise<Route | null>
+}
+
+interface ServerAPI {
+  start: (payload: { projectId: string; port: number; routes: Route[] }) => Promise<number>
+  stop: (projectId: string) => Promise<boolean>
 }
 
 // --- 9. 全域擴充 (Global Augmentation) ---
@@ -64,6 +79,7 @@ declare global {
     api: {
       windowControls: WindowControls
       db: DatabaseAPI
+      server: ServerAPI
     }
   }
 }

@@ -67,6 +67,13 @@ const api = {
     /** 刪除路由 */
     deleteRoute: (id: string): Promise<boolean> =>
       ipcRenderer.invoke(IPC_CHANNELS.DB.DELETE_ROUTE, id)
+  },
+
+  server: {
+    start: (payload: { projectId: string; port: number; routes: Route[] }): Promise<number> =>
+      ipcRenderer.invoke('server:start', payload),
+
+    stop: (projectId: string): Promise<boolean> => ipcRenderer.invoke('server:stop', projectId)
   }
 }
 

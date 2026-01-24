@@ -43,8 +43,32 @@ const METHOD_THEMES: Record<string, string> = {
 }
 
 /**
- * 下拉選單動態樣式
+ * 處理路徑輸入框失去焦點事件 (Stage 18)
+ * 確保路徑以 / 開頭
  */
+const handlePathBlur = (): void => {
+  if (!route.value) return
+  let p = route.value.path.trim()
+  if (p && !p.startsWith('/')) {
+    route.value.path = `/${p}`
+  }
+}
+
+/**
+ * 解析路徑片段，用於視覺化顯示 (Stage 18 Advanced)
+ * 識別 :id 等參數格式
+ */
+const pathSegments = computed(() => {
+  if (!route.value?.path) return []
+  return route.value.path
+    .split('/')
+    .filter(Boolean)
+    .map((seg) => ({
+      text: seg,
+      isParam: seg.startsWith(':')
+    }))
+})
+
 const methodSelectClasses = computed(() => {
   if (!route.value) return ''
   const defaultClass =
@@ -92,14 +116,35 @@ const methodSelectClasses = computed(() => {
           </div>
         </div>
 
-        <!-- Path Input -->
+        <!-- Path Input & Visualization -->
         <div class="flex-1">
           <input
             v-model="route.path"
             type="text"
-            placeholder="/api/resource"
+            placeholder="/api/users/:id"
             class="w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 font-mono text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            @blur="handlePathBlur"
           />
+
+          <!-- Path Visualization (Stage 18 Advanced) -->
+          <div class="mt-2 flex min-h-6 flex-wrap items-center gap-0.5 px-1">
+            <template v-if="pathSegments.length">
+              <div v-for="(seg, index) in pathSegments" :key="index" class="flex items-center">
+                <span class="mr-0.5 text-zinc-600">/</span>
+                <span
+                  :class="[
+                    'rounded px-1.5 py-0.5 font-mono text-sm',
+                    seg.isParam
+                      ? 'border border-amber-500/30 bg-amber-500/20 text-amber-200'
+                      : 'text-zinc-300'
+                  ]"
+                >
+                  {{ seg.text }}
+                </span>
+              </div>
+            </template>
+            <span v-else class="font-mono text-sm text-zinc-600">/</span>
+          </div>
         </div>
       </div>
     </header>

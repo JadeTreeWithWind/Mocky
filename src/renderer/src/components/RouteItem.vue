@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
 import { computed } from 'vue'
+import { Trash2 } from 'lucide-vue-next'
 
 // --- 2. 類型定義 (Type Definitions) ---
 interface Props {
@@ -33,6 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'click'): void
+  (e: 'delete'): void
 }>()
 
 // --- 5. 計算屬性 (Computed Properties) ---
@@ -76,6 +78,14 @@ const pathClasses = computed(() => [
 const handleClick = (): void => {
   emit('click')
 }
+
+/**
+ * 處理刪除動作 (避免冒泡)
+ */
+const handleDelete = (e: Event): void => {
+  e.stopPropagation()
+  emit('delete')
+}
 </script>
 
 <template>
@@ -94,5 +104,13 @@ const handleClick = (): void => {
     <span :class="pathClasses">
       {{ path }}
     </span>
+
+    <button
+      class="ml-auto flex h-6 w-6 items-center justify-center rounded text-zinc-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-zinc-700 hover:text-red-400"
+      title="Delete Route"
+      @click="handleDelete"
+    >
+      <Trash2 :size="14" />
+    </button>
   </div>
 </template>

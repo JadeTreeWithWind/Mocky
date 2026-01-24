@@ -21,7 +21,8 @@ const IPC_CHANNELS = {
     ADD_PROJECT: 'db:addProject',
     DELETE_PROJECT: 'db:deleteProject',
     GET_ROUTES: 'db:getRoutesByProjectId',
-    ADD_ROUTE: 'db:addRoute'
+    ADD_ROUTE: 'db:addRoute',
+    DELETE_ROUTE: 'db:deleteRoute'
   }
 } as const // 使用 const assertion 確保字串不可變
 
@@ -145,6 +146,16 @@ function registerIpcHandlers(): void {
     } catch (error) {
       console.error('[IPC] Failed to add route:', error)
       throw error
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.DB.DELETE_ROUTE, async (_, id) => {
+    try {
+      if (!id) return false
+      return await dbService.deleteRoute(id)
+    } catch (error) {
+      console.error('[IPC] Failed to delete route:', error)
+      return false
     }
   })
 }

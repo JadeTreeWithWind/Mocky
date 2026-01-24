@@ -6,6 +6,7 @@ import { storeToRefs } from 'pinia'
 import { Plus, Search } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
 import RouteItem from '../components/RouteItem.vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 // --- 3. 初始化 (Initialization) ---
 const route = useRoute()
@@ -17,6 +18,10 @@ const { routes, isLoading } = storeToRefs(projectStore)
 const selectedRouteId = ref('')
 /** 路由列表搜尋關鍵字 */
 const searchQuery = ref('')
+/** 刪除確認彈窗狀態 */
+const isDeleteConfirmOpen = ref(false)
+/** 待刪除的路由 ID */
+const routeToDeleteId = ref<string | null>(null)
 
 // --- 5. 計算屬性 (Computed Properties) ---
 
@@ -78,6 +83,36 @@ const handleAddRoute = async (): Promise<void> => {
     selectedRouteId.value = newRouteId
   } catch (error) {
     console.error('Failed to quick add route', error)
+  }
+}
+
+/**
+ * 刪除路由
+ */
+/**
+ * 觸發刪除路由確認
+ */
+const handleDeleteRoute = (id: string): void => {
+  routeToDeleteId.value = id
+  isDeleteConfirmOpen.value = true
+}
+
+/**
+ * 執行刪除路由操作
+ */
+const executeDeleteRoute = async (): Promise<void> => {
+  if (!routeToDeleteId.value) return
+
+  try {
+    await projectStore.deleteRoute(routeToDeleteId.value)
+    if (selectedRouteId.value === routeToDeleteId.value) {
+      selectedRouteId.value = ''
+    }
+  } catch (error) {
+    console.error('Failed to delete route', error)
+  } finally {
+    isDeleteConfirmOpen.value = false
+    routeToDeleteId.value = null
   }
 }
 
@@ -166,6 +201,7 @@ onMounted(() => {
             :path="item.path"
             :is-active="selectedRouteId === item.id"
             @click="handleSelectRoute(item.id)"
+            @delete="handleDeleteRoute(item.id)"
           />
         </template>
       </div>
@@ -192,6 +228,16 @@ onMounted(() => {
         </div>
       </Transition>
     </main>
+
+    <ConfirmDialog
+      :is-open="isDeleteConfirmOpen"
+      title="Delete Route"
+      message="Are you sure you want to delete this route? This action cannot be undone."
+      confirm-text="Delete"
+      :is-danger="true"
+      @close="isDeleteConfirmOpen = false"
+      @confirm="executeDeleteRoute"
+    />
   </div>
 </template>
 

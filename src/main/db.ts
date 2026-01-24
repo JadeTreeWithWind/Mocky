@@ -142,6 +142,29 @@ class DBService {
     await this.db.update(({ routes }) => routes.push(newRoute))
     return newRoute
   }
+
+  /**
+   * 刪除指定路由
+   * @param id - 路由 ID
+   * @returns {Promise<boolean>}
+   */
+  async deleteRoute(id: string): Promise<boolean> {
+    await this.init()
+    if (!this.db || !id) return false
+
+    const initialLength = this.db.data.routes?.length ?? 0
+
+    await this.db.update((data) => {
+      if (!data.routes) return
+      const index = data.routes.findIndex((r) => r.id === id)
+      if (index !== -1) {
+        data.routes.splice(index, 1)
+      }
+    })
+
+    const currentLength = this.db.data.routes?.length ?? 0
+    return currentLength < initialLength
+  }
 }
 
 // --- 10. 對外暴露 (Expose/Exports) ---

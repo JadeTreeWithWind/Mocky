@@ -132,6 +132,26 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /**
+   * 刪除指定路由
+   * @param id - 路由 ID
+   */
+  const deleteRoute = async (id: string): Promise<void> => {
+    if (!id) return
+
+    try {
+      // @ts-ignore - deleteRoute is dynamic via preload
+      const success = await window.api.db.deleteRoute(id)
+      if (success) {
+        routes.value = routes.value.filter((r) => r.id !== id)
+      }
+    } catch (error) {
+      console.error('[Store] Delete route failed:', error)
+      lastError.value = '無法刪除路由'
+      throw error
+    }
+  }
+
   // --- 10. 對外暴露 (Exports) ---
   return {
     // State
@@ -144,6 +164,7 @@ export const useProjectStore = defineStore('project', () => {
     createProject,
     deleteProject,
     fetchRoutes,
-    createRoute
+    createRoute,
+    deleteRoute
   }
 })

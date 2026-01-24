@@ -1,13 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import TitleBar from './TitleBar.vue'
+</script>
 
 <template>
   <div class="flex h-screen w-screen flex-col overflow-hidden bg-zinc-950 font-sans text-zinc-100">
-    <!-- TopBar -->
-    <header
-      class="flex h-10 shrink-0 items-center border-b border-zinc-800 bg-zinc-900 px-4 select-none"
-    >
-      <div class="text-sm font-bold">Mocky App</div>
-    </header>
+    <!-- Custom TitleBar -->
+    <TitleBar />
 
     <div class="flex flex-1 overflow-hidden">
       <!-- Sidebar -->

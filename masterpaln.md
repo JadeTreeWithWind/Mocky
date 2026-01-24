@@ -60,6 +60,10 @@
 
 ## 技術架構
 
+### 包管理
+
+- **前/後端**: pnpm
+
 ### 前端技術棧 (Renderer Process)
 
 - **核心框架**: Vue.js 3 (Script Setup)

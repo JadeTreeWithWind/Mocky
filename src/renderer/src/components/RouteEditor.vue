@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { useProjectStore } from '../stores/project'
 import { HTTP_METHODS as HTTP_METHODS_SCHEMA } from '../../../shared/types'
 
@@ -340,28 +341,25 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Body / Monaco Editor Placeholder -->
+      <!-- Body / Monaco Editor (Stage 22) -->
       <div class="relative flex-1 bg-[#1e1e1e]">
-        <div
-          class="absolute inset-0 flex items-center justify-center text-sm text-zinc-500 opacity-50"
-        >
-          <span class="flex flex-col items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
-            Monaco Editor Coming Soon (Stage 22)
-          </span>
+        <VueMonacoEditor
+          v-if="route.response"
+          v-model:value="route.response.body"
+          theme="vs-dark"
+          language="json"
+          :options="{
+            minimap: { enabled: false },
+            automaticLayout: true,
+            scrollBeyondLastLine: false,
+            fontSize: 14,
+            tabSize: 2,
+            fontFamily: 'Menlo, Monaco, \'Courier New\', monospace'
+          }"
+          class="h-full w-full"
+        />
+        <div v-else class="flex h-full items-center justify-center text-zinc-500">
+          Response body not available
         </div>
       </div>
     </div>

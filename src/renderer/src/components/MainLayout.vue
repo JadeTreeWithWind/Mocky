@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { Plus } from 'lucide-vue-next'
+
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '../stores/project'
 import TitleBar from './TitleBar.vue'
 import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
 import CreateProjectModal from './CreateProjectModal.vue'
+import ContextMenu from './ContextMenu.vue'
+import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -19,6 +21,34 @@ const isCreateModalOpen = ref(false)
 
 // 2. State from Store
 const selectedProjectId = ref<string>('')
+
+// Context Menu State
+const contextMenu = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+  projectId: ''
+})
+
+const contextMenuItems = computed(() => [
+  {
+    label: 'Edit',
+    icon: Pencil,
+    action: (): void => {
+      console.log('Edit project:', contextMenu.value.projectId)
+      // TODO: Implement Edit Modal
+    }
+  },
+  {
+    label: 'Delete',
+    icon: Trash2,
+    danger: true,
+    action: (): void => {
+      console.log('Delete project:', contextMenu.value.projectId)
+      // TODO: Implement Delete Flow (Stage 10)
+    }
+  }
+])
 
 // 3. Methods
 const selectProject = (id: string): void => {
@@ -36,6 +66,15 @@ const handleCreateProject = async (payload: {
     selectProject(newProject.id)
   } catch (error) {
     console.error('Failed to create project:', error)
+  }
+}
+
+const handleContextMenu = (event: MouseEvent, projectId: string): void => {
+  contextMenu.value = {
+    visible: true,
+    x: event.clientX,
+    y: event.clientY,
+    projectId
   }
 }
 
@@ -82,6 +121,7 @@ onMounted(() => {
             :port="project.port"
             :is-active="selectedProjectId === project.id"
             @click="selectProject(project.id)"
+            @contextmenu="handleContextMenu($event, project.id)"
           />
         </div>
       </aside>
@@ -100,6 +140,13 @@ onMounted(() => {
       :is-open="isCreateModalOpen"
       @close="isCreateModalOpen = false"
       @create="handleCreateProject"
+    />
+
+    <ContextMenu
+      :visible="contextMenu.visible"
+      :position="{ x: contextMenu.x, y: contextMenu.y }"
+      :items="contextMenuItems"
+      @close="contextMenu.visible = false"
     />
   </div>
 </template>

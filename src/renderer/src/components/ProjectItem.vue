@@ -9,6 +9,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'click'): void
+  (e: 'contextmenu', event: MouseEvent): void
 }>()
 </script>
 
@@ -21,6 +22,7 @@ const emit = defineEmits<{
         : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'
     ]"
     @click="emit('click')"
+    @contextmenu.prevent.stop="emit('contextmenu', $event)"
   >
     <div class="flex items-center gap-2 overflow-hidden">
       <!-- Project Icon Placeholder (Optional) -->

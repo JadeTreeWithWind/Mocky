@@ -200,7 +200,8 @@ onMounted(() => {
             :key="item.id"
             :method="item.method"
             :path="item.path"
-            :is-active="selectedRouteId === item.id"
+            :is-selected="selectedRouteId === item.id"
+            :is-enabled="item.isActive"
             @click="handleSelectRoute(item.id)"
             @delete="handleDeleteRoute(item.id)"
           />

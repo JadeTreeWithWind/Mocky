@@ -83,9 +83,9 @@ const methodSelectClasses = computed(() => {
   <div v-if="route" class="flex h-full w-full flex-col">
     <!-- Stage 16: Editor Header -->
     <header class="border-b border-zinc-800 bg-zinc-900/30 px-6 py-4">
-      <div class="flex items-center gap-3">
+      <div class="flex items-start gap-4">
         <!-- Method Select -->
-        <div class="relative">
+        <div class="relative shrink-0">
           <select v-model="route.method" :class="methodSelectClasses">
             <option
               v-for="method in httpMethodOptions"
@@ -116,35 +116,62 @@ const methodSelectClasses = computed(() => {
           </div>
         </div>
 
-        <!-- Path Input & Visualization -->
-        <div class="flex-1">
-          <input
-            v-model="route.path"
-            type="text"
-            placeholder="/api/users/:id"
-            class="w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 font-mono text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-            @blur="handlePathBlur"
-          />
-
-          <!-- Path Visualization (Stage 18 Advanced) -->
-          <div class="mt-2 flex min-h-6 flex-wrap items-center gap-0.5 px-1">
-            <template v-if="pathSegments.length">
-              <div v-for="(seg, index) in pathSegments" :key="index" class="flex items-center">
-                <span class="mr-0.5 text-zinc-600">/</span>
-                <span
-                  :class="[
-                    'rounded px-1.5 py-0.5 font-mono text-sm',
-                    seg.isParam
-                      ? 'border border-amber-500/30 bg-amber-500/20 text-amber-200'
-                      : 'text-zinc-300'
-                  ]"
-                >
-                  {{ seg.text }}
-                </span>
-              </div>
-            </template>
-            <span v-else class="font-mono text-sm text-zinc-600">/</span>
+        <!-- Inputs Container -->
+        <div class="flex-1 space-y-3">
+          <!-- Path Input & Visualization -->
+          <div>
+            <div class="relative">
+              <input
+                v-model="route.path"
+                type="text"
+                placeholder="/api/users/:id"
+                class="w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 font-mono text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                @blur="handlePathBlur"
+              />
+            </div>
+            <!-- Path Visualization -->
+            <div class="mt-1.5 flex min-h-6 flex-wrap items-center gap-0.5 px-1">
+              <template v-if="pathSegments.length">
+                <div v-for="(seg, index) in pathSegments" :key="index" class="flex items-center">
+                  <span class="mr-0.5 text-zinc-600">/</span>
+                  <span
+                    :class="[
+                      'rounded px-1.5 py-0.5 font-mono text-xs',
+                      seg.isParam
+                        ? 'border border-amber-500/30 bg-amber-500/20 text-amber-200'
+                        : 'text-zinc-400'
+                    ]"
+                  >
+                    {{ seg.text }}
+                  </span>
+                </div>
+              </template>
+              <span v-else class="font-mono text-xs text-zinc-600">/</span>
+            </div>
           </div>
+
+          <!-- Description Input -->
+          <div>
+            <input
+              v-model="route.description"
+              type="text"
+              placeholder="Enter a brief description..."
+              class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm text-zinc-300 placeholder-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Toggle Switch -->
+        <div class="pt-2">
+          <label
+            class="relative inline-flex cursor-pointer items-center"
+            title="Enable/Disable Route"
+          >
+            <input v-model="route.isActive" type="checkbox" class="peer sr-only" />
+            <div
+              class="h-6 w-11 rounded-full bg-zinc-700 peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-500/50 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full"
+            ></div>
+          </label>
         </div>
       </div>
     </header>

@@ -147,7 +147,7 @@ onMounted(() => {
       </aside>
 
       <!-- Content -->
-      <main class="flex-1 overflow-auto bg-zinc-950 p-6">
+      <main class="flex-1 overflow-auto bg-zinc-950">
         <slot />
       </main>
     </div>

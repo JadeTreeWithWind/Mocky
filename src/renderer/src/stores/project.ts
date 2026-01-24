@@ -1,90 +1,113 @@
+// --- 1. 外部引用 (Imports) ---
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+// 直接使用全域定義的型別，確保 Single Source of Truth
+import type { Project, Route } from '../../../shared/types'
 
-// We assume Project type matches what's returned by the API
-// Since the global Window interface has it, we can trust the return type of window.api.db.getProjects
-
-export interface Project {
-  id: string
-  name: string
-  port: number
-  description?: string
-  status: 'stopped' | 'running'
-  createdAt: string
-  updatedAt: string
-}
+// --- 7. 核心邏輯與 Store 定義 ---
 
 export const useProjectStore = defineStore('project', () => {
+  // --- 4. 響應式狀態 (State) ---
   const projects = ref<Project[]>([])
+  const routes = ref<Route[]>([])
+  const isLoading = ref(false)
+  const lastError = ref<string | null>(null)
 
+  // --- 7. 核心邏輯與函數 (Actions) ---
+
+  /**
+   * 從資料庫獲取所有專案列表
+   */
   const fetchProjects = async (): Promise<void> => {
+    isLoading.value = true
+    lastError.value = null
+
     try {
+      // 移除 @ts-ignore，直接使用定義好的 API
       const data = await window.api.db.getProjects()
-      // @ts-ignore: Internal Project type mismatch with DB schema
-      projects.value = data
+      projects.value = data ?? [] // API 數據容錯
     } catch (error) {
-      console.error('Failed to fetch projects:', error)
+      lastError.value = '無法載入專案列表'
+      console.error('[Store] Fetch projects failed:', error)
+    } finally {
+      isLoading.value = false
     }
   }
 
+  /**
+   * 建立新專案
+   * @param payload - 專案基礎資料
+   */
   const createProject = async (payload: {
     name: string
     port: number
     description: string
   }): Promise<Project> => {
+    lastError.value = null
+
     try {
-      // @ts-ignore: Preload API payload type mismatch
       const newProject = await window.api.db.addProject(payload)
       projects.value.push(newProject)
       return newProject
     } catch (error) {
-      console.error('Failed to create project:', error)
+      lastError.value = '專案建立失敗'
+      console.error('[Store] Create project failed:', error)
       throw error
     }
   }
 
+  /**
+   * 刪除指定專案及其關聯路由
+   * @param id - 專案 UUID
+   */
   const deleteProject = async (id: string): Promise<void> => {
+    if (!id) return // 衛句模式
+
     try {
-      await window.api.db.deleteProject(id)
-      projects.value = projects.value.filter((p) => p.id !== id)
+      const success = await window.api.db.deleteProject(id)
+      if (success) {
+        projects.value = projects.value.filter((p) => p.id !== id)
+      }
     } catch (error) {
-      console.error('Failed to delete project:', error)
+      console.error('[Store] Delete project failed:', error)
       throw error
     }
   }
 
-  const routes = ref<Route[]>([])
-
+  /**
+   * 獲取指定專案的所有路由設定
+   * @param projectId - 專案 UUID
+   */
   const fetchRoutes = async (projectId: string): Promise<void> => {
+    if (!projectId) {
+      routes.value = []
+      return
+    }
+
+    isLoading.value = true
+    routes.value = [] // 開始獲取前先清空，避免舊數據閃爍
+
     try {
-      // @ts-ignore: Preload API return type mismatch
       const data = await window.api.db.getRoutesByProjectId(projectId)
-      routes.value = data
+      routes.value = data ?? []
     } catch (error) {
-      console.error('Failed to fetch routes', error)
+      console.error('[Store] Fetch routes failed:', error)
+    } finally {
+      isLoading.value = false
     }
   }
 
+  // --- 10. 對外暴露 (Exports) ---
   return {
+    // State
     projects,
     routes,
+    isLoading,
+    lastError,
+    // Actions
     fetchProjects,
     createProject,
     deleteProject,
     fetchRoutes
   }
 })
-
-export interface Route {
-  id: string
-  projectId: string
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD'
-  path: string
-  description?: string
-  isActive: boolean
-  response: {
-    statusCode: number
-    body: string
-    delay: number
-  }
-}

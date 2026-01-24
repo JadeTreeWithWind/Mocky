@@ -1,34 +1,61 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+// --- 1. 外部引用 (Imports) ---
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { X } from 'lucide-vue-next'
 
-// 1. Props & Emits
+// --- 2. 類型定義 (Type Definitions) ---
+interface ProjectPayload {
+  name: string
+  port: number
+  description: string
+}
+
 interface Props {
+  /** 彈窗是否顯示 */
   isOpen: boolean
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits<{
-  (e: 'close'): void
-  (e: 'create', payload: { name: string; port: number; description: string }): void
-}>()
-
-// 2. Constants
+// --- 3. 常量宣告 (Constants) ---
+/** 預設的服務連接埠號 */
 const DEFAULT_PORT = 8000
 
-// 3. State
-const name = ref('')
-const port = ref<number | string>(DEFAULT_PORT)
-const description = ref('')
+// --- 4. 屬性與事件 (Props & Emits) ---
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  /** 關閉彈窗事件 */
+  (e: 'close'): void
+  /** 建立專案事件 */
+  (e: 'create', payload: ProjectPayload): void
+}>()
 
-// 4. Computed
-const isValid = computed(() => {
-  return name.value.trim().length > 0 && Number(port.value) > 0
+// --- 5. 響應式狀態 (State) ---
+const nameInputRef = ref<HTMLInputElement | null>(null)
+const projectName = ref('') // 避免與原生屬性衝突，使用具體命名
+const projectPort = ref<number>(DEFAULT_PORT)
+const projectDescription = ref('')
+
+// --- 6. 計算屬性 (Computed Properties) ---
+
+/**
+ * 檢查表單內容是否合法 (符合 Guidelines 4.4 命名規範)
+ */
+const isFormValid = computed(() => {
+  return projectName.value.trim().length > 0 && projectPort.value > 0
 })
 
-// 5. Functions
+// --- 7. 核心邏輯與函數 (Functions/Methods) ---
+
 /**
- * 關閉模態窗並重置表單
+ * 重置所有表單欄位
+ */
+const resetForm = (): void => {
+  projectName.value = ''
+  projectPort.value = DEFAULT_PORT
+  projectDescription.value = ''
+}
+
+/**
+ * 關閉彈窗並執行清理
  */
 const handleClose = (): void => {
   resetForm()
@@ -36,28 +63,57 @@ const handleClose = (): void => {
 }
 
 /**
- * 提交表單建立專案
+ * 處理表單提交邏輯
+ * - 驗證表單欄位
+ * - 觸發 create 事件
+ * - 自動關閉並重置表單
  */
 const handleSubmit = (): void => {
-  if (!isValid.value) return
+  if (!isFormValid.value) return // 衛句模式
 
   emit('create', {
-    name: name.value,
-    port: Number(port.value),
-    description: description.value
+    name: projectName.value,
+    port: projectPort.value,
+    description: projectDescription.value
   })
 
   handleClose()
 }
 
 /**
- * 重置表單欄位
+ * 處理 Esc 鍵盤關閉邏輯
+ * @param e - 鍵盤事件物件
  */
-const resetForm = (): void => {
-  name.value = ''
-  port.value = DEFAULT_PORT
-  description.value = ''
+const handleKeyDown = (e: KeyboardEvent): void => {
+  if (props.isOpen && e.key === 'Escape') {
+    handleClose()
+  }
 }
+
+// --- 8. 偵聽器 (Watchers) ---
+
+/**
+ * 監控彈窗開啟狀態，處理焦點與事件掛載
+ */
+watch(
+  () => props.isOpen,
+  async (opened) => {
+    if (opened) {
+      window.addEventListener('keydown', handleKeyDown)
+      // 在 DOM 更新後自動聚焦輸入框
+      await nextTick()
+      nameInputRef.value?.focus()
+    } else {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  },
+  { immediate: true }
+)
+
+// --- 9. 生命週期鉤子 (Lifecycle Hooks) ---
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+})
 </script>
 
 <template>
@@ -78,59 +134,58 @@ const resetForm = (): void => {
         <div
           class="w-[480px] scale-100 transform overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl transition-all"
           style="-webkit-app-region: no-drag"
+          role="dialog"
+          aria-modal="true"
         >
-          <!-- Header -->
           <div class="mb-5 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-zinc-100">建立新專案</h3>
             <button
+              type="button"
               class="rounded-md p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
               @click="handleClose"
             >
-              <X :size="20" />
+              <X :size="20" aria-hidden="true" />
             </button>
           </div>
 
-          <!-- Body -->
           <form class="space-y-4" @submit.prevent="handleSubmit">
-            <!-- Project Name -->
             <div class="space-y-1.5">
-              <label class="text-xs font-medium text-zinc-400"
-                >專案名稱 <span class="text-red-500">*</span></label
-              >
+              <label class="text-xs font-medium text-zinc-400">
+                專案名稱 <span class="text-red-500">*</span>
+              </label>
               <input
-                v-model="name"
+                ref="nameInputRef"
+                v-model.trim="projectName"
                 type="text"
                 placeholder="例如: E-commerce API"
                 class="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                autofocus
+                required
               />
             </div>
 
-            <!-- Port -->
             <div class="space-y-1.5">
-              <label class="text-xs font-medium text-zinc-400"
-                >服務 Port <span class="text-red-500">*</span></label
-              >
+              <label class="text-xs font-medium text-zinc-400">
+                服務 Port <span class="text-red-500">*</span>
+              </label>
               <input
-                v-model="port"
+                v-model.number="projectPort"
                 type="number"
-                placeholder="8000"
+                min="1"
+                max="65535"
                 class="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
               />
             </div>
 
-            <!-- Description -->
             <div class="space-y-1.5">
               <label class="text-xs font-medium text-zinc-400">專案描述</label>
               <textarea
-                v-model="description"
+                v-model="projectDescription"
                 rows="3"
                 placeholder="輸入專案的簡短描述..."
                 class="w-full resize-none rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
               ></textarea>
             </div>
 
-            <!-- Footer -->
             <div class="mt-6 flex justify-end gap-3 pt-2">
               <button
                 type="button"
@@ -141,7 +196,7 @@ const resetForm = (): void => {
               </button>
               <button
                 type="submit"
-                :disabled="!isValid"
+                :disabled="!isFormValid"
                 class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
               >
                 建立專案

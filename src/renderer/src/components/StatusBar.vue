@@ -1,22 +1,58 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+// --- 1. 外部引用 (Imports) ---
+import { ref, computed } from 'vue'
 
-const status = ref('Ready')
-const version = ref('v1.0.0')
+// --- 2. 類型定義 (Type Definitions) ---
+interface Props {
+  /** 手動指定顯示狀態 (選填) */
+  customStatus?: string
+}
 
-// TODO: Future integration with real server status
+// --- 3. 常量宣告 (Constants) ---
+/** 應用程式版本號 */
+const APP_VERSION = 'v1.0.0' // TODO: 未來應改為從 package.json 或 API 動態獲取
+
+// --- 4. 屬性與事件 (Props & Emits) ---
+const props = defineProps<Props>()
+
+// --- 5. 響應式狀態 (State) ---
+/** 當前系統運作狀態文字 */
+const internalStatus = ref('Ready')
+
+// --- 6. 計算屬性 (Computed Properties) ---
+
+/**
+ * 最終顯示的狀態文字 (優先使用外部傳入的狀態)
+ */
+const displayStatus = computed(() => {
+  return props.customStatus ?? internalStatus.value
+})
+
+/**
+ * 根據狀態決定指示燈的顏色
+ */
+const indicatorClass = computed(() => {
+  // 未來可加入 'Error', 'Busy' 等不同顏色的邏輯判斷
+  return 'h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+})
 </script>
 
 <template>
   <footer
     class="flex h-6 shrink-0 items-center justify-between border-t border-zinc-800 bg-zinc-900 px-3 text-[10px] text-zinc-400 select-none"
+    role="contentinfo"
   >
-    <div class="flex items-center gap-2">
-      <div class="h-2 w-2 rounded-full bg-emerald-500"></div>
-      <span>{{ status }}</span>
+    <div
+      class="flex items-center gap-2"
+      role="status"
+      :aria-label="`Current status: ${displayStatus}`"
+    >
+      <div :class="indicatorClass" aria-hidden="true" />
+      <span class="font-medium">{{ displayStatus }}</span>
     </div>
-    <div>
-      <span>{{ version }}</span>
+
+    <div class="flex items-center gap-3">
+      <span class="opacity-80">{{ APP_VERSION }}</span>
     </div>
   </footer>
 </template>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
+// --- 1. 外部引用 (Imports) ---
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-
 import { storeToRefs } from 'pinia'
+import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
+
 import { useProjectStore } from '../stores/project'
 import TitleBar from './TitleBar.vue'
 import StatusBar from './StatusBar.vue'
@@ -10,70 +12,123 @@ import ProjectItem from './ProjectItem.vue'
 import CreateProjectModal from './CreateProjectModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import ContextMenu from './ContextMenu.vue'
-import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 
+// --- 2. 類型定義 (Type Definitions) ---
+interface CreateProjectPayload {
+  name: string
+  port: number
+  description: string
+}
+
+// --- 3. 初始化 (Initialization) ---
 const router = useRouter()
 const route = useRoute()
 const projectStore = useProjectStore()
 const { projects } = storeToRefs(projectStore)
 
-// 1. State
+// --- 4. 響應式狀態 (State) ---
 const isCreateModalOpen = ref(false)
 const isConfirmDeleteOpen = ref(false)
-const projectToDelete = ref<string | null>(null)
+const projectToDeleteId = ref<string | null>(null) // 命名語義化
 
-// 2. State from Store
-const selectedProjectId = ref<string>('')
-
-// Context Menu State
-const contextMenu = ref({
+const contextMenuState = ref({
   visible: false,
   x: 0,
   y: 0,
   projectId: ''
 })
 
+// --- 5. 計算屬性 (Computed Properties) ---
+
+/**
+ * 從路由衍生選中的專案 ID (單一事實來源)
+ */
+const selectedProjectId = computed(() => {
+  const id = route.params.id
+  return typeof id === 'string' ? id : ''
+})
+
+/**
+ * 右鍵選單配置項目
+ */
 const contextMenuItems = computed(() => [
   {
     label: 'Edit',
     icon: Pencil,
-    action: (): void => {
-      console.log('Edit project:', contextMenu.value.projectId)
-      // TODO: Implement Edit Modal
-    }
+    action: () => handleEditProject(contextMenuState.value.projectId)
   },
   {
     label: 'Delete',
     icon: Trash2,
     danger: true,
-    action: (): void => {
-      projectToDelete.value = contextMenu.value.projectId
-      isConfirmDeleteOpen.value = true
-    }
+    action: () => triggerDeleteConfirm(contextMenuState.value.projectId)
   }
 ])
 
-// 3. Methods
-const selectProject = (id: string): void => {
-  selectedProjectId.value = id
+// --- 7. 核心邏輯與函數 (Functions/Methods) ---
+
+/**
+ * 導航至指定專案詳情頁
+ * @param id - 專案 UUID
+ */
+const navigateToProject = (id: string): void => {
+  if (!id) return // 衛句模式
   router.push(`/project/${id}`)
 }
 
-const handleCreateProject = async (payload: {
-  name: string
-  port: number
-  description: string
-}): Promise<void> => {
+/**
+ * 處理專案建立邏輯
+ * @param projectData - 包含名稱、Port、描述的專案資料
+ */
+const handleCreateProject = async (projectData: CreateProjectPayload): Promise<void> => {
   try {
-    const newProject = await projectStore.createProject(payload)
-    selectProject(newProject.id)
+    const newProject = await projectStore.createProject(projectData)
+    isCreateModalOpen.value = false
+    navigateToProject(newProject.id)
   } catch (error) {
-    console.error('Failed to create project:', error)
+    console.error('[Project] Creation failed:', error)
   }
 }
 
-const handleContextMenu = (event: MouseEvent, projectId: string): void => {
-  contextMenu.value = {
+/**
+ * 觸發刪除確認彈窗
+ * @param projectId - 要刪除的專案 UUID
+ */
+const triggerDeleteConfirm = (projectId: string): void => {
+  projectToDeleteId.value = projectId
+  isConfirmDeleteOpen.value = true
+}
+
+/**
+ * 執行刪除專案操作
+ * - 刪除成功後，若為當前專案則跳轉至首頁
+ */
+const handleConfirmDelete = async (): Promise<void> => {
+  const idToDelete = projectToDeleteId.value
+  if (!idToDelete) return // 衛句模式
+
+  try {
+    await projectStore.deleteProject(idToDelete)
+    isConfirmDeleteOpen.value = false
+
+    // 若刪除的是當前專案，則跳回首頁
+    if (selectedProjectId.value === idToDelete) {
+      router.push('/')
+    }
+  } catch (error) {
+    console.error('[Project] Deletion failed:', error)
+  } finally {
+    projectToDeleteId.value = null
+  }
+}
+
+/**
+ * 開啟自定義右鍵選單
+ * @param event - 滑鼠事件物件
+ * @param projectId - 觸發右鍵的專案 UUID
+ */
+const handleOpenContextMenu = (event: MouseEvent, projectId: string): void => {
+  contextMenuState.value = {
     visible: true,
     x: event.clientX,
     y: event.clientY,
@@ -81,35 +136,16 @@ const handleContextMenu = (event: MouseEvent, projectId: string): void => {
   }
 }
 
-const handleConfirmDelete = async (): Promise<void> => {
-  if (!projectToDelete.value) return
-
-  try {
-    const idToDelete = projectToDelete.value
-    await projectStore.deleteProject(idToDelete)
-
-    if (selectedProjectId.value === idToDelete) {
-      router.push('/')
-    }
-  } catch (error) {
-    console.error('Failed to delete project:', error)
-  } finally {
-    projectToDelete.value = null
-  }
+/**
+ * 處理編輯專案邏輯
+ * @param id - 專案 UUID
+ */
+const handleEditProject = (id: string): void => {
+  // TODO: 實作專案編輯功能（開啟編輯彈窗）
+  console.log('[Project] Edit requested for:', id)
 }
 
-watch(
-  () => route.params.id,
-  (newId) => {
-    if (typeof newId === 'string') {
-      selectedProjectId.value = newId
-    } else {
-      selectedProjectId.value = ''
-    }
-  },
-  { immediate: true }
-)
-
+// --- 8. 生命週期鉤子 (Lifecycle Hooks) ---
 onMounted(() => {
   projectStore.fetchProjects()
 })
@@ -117,15 +153,14 @@ onMounted(() => {
 
 <template>
   <div class="flex h-screen w-screen flex-col overflow-hidden bg-zinc-950 font-sans text-zinc-100">
-    <!-- Custom TitleBar -->
     <TitleBar />
 
     <div class="flex flex-1 overflow-hidden">
-      <!-- Sidebar -->
       <aside class="flex w-[250px] shrink-0 flex-col border-r border-zinc-800 bg-zinc-900">
         <div class="flex items-center justify-between px-4 py-3">
           <h2 class="text-xs font-semibold tracking-wider text-zinc-500 uppercase">Projects</h2>
           <button
+            type="button"
             class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
             @click="isCreateModalOpen = true"
           >
@@ -133,29 +168,26 @@ onMounted(() => {
           </button>
         </div>
 
-        <div class="flex-1 space-y-0.5 overflow-y-auto px-2 py-1">
+        <nav class="flex-1 space-y-0.5 overflow-y-auto px-2 py-1">
           <ProjectItem
             v-for="project in projects"
             :key="project.id"
             :name="project.name"
             :port="project.port"
             :is-active="selectedProjectId === project.id"
-            @click="selectProject(project.id)"
-            @contextmenu="handleContextMenu($event, project.id)"
+            @click="navigateToProject(project.id)"
+            @contextmenu.prevent="handleOpenContextMenu($event, project.id)"
           />
-        </div>
+        </nav>
       </aside>
 
-      <!-- Content -->
       <main class="flex-1 overflow-auto bg-zinc-950">
         <slot />
       </main>
     </div>
 
-    <!-- Status Bar -->
     <StatusBar />
 
-    <!-- Modals -->
     <CreateProjectModal
       :is-open="isCreateModalOpen"
       @close="isCreateModalOpen = false"
@@ -173,10 +205,10 @@ onMounted(() => {
     />
 
     <ContextMenu
-      :visible="contextMenu.visible"
-      :position="{ x: contextMenu.x, y: contextMenu.y }"
+      :visible="contextMenuState.visible"
+      :position="{ x: contextMenuState.x, y: contextMenuState.y }"
       :items="contextMenuItems"
-      @close="contextMenu.visible = false"
+      @close="contextMenuState.visible = false"
     />
   </div>
 </template>

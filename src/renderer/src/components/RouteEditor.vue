@@ -27,6 +27,32 @@ const route = computed(() => {
 // --- 常量定義 ---
 const httpMethodOptions = HTTP_METHODS_SCHEMA.options
 
+const HTTP_STATUS_CODES = [
+  { code: 200, label: 'OK' },
+  { code: 201, label: 'Created' },
+  { code: 202, label: 'Accepted' },
+  { code: 204, label: 'No Content' },
+  { code: 301, label: 'Moved Permanently' },
+  { code: 302, label: 'Found' },
+  { code: 304, label: 'Not Modified' },
+  { code: 400, label: 'Bad Request' },
+  { code: 401, label: 'Unauthorized' },
+  { code: 403, label: 'Forbidden' },
+  { code: 404, label: 'Not Found' },
+  { code: 405, label: 'Method Not Allowed' },
+  { code: 422, label: 'Unprocessable Entity' },
+  { code: 429, label: 'Too Many Requests' },
+  { code: 500, label: 'Internal Server Error' },
+  { code: 502, label: 'Bad Gateway' },
+  { code: 503, label: 'Service Unavailable' }
+]
+
+const getStatusLabel = (code?: number): string => {
+  if (!code) return ''
+  const status = HTTP_STATUS_CODES.find((s) => s.code === code)
+  return status ? status.label : 'Unknown Status'
+}
+
 /**
  * HTTP 方法對應的顏色主題 (與 RouteItem 保持一致或更強烈)
  */
@@ -244,10 +270,99 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <!-- Placeholder for Body/Response Editor (Future Stages) -->
-    <div class="flex-1 p-6">
-      <div class="rounded-lg border border-dashed border-zinc-800 p-8 text-center">
-        <p class="text-sm text-zinc-500">Response Editor will be implemented in future stages.</p>
+    <!-- Response Section -->
+    <div class="flex flex-1 flex-col overflow-hidden">
+      <!-- Response Toolbar -->
+      <div
+        class="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/50 px-6 py-2"
+      >
+        <div class="flex items-center gap-4">
+          <!-- Stage 21: Status Code Selector -->
+          <div class="flex items-center gap-2">
+            <span
+              class="flex h-5 items-center rounded bg-zinc-800 px-1.5 text-[10px] font-bold tracking-wider text-zinc-400 uppercase"
+            >
+              Status
+            </span>
+            <div class="group relative flex items-center">
+              <input
+                v-if="route.response"
+                v-model.number="route.response.statusCode"
+                type="number"
+                class="peer w-16 rounded-l-md border border-zinc-700 bg-zinc-800 px-2 py-1 text-center text-xs font-bold text-emerald-400 group-hover:border-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              />
+              <div class="relative -ml-px">
+                <select
+                  :value="route.response?.statusCode"
+                  class="h-[26px] w-5 appearance-none rounded-r-md border border-zinc-700 bg-zinc-800 px-0 text-transparent group-hover:border-zinc-600 hover:bg-zinc-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                  @change="
+                    (e) => {
+                      if (route?.response)
+                        route.response.statusCode = Number((e.target as HTMLSelectElement).value)
+                    }
+                  "
+                >
+                  <option
+                    v-for="status in HTTP_STATUS_CODES"
+                    :key="status.code"
+                    :value="status.code"
+                    class="text-zinc-100"
+                  >
+                    {{ status.code }} {{ status.label }}
+                  </option>
+                  <!-- Custom Option Wrapper logic handled by input, this just provides list -->
+                </select>
+                <!-- Chevron -->
+                <div
+                  class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zinc-400"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <!-- Status Label Display -->
+            <span class="text-xs text-zinc-500">
+              {{ getStatusLabel(route.response?.statusCode) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body / Monaco Editor Placeholder -->
+      <div class="relative flex-1 bg-[#1e1e1e]">
+        <div
+          class="absolute inset-0 flex items-center justify-center text-sm text-zinc-500 opacity-50"
+        >
+          <span class="flex flex-col items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            Monaco Editor Coming Soon (Stage 22)
+          </span>
+        </div>
       </div>
     </div>
 

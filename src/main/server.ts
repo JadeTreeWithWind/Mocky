@@ -1,8 +1,10 @@
-// --- 1. 外部引用 (Imports) ---
 import Fastify, { FastifyInstance } from 'fastify'
 import net from 'net'
+import fastifySwagger from '@fastify/swagger'
+import fastifySwaggerUi from '@fastify/swagger-ui'
 
 import { Route } from '../shared/types'
+import { toOpenApi } from './utils/openapi-generator'
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
 
@@ -56,9 +58,15 @@ class ServerManager {
    * @param projectId - 專案 ID
    * @param port - 預期 Port
    * @param routes - 路由表
+   * @param projectInfo - 專案資訊 (用於產生 Swagger 文件)
    * @returns 實際運行的 Port
    */
-  async start(projectId: string, port: number, routes: Route[]): Promise<number> {
+  async start(
+    projectId: string,
+    port: number,
+    routes: Route[],
+    projectInfo: { name: string; description?: string } = { name: 'Mock API' }
+  ): Promise<number> {
     // 1. 如果該專案已在運行，先停止
     if (this.servers.has(projectId)) {
       await this.stop(projectId)
@@ -71,7 +79,25 @@ class ServerManager {
     // 3. 建立 Fastify 實例
     const server = Fastify({ logger: true })
 
-    // 4. 註冊路由
+    // 4. 註冊 Swagger (必須在路由之前)
+    const openApiDocument = toOpenApi(projectInfo, routes)
+
+    await server.register(fastifySwagger, {
+      mode: 'static',
+      specification: {
+        document: openApiDocument
+      }
+    })
+
+    await server.register(fastifySwaggerUi, {
+      routePrefix: '/docs',
+      uiConfig: {
+        docExpansion: 'list',
+        deepLinking: false
+      }
+    })
+
+    // 5. 註冊路由
     console.log(`[Server] Project ${projectId} mounting ${routes.length} routes...`)
 
     routes.forEach((route) => {
@@ -109,7 +135,7 @@ class ServerManager {
     })
 
     try {
-      // 5. 啟動伺服器
+      // 6. 啟動伺服器
       // host 設為 '0.0.0.0' 或 'localhost'
       const address = await server.listen({ port: actualPort, host: '0.0.0.0' })
 
@@ -117,7 +143,7 @@ class ServerManager {
         `[Server] Project ${projectId} listening on ${address}, actual port: ${actualPort}`
       )
 
-      // 6. 存入 Map
+      // 7. 存入 Map
       this.servers.set(projectId, server)
 
       return actualPort

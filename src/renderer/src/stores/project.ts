@@ -211,7 +211,11 @@ export const useProjectStore = defineStore('project', () => {
       const actualPort = await window.api.server.start({
         projectId,
         port: project.port,
-        routes: JSON.parse(JSON.stringify(routes.value))
+        routes: JSON.parse(JSON.stringify(routes.value)),
+        projectInfo: {
+          name: project.name,
+          description: project.description
+        }
       })
 
       // 更新狀態

@@ -163,7 +163,8 @@ function registerIpcHandlers(): void {
       return await serverManager.start(
         payload.projectId,
         payload.port || 8000,
-        payload.routes || []
+        payload.routes || [],
+        payload.projectInfo || { name: 'Unknown Project' }
       )
     } catch (error: unknown) {
       console.error('[IPC] Failed to start server:', error)

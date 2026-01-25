@@ -65,7 +65,12 @@ interface DatabaseAPI {
 }
 
 interface ServerAPI {
-  start: (payload: { projectId: string; port: number; routes: Route[] }) => Promise<number>
+  start: (payload: {
+    projectId: string
+    port: number
+    routes: Route[]
+    projectInfo: { name: string; description?: string }
+  }) => Promise<number>
   stop: (projectId: string) => Promise<boolean>
 }
 

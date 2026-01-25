@@ -1,7 +1,7 @@
 // --- 1. 外部引用 (Imports) ---
 import { app, shell, BrowserWindow, ipcMain, WebContents, dialog } from 'electron'
 import { join } from 'path'
-import { writeFile } from 'fs/promises'
+import { writeFile, readFile } from 'fs/promises'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
@@ -201,6 +201,38 @@ function registerIpcHandlers(): void {
     } catch (error) {
       console.error('[IPC] Failed to export project:', error)
       throw error // 讓前端捕獲錯誤
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.PROJECT.IMPORT, async (event) => {
+    try {
+      const win = getWindowFromEvent(event.sender)
+      if (!win) return null
+
+      const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+        title: 'Import OpenAPI/Swagger File',
+        properties: ['openFile'],
+        filters: [{ name: 'JSON Files', extensions: ['json'] }]
+      })
+
+      if (canceled || filePaths.length === 0) return null
+
+      const content = await readFile(filePaths[0], 'utf-8')
+
+      // 基礎驗證：檢查是否為有效的 JSON 且包含 OpenAPI 關鍵字
+      try {
+        const json = JSON.parse(content)
+        if (!json.openapi && !json.swagger) {
+          throw new Error('Invalid OpenAPI/Swagger file format')
+        }
+      } catch (e) {
+        throw new Error('Invalid JSON file')
+      }
+
+      return content
+    } catch (error) {
+      console.error('[IPC] Failed to import project:', error)
+      throw error
     }
   })
 }

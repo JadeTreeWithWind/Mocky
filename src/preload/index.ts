@@ -61,7 +61,9 @@ const api = {
 
   project: {
     export: (content: string, filename?: string): Promise<boolean> =>
-      ipcRenderer.invoke(IPC_CHANNELS.PROJECT.EXPORT, { content, filename })
+      ipcRenderer.invoke(IPC_CHANNELS.PROJECT.EXPORT, { content, filename }),
+
+    import: (): Promise<string | null> => ipcRenderer.invoke(IPC_CHANNELS.PROJECT.IMPORT)
   }
 }
 

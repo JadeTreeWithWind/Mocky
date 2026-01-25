@@ -71,6 +71,7 @@ interface ServerAPI {
 
 interface ProjectAPI {
   export: (content: string, filename?: string) => Promise<boolean>
+  import: () => Promise<string | null>
 }
 
 // --- 9. 全域擴充 (Global Augmentation) ---

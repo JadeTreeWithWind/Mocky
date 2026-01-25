@@ -3,7 +3,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { Plus, Pencil, Trash2, Download } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, Download, FileDown } from 'lucide-vue-next'
 
 import { useProjectStore } from '../stores/project'
 import { toOpenApi } from '../utils/transformer'
@@ -200,6 +200,21 @@ const handleExportProject = async (id: string): Promise<void> => {
   }
 }
 
+/**
+ * 處理專案匯入邏輯 (Stage 3)
+ */
+const handleImportProject = async (): Promise<void> => {
+  try {
+    const content = await window.api.project.import()
+    if (content) {
+      console.log('Imported content length:', content.length)
+      // TODO: Stage 4 will handle the parsing and persistence
+    }
+  } catch (error) {
+    console.error('[Project] Import failed:', error)
+  }
+}
+
 // --- 8. 生命週期鉤子 (Lifecycle Hooks) ---
 onMounted(() => {
   projectStore.fetchProjects()
@@ -214,13 +229,24 @@ onMounted(() => {
       <aside class="flex w-[250px] shrink-0 flex-col border-r border-zinc-800 bg-zinc-900">
         <div class="flex items-center justify-between px-4 py-3">
           <h2 class="text-xs font-semibold tracking-wider text-zinc-500 uppercase">Projects</h2>
-          <button
-            type="button"
-            class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-            @click="isCreateModalOpen = true"
-          >
-            <Plus :size="14" />
-          </button>
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+              title="Import OpenAPI"
+              @click="handleImportProject"
+            >
+              <FileDown :size="14" />
+            </button>
+            <button
+              type="button"
+              class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+              title="Create Project"
+              @click="isCreateModalOpen = true"
+            >
+              <Plus :size="14" />
+            </button>
+          </div>
         </div>
 
         <nav class="flex-1 space-y-0.5 overflow-y-auto px-2 py-1">

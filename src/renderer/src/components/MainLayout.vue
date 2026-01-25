@@ -3,7 +3,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { Plus, Pencil, Trash2, Download, FileDown } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, Download, FileDown, FileType } from 'lucide-vue-next'
 
 import { useProjectStore } from '../stores/project'
 import { toOpenApi } from '../utils/transformer'
@@ -69,9 +69,14 @@ const contextMenuItems = computed(() => [
     action: () => handleEditProject(contextMenuState.value.projectId)
   },
   {
-    label: 'Export JSON',
+    label: 'Export JSON (OpenAPI)',
     icon: Download,
     action: () => handleExportProject(contextMenuState.value.projectId)
+  },
+  {
+    label: 'Export HTML (Redoc)',
+    icon: FileType,
+    action: () => handleExportHtml(contextMenuState.value.projectId)
   },
   {
     label: 'Delete',
@@ -226,8 +231,26 @@ const handleExportProject = async (id: string): Promise<void> => {
       // TODO: 可以加入 Toast 提示
       console.log('Export successful')
     }
+    if (success) {
+      // TODO: 可以加入 Toast 提示
+      console.log('Export successful')
+    }
   } catch (error) {
     console.error('[Project] Export failed:', error)
+  }
+}
+
+/**
+ * 處理專案匯出為 HTML 邏輯
+ * @param id - 專案 UUID
+ */
+const handleExportHtml = async (id: string): Promise<void> => {
+  try {
+    await projectStore.exportHtml(id)
+    // 成功Toast提示由 Store 或全域處理較佳，但目前結構在 Store 拋錯
+  } catch (error) {
+    console.error('[Project] Export HTML failed:', error)
+    showError('Export Failed', 'Failed to export documentation to HTML. See console for details.')
   }
 }
 

@@ -341,6 +341,39 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /**
+   * 匯出專案為 Redoc HTML 文檔
+   */
+  const exportHtml = async (projectId: string): Promise<void> => {
+    const project = projects.value.find((p) => p.id === projectId)
+    if (!project) return
+
+    isLoading.value = true
+    try {
+      // 確保路由是最新狀態
+      const currentRoutes = routes.value.length > 0 ? routes.value : []
+      if (currentRoutes.length === 0) {
+        // 如果 store 沒有路由，嘗試 fetch 一次 (雖然通常有)
+        const fetchedRoutes = await window.api.db.getRoutesByProjectId(projectId)
+        await window.api.project.exportHtml({
+          project: JSON.parse(JSON.stringify(project)),
+          routes: JSON.parse(JSON.stringify(fetchedRoutes))
+        })
+      } else {
+        await window.api.project.exportHtml({
+          project: JSON.parse(JSON.stringify(project)),
+          routes: JSON.parse(JSON.stringify(currentRoutes))
+        })
+      }
+    } catch (error) {
+      console.error('[Store] Export HTML failed:', error)
+      lastError.value = 'HTML 匯出失敗'
+      throw error // 讓 UI 顯示錯誤
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // --- 10. 對外暴露 (Exports) ---
   return {
     // State
@@ -360,6 +393,7 @@ export const useProjectStore = defineStore('project', () => {
     startServer,
     stopServer,
     getRunningPort,
-    importProject
+    importProject,
+    exportHtml
   }
 })

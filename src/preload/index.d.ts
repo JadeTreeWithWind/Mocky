@@ -76,6 +76,7 @@ interface ServerAPI {
 
 interface ProjectAPI {
   export: (content: string, filename?: string) => Promise<boolean>
+  exportHtml: (payload: { project: Project; routes: Route[] }) => Promise<boolean>
   import: () => Promise<string | null>
 }
 

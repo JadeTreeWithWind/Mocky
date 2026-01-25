@@ -238,16 +238,18 @@ const handleImportProject = async (): Promise<void> => {
           )
           return
         }
-      } catch (e) {
+      } catch {
         // Ignore JSON parse error here, let transformer handle it or it will be caught below
       }
 
       const newProjectId = await projectStore.importProject(content)
       navigateToProject(newProjectId)
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[Project] Import failed:', error)
-    showError('Import Failed', error.message || 'An unknown error occurred during import.')
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred during import.'
+    showError('Import Failed', errorMessage)
   }
 }
 

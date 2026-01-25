@@ -1,10 +1,14 @@
 <script setup lang="ts">
+// --- 1. 外部引用 (Imports) ---
 import { Loader2 } from 'lucide-vue-next'
 
+// --- 2. 類型定義 (Type Definitions) ---
 interface Props {
+  /** 是否顯示 Loading 狀態 */
   isLoading: boolean
 }
 
+// --- 3. 屬性與事件 (Props & Emits) ---
 defineProps<Props>()
 </script>
 

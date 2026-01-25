@@ -1,18 +1,25 @@
 <script setup lang="ts">
+// --- 1. 外部引用 (Imports) ---
 import { AlertCircle, X } from 'lucide-vue-next'
 
+// --- 2. 類型定義 (Type Definitions) ---
 interface Props {
+  /** 彈窗是否開啟 */
   isOpen: boolean
+  /** 錯誤標題 */
   title?: string
-  message: string
+  /** 錯誤訊息內容 */
+  message?: string
 }
 
+// --- 3. 屬性與事件 (Props & Emits) ---
 withDefaults(defineProps<Props>(), {
   title: 'Error',
   message: 'An unexpected error occurred.'
 })
 
 const emit = defineEmits<{
+  /** 關閉彈窗事件 */
   (e: 'close'): void
 }>()
 </script>

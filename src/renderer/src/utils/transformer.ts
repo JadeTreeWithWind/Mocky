@@ -1,12 +1,17 @@
+// --- 1. 外部引用 (Imports) ---
 import { OpenAPIV3 } from 'openapi-types'
 import { v4 as uuidv4 } from 'uuid'
+
 import { Project, Route } from '../../../shared/types'
 
-/**
- * Stage 1: 資料轉換層 (Transformation Layer)
- * 實作 Mocky 內部資料結構與 OpenAPI 3.0 規範之間的轉換邏輯
- */
+// --- 7. 核心邏輯與函數 (Functions/Methods) ---
 
+/**
+ * 將 Mocky 專案資料轉換為 OpenAPI 3.0 文件格式
+ * @param project - Mocky 專案資料
+ * @param routes - 專案下的路由列表
+ * @returns OpenAPI 3.0 格式的文件物件
+ */
 export const toOpenApi = (project: Project, routes: Route[]): OpenAPIV3.Document => {
   const paths: OpenAPIV3.PathsObject = {}
 
@@ -23,7 +28,7 @@ export const toOpenApi = (project: Project, routes: Route[]): OpenAPIV3.Document
     let example
     try {
       example = JSON.parse(route.response.body)
-    } catch (e) {
+    } catch {
       // 如果不是有效的 JSON，則作為字串處理
       // 但 OpenAPI example 通常期望結構化數據，若 body 是純字串也行
       example = route.response.body
@@ -57,6 +62,12 @@ export const toOpenApi = (project: Project, routes: Route[]): OpenAPIV3.Document
   }
 }
 
+/**
+ * 將 OpenAPI 3.0 文件解析為 Mocky 內部資料格式
+ * 注意：目前不支援 $ref 引用解析，僅處理完整內嵌的物件
+ * @param document - OpenAPI 3.0 文件物件
+ * @returns 包含專案基礎資料與路由列表的物件
+ */
 export const fromOpenApi = (
   document: OpenAPIV3.Document
 ): { project: Partial<Project>; routes: Partial<Route>[] } => {
@@ -114,7 +125,7 @@ export const fromOpenApi = (
             id: uuidv4(),
             // projectId 將由外部建立專案後填入
             path: path,
-            method: method.toUpperCase() as any,
+            method: method.toUpperCase() as Route['method'],
             description: operation.summary || operation.description || '',
             isActive: true, // 預設啟用
             response: {

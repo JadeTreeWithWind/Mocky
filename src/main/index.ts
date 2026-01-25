@@ -225,7 +225,7 @@ function registerIpcHandlers(): void {
         if (!json.openapi && !json.swagger) {
           throw new Error('Invalid OpenAPI/Swagger file format')
         }
-      } catch (e) {
+      } catch {
         throw new Error('Invalid JSON file')
       }
 

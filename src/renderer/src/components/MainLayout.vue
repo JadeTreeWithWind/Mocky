@@ -102,27 +102,27 @@ const statusBarText = computed(() => {
 /**
  * 計算 Swagger 文件連結
  */
-const statusBarDocsUrl = computed(() => {
-  const id = selectedProjectId.value
-  if (!id) return undefined
+// const statusBarDocsUrl = computed(() => {
+//   const id = selectedProjectId.value
+//   if (!id) return undefined
 
-  const project = projects.value.find((p) => p.id === id)
-  if (!project || project.status !== PROJECT_STATUS.RUNNING) return undefined
+//   const project = projects.value.find((p) => p.id === id)
+//   if (!project || project.status !== PROJECT_STATUS.RUNNING) return undefined
 
-  const port = projectStore.getRunningPort(id) ?? project.port
-  return `http://localhost:${port}/docs`
-})
+//   const port = projectStore.getRunningPort(id) ?? project.port
+//   return `http://localhost:${port}/docs`
+// })
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
 
 /**
  * 開啟文件連結
  */
-const handleOpenDocs = (): void => {
-  if (statusBarDocsUrl.value) {
-    window.open(statusBarDocsUrl.value, '_blank')
-  }
-}
+// const handleOpenDocs = (): void => {
+//   if (statusBarDocsUrl.value) {
+//     window.open(statusBarDocsUrl.value, '_blank')
+//   }
+// }
 
 /**
  * 導航至指定專案詳情頁
@@ -330,11 +330,7 @@ onMounted(() => {
     </div>
 
     <!-- 傳入動態計算的 Status -->
-    <StatusBar
-      :custom-status="statusBarText"
-      :docs-url="statusBarDocsUrl"
-      @open-docs="handleOpenDocs"
-    />
+    <StatusBar :custom-status="statusBarText" />
 
     <CreateProjectModal
       :is-open="isCreateModalOpen"

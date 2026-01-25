@@ -105,6 +105,15 @@ const toggleServer = async (): Promise<void> => {
 }
 
 /**
+ * 開啟 API 文件
+ */
+const openDocs = (): void => {
+  if (!currentProject.value?.port) return
+  const url = `http://localhost:${currentProject.value.port}/docs`
+  window.open(url, '_blank')
+}
+
+/**
  * 載入當前專案的所有路由設定
  */
 const loadProjectRoutes = async (): Promise<void> => {
@@ -200,7 +209,36 @@ onMounted(() => {
           <h2 class="truncate text-sm font-bold text-zinc-100" :title="currentProject.name">
             {{ currentProject.name }}
           </h2>
-          <span class="text-[10px] text-zinc-500">Port: {{ currentProject.port }}</span>
+          <button
+            v-if="currentProject?.port"
+            type="button"
+            :class="
+              isServerRunning
+                ? 'cursor-pointer hover:bg-zinc-700 hover:text-zinc-200'
+                : 'opacity-50'
+            "
+            class="ml-2 flex items-center gap-1 rounded bg-zinc-800 px-1.5 py-0.5 text-zinc-400"
+            :title="`Open API Documentation (Port: ${currentProject.port})`"
+            :disabled="!isServerRunning"
+            @click.stop="openDocs"
+          >
+            <span class="text-[10px] font-medium">Docs</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </button>
         </div>
         <button
           class="flex w-full cursor-pointer items-center justify-center gap-2 rounded px-3 py-1.5 text-xs font-medium transition-colors"

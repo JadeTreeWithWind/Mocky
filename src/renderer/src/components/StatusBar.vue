@@ -6,15 +6,9 @@ import { ref, computed } from 'vue'
 interface Props {
   /** 手動指定顯示狀態 (選填) */
   customStatus?: string
-  /** 文件連結 URL (若有值則顯示按鈕) */
-  docsUrl?: string
 }
 
 const props = defineProps<Props>()
-
-defineEmits<{
-  (e: 'open-docs'): void
-}>()
 
 // --- 3. 常量宣告 (Constants) ---
 /** 應用程式版本號 */
@@ -44,7 +38,7 @@ const indicatorClass = computed(() => {
 
 <template>
   <footer
-    class="flex h-6 shrink-0 items-center justify-between border-t border-zinc-800 bg-zinc-900 px-3 text-[10px] text-zinc-400 select-none"
+    class="flex h-6 shrink-0 items-center justify-between border-t border-zinc-800 bg-zinc-900 px-3 text-[14px] text-zinc-400 select-none"
     role="contentinfo"
   >
     <div
@@ -54,31 +48,6 @@ const indicatorClass = computed(() => {
     >
       <div :class="indicatorClass" aria-hidden="true" />
       <span class="font-medium">{{ displayStatus }}</span>
-
-      <button
-        v-if="docsUrl"
-        type="button"
-        class="ml-2 flex items-center gap-1 rounded bg-zinc-800 px-1.5 py-0.5 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"
-        title="Open API Documentation"
-        @click="$emit('open-docs')"
-      >
-        <span class="text-[10px] font-medium">Docs</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="10"
-          height="10"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-          <polyline points="15 3 21 3 21 9"></polyline>
-          <line x1="10" y1="14" x2="21" y2="3"></line>
-        </svg>
-      </button>
     </div>
 
     <div class="flex items-center gap-3">

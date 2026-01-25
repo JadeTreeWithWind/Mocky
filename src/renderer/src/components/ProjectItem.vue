@@ -83,7 +83,7 @@ const handleContextMenu = (event: MouseEvent): void => {
     @contextmenu.prevent.stop="handleContextMenu($event)"
   >
     <div class="flex items-center gap-2 overflow-hidden">
-      <div :class="indicatorClasses" aria-hidden="true" />
+      <!-- <div :class="indicatorClasses" aria-hidden="true" /> -->
       <span class="truncate font-medium">{{ name }}</span>
     </div>
 

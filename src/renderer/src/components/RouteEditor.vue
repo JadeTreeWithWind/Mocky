@@ -1,7 +1,10 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
+// 第三方庫
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
+
+// 內部資源
 import { useProjectStore } from '../stores/project'
 import { HTTP_METHODS as HTTP_METHODS_SCHEMA } from '../../../shared/types'
 
@@ -11,21 +14,11 @@ const props = defineProps<{
   routeId: string
 }>()
 
-// --- 3. 初始化 (Initialization) ---
-const projectStore = useProjectStore()
-
-// --- 5. 計算屬性 (Computed Properties) ---
-/**
- * 根據 ID 從 Store 獲取路由物件
- * 直接綁定 Store 中的物件以實現即時更新 (Vue Reactivity)
- * 持久化儲存將在後續 Stage 實作
- */
-const route = computed(() => {
-  return projectStore.routes.find((r) => r.id === props.routeId)
-})
-
 // --- 3. 常量宣告 (Constants) ---
 const HTTP_METHOD_OPTIONS = HTTP_METHODS_SCHEMA.options
+
+const SAVE_DELAY_MS = 1000
+const SAVING_INDICATOR_MS = 500
 
 const HTTP_STATUS_CODES = [
   { code: 200, label: 'OK' },
@@ -62,17 +55,26 @@ const METHOD_THEMES: Record<string, string> = {
   HEAD: 'text-teal-400 border-teal-500/50 bg-teal-500/10 focus:border-teal-500 focus:ring-teal-500/30'
 }
 
+// --- 4. 響應式狀態 (State) ---
+// Store use
+const projectStore = useProjectStore()
+
+type SaveStatus = 'saved' | 'saving' | 'unsaved'
+const saveStatus = ref<SaveStatus>('saved')
+const saveTimeout = ref<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+// Stage 23: JSON Validation
+const jsonError = ref<string | null>(null)
+
+// --- 5. 計算屬性 (Computed Properties) ---
 /**
- * 處理路徑輸入框失去焦點事件 (Stage 18)
- * 確保路徑以 / 開頭
+ * 根據 ID 從 Store 獲取路由物件
+ * 直接綁定 Store 中的物件以實現即時更新 (Vue Reactivity)
+ * 持久化儲存將在後續 Stage 實作
  */
-const handlePathBlur = (): void => {
-  if (!route.value) return
-  let p = route.value.path.trim()
-  if (p && !p.startsWith('/')) {
-    route.value.path = `/${p}`
-  }
-}
+const route = computed(() => {
+  return projectStore.routes.find((r) => r.id === props.routeId)
+})
 
 /**
  * 解析路徑片段，用於視覺化顯示 (Stage 18 Advanced)
@@ -89,19 +91,6 @@ const pathSegments = computed(() => {
     }))
 })
 
-// --- 7. 核心邏輯與函數 (Functions/Methods) ---
-
-/**
- * 根據 HTTP 狀態碼取得標籤名稱
- * @param code - HTTP 狀態碼
- * @returns 狀態碼對應的標籤
- */
-const getStatusLabel = (code?: number): string => {
-  if (!code) return ''
-  const status = HTTP_STATUS_CODES.find((s) => s.code === code)
-  return status ? status.label : 'Unknown Status'
-}
-
 const methodSelectClasses = computed(() => {
   if (!route.value) return ''
   const defaultClass =
@@ -111,42 +100,7 @@ const methodSelectClasses = computed(() => {
   return `h-10 appearance-none rounded-md border px-4 py-2 pr-8 text-sm font-bold focus:ring-1 focus:outline-none transition-colors ${themeClass}`
 })
 
-// --- 6. 狀態管理 (State) ---
-type SaveStatus = 'saved' | 'saving' | 'unsaved'
-const saveStatus = ref<SaveStatus>('saved')
-const saveTimeout = ref<ReturnType<typeof setTimeout> | undefined>(undefined)
-
-/**
- * 執行儲存操作
- */
-const save = async (): Promise<void> => {
-  if (!route.value) return
-
-  saveStatus.value = 'saving'
-  try {
-    // 深拷貝以避免 Proxy 問題 (雖 Store 已處裡，但這裡斷開參照較安全)
-    await projectStore.updateRoute({ ...route.value })
-    // 短暫延遲以顯示 Saving 狀態 (UX 優化)
-    setTimeout(() => {
-      saveStatus.value = 'saved'
-    }, 500)
-  } catch (error) {
-    console.error('Failed to save route:', error)
-    saveStatus.value = 'unsaved'
-  }
-}
-
-/**
- * 防抖自動儲存 (Debounce)
- */
-const debouncedSave = (): void => {
-  saveStatus.value = 'unsaved'
-  clearTimeout(saveTimeout.value)
-  saveTimeout.value = setTimeout(() => {
-    save()
-  }, 1000) // 1秒後自動儲存
-}
-
+// --- 6. 偵聽器 (Watchers) ---
 // 監聽路由資料變更
 watch(
   () => route.value,
@@ -167,8 +121,69 @@ watch(
   { deep: true }
 )
 
-// --- Stage 23: JSON Validation ---
-const jsonError = ref<string | null>(null)
+// 監聽 Body 變更以即時驗證
+watch(
+  () => route.value?.response?.body,
+  (newBody) => {
+    validateJSON(newBody || '')
+  }
+)
+
+// --- 7. 核心邏輯與函數 (Functions/Methods) ---
+
+/**
+ * 根據 HTTP 狀態碼取得標籤名稱
+ * @param code - HTTP 狀態碼
+ * @returns 狀態碼對應的標籤
+ */
+const getStatusLabel = (code?: number): string => {
+  if (!code) return ''
+  const status = HTTP_STATUS_CODES.find((s) => s.code === code)
+  return status ? status.label : 'Unknown Status'
+}
+
+/**
+ * 處理路徑輸入框失去焦點事件 (Stage 18)
+ * 確保路徑以 / 開頭
+ */
+const handlePathBlur = (): void => {
+  if (!route.value) return
+  let p = route.value.path.trim()
+  if (p && !p.startsWith('/')) {
+    route.value.path = `/${p}`
+  }
+}
+
+/**
+ * 執行儲存操作
+ */
+const save = async (): Promise<void> => {
+  if (!route.value) return
+
+  saveStatus.value = 'saving'
+  try {
+    // 深拷貝以避免 Proxy 問題 (雖 Store 已處裡，但這裡斷開參照較安全)
+    await projectStore.updateRoute({ ...route.value })
+    // 短暫延遲以顯示 Saving 狀態 (UX 優化)
+    setTimeout(() => {
+      saveStatus.value = 'saved'
+    }, SAVING_INDICATOR_MS)
+  } catch (error) {
+    console.error('Failed to save route:', error)
+    saveStatus.value = 'unsaved'
+  }
+}
+
+/**
+ * 防抖自動儲存 (Debounce)
+ */
+const debouncedSave = (): void => {
+  saveStatus.value = 'unsaved'
+  clearTimeout(saveTimeout.value)
+  saveTimeout.value = setTimeout(() => {
+    save()
+  }, SAVE_DELAY_MS) // 1秒後自動儲存
+}
 
 /**
  * 驗證 JSON 格式
@@ -190,14 +205,6 @@ const validateJSON = (content: string): void => {
     }
   }
 }
-
-// 監聽 Body 變更以即時驗證
-watch(
-  () => route.value?.response?.body,
-  (newBody) => {
-    validateJSON(newBody || '')
-  }
-)
 
 // --- Stage 25: Prettify JSON ---
 /**
@@ -231,6 +238,7 @@ const handleKeydown = (e: KeyboardEvent): void => {
   }
 }
 
+// --- 8. 生命週期鉤子 (Lifecycle Hooks) ---
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
 })

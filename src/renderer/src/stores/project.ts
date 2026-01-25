@@ -105,14 +105,11 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  /**
-   * 檢查並重啟伺服器 (Hot Reload - Stage 29)
-   * 當路由資料變更時，若該專案正在運行，則自動重啟以套用變更
-   */
+  /** 追蹤各專案是否正在重啟伺服器 (防止重複觸發) */
   const isRestarting = ref<Record<string, boolean>>({})
 
   /**
-   * 檢查並重啟伺服器 (Hot Reload - Stage 29)
+   * 檢查並重啟伺服器 (Hot Reload)
    * 當路由資料變更時，若該專案正在運行，則自動重啟以套用變更
    */
   const checkAndRestartServer = async (projectId: string): Promise<void> => {

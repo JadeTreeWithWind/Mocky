@@ -142,9 +142,6 @@ const handleAddRoute = async (): Promise<void> => {
 }
 
 /**
- * 刪除路由
- */
-/**
  * 觸發刪除路由確認
  */
 const handleDeleteRoute = (id: string): void => {

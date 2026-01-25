@@ -1,13 +1,17 @@
-import Fastify, { FastifyInstance } from 'fastify'
+import Fastify, { type FastifyInstance } from 'fastify'
 import net from 'net'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifyCors from '@fastify/cors'
 
-import { Route } from '../shared/types'
+import type { Route } from '../shared/types'
 import { toOpenApi } from './utils/openapi-generator'
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
+
+// --- 3. 常量宣告 (Constants) ---
+const MAX_PORT_ATTEMPTS = 100
+const DEFAULT_HOST = '0.0.0.0'
 
 class ServerManager {
   private servers: Map<string, FastifyInstance> = new Map()
@@ -41,7 +45,7 @@ class ServerManager {
       s.once('listening', () => {
         s.close(() => resolve(true))
       })
-      s.listen(port, '0.0.0.0')
+      s.listen(port, DEFAULT_HOST)
     })
   }
 
@@ -54,9 +58,8 @@ class ServerManager {
     const maxPort = 65535
     // 限制嘗試次數避免無窮迴圈
     let attempts = 0
-    const maxAttempts = 100
 
-    while (attempts < maxAttempts) {
+    while (attempts < MAX_PORT_ATTEMPTS) {
       const isAvailable = await this.checkPort(port)
       if (isAvailable) {
         return port
@@ -175,7 +178,7 @@ class ServerManager {
       try {
         // 6. 啟動伺服器
         // host 設為 '0.0.0.0' 或 'localhost'
-        const address = await server.listen({ port: actualPort, host: '0.0.0.0' })
+        const address = await server.listen({ port: actualPort, host: DEFAULT_HOST })
 
         console.log(
           `[Server] Project ${projectId} listening on ${address}, actual port: ${actualPort}`

@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 // 直接使用全域定義的型別，確保 Single Source of Truth
 import { type Project, type Route, PROJECT_STATUS } from '../../../shared/types'
-import { fromOpenApi } from '../utils/transformer'
+import { fromOpenApi } from '../../../shared/utils/openapi-generator'
 
 // --- 7. 核心邏輯與 Store 定義 ---
 

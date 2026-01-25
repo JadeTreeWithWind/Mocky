@@ -9,7 +9,7 @@ import icon from '../../resources/icon.png?asset'
 import { dbService } from './db'
 import { serverManager } from './server'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
-import { toOpenApi } from './utils/openapi-generator'
+import { toOpenApi } from '../shared/utils/openapi-generator'
 import { generateRedocHtml } from './utils/htmlGenerator'
 
 // --- 3. 常量宣告 (Constants) ---

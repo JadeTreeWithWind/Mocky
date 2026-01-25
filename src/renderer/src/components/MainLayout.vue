@@ -6,7 +6,8 @@ import { storeToRefs } from 'pinia'
 import { Plus, Pencil, Trash2, Download, FileDown, FileType, ChevronsRight } from 'lucide-vue-next'
 
 import { useProjectStore } from '../stores/project'
-import { toOpenApi } from '../utils/transformer'
+import { useUIStore } from '../stores/ui'
+import { toOpenApi } from '../../../shared/utils/openapi-generator'
 import TitleBar from './TitleBar.vue'
 import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
@@ -30,6 +31,7 @@ interface CreateProjectPayload {
 const router = useRouter()
 const route = useRoute()
 const projectStore = useProjectStore()
+const uiStore = useUIStore()
 const { projects } = storeToRefs(projectStore)
 
 // --- 4. 響應式狀態 (State) ---
@@ -232,11 +234,11 @@ const handleExportProject = async (id: string): Promise<void> => {
       console.log('Export successful')
     }
     if (success) {
-      // TODO: 可以加入 Toast 提示
-      console.log('Export successful')
+      uiStore.showToast('Export successful', 'success')
     }
   } catch (error) {
     console.error('[Project] Export failed:', error)
+    uiStore.showToast('Export failed', 'error')
   }
 }
 

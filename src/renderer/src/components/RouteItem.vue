@@ -3,6 +3,8 @@
 import { computed } from 'vue'
 import { Trash2, AlertCircle } from 'lucide-vue-next'
 
+import { METHOD_BADGE_THEMES, DEFAULT_BADGE_THEME } from '../constants'
+
 // --- 2. 類型定義 (Type Definitions) ---
 interface Props {
   /** HTTP 方法名稱 (如: GET, POST) */
@@ -16,18 +18,7 @@ interface Props {
 }
 
 // --- 3. 常量宣告 (Constants) ---
-/**
- * HTTP 方法對應的顏色主題對映表 (消除魔術字串)
- */
-const METHOD_THEMES: Record<string, string> = {
-  GET: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
-  POST: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
-  PUT: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
-  DELETE: 'text-red-400 bg-red-500/10 border-red-500/20',
-  PATCH: 'text-green-400 bg-green-500/10 border-green-500/20'
-} as const
-
-const DEFAULT_THEME = 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20'
+// (Moved to shared constants)
 
 // --- 4. 屬性與事件 (Props & Emits) ---
 const props = withDefaults(defineProps<Props>(), {
@@ -51,7 +42,7 @@ const formattedMethod = computed(() => props.method.toUpperCase())
  * 方法標籤 (Badge) 的樣式
  */
 const badgeClasses = computed(() => {
-  const theme = METHOD_THEMES[formattedMethod.value] ?? DEFAULT_THEME
+  const theme = METHOD_BADGE_THEMES[formattedMethod.value] ?? DEFAULT_BADGE_THEME
   // 如果未啟用，降低透明度
   const opacityClass = props.isEnabled ? '' : 'opacity-50 grayscale'
   return `flex min-w-[3.5rem] items-center justify-center rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-wide ${theme} ${opacityClass}`

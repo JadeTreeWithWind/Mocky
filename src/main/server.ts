@@ -5,7 +5,7 @@ import fastifySwaggerUi from '@fastify/swagger-ui'
 import fastifyCors from '@fastify/cors'
 
 import type { Route } from '../shared/types'
-import { toOpenApi } from './utils/openapi-generator'
+import { toOpenApi } from '../shared/utils/openapi-generator'
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
 

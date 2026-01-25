@@ -7,6 +7,8 @@ import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 // 內部資源
 import { useProjectStore } from '../stores/project'
 import { HTTP_METHODS as HTTP_METHODS_SCHEMA } from '../../../shared/types'
+import { HTTP_STATUS_CODES, METHOD_THEMES } from '../constants'
+import { validateJSON, prettifyJSON } from '../utils/jsonUtils'
 
 // --- 2. 類型定義 (Type Definitions) ---
 const props = defineProps<{
@@ -19,41 +21,6 @@ const HTTP_METHOD_OPTIONS = HTTP_METHODS_SCHEMA.options
 
 const SAVE_DELAY_MS = 1000
 const SAVING_INDICATOR_MS = 500
-
-const HTTP_STATUS_CODES = [
-  { code: 200, label: 'OK' },
-  { code: 201, label: 'Created' },
-  { code: 202, label: 'Accepted' },
-  { code: 204, label: 'No Content' },
-  { code: 301, label: 'Moved Permanently' },
-  { code: 302, label: 'Found' },
-  { code: 304, label: 'Not Modified' },
-  { code: 400, label: 'Bad Request' },
-  { code: 401, label: 'Unauthorized' },
-  { code: 403, label: 'Forbidden' },
-  { code: 404, label: 'Not Found' },
-  { code: 405, label: 'Method Not Allowed' },
-  { code: 422, label: 'Unprocessable Entity' },
-  { code: 429, label: 'Too Many Requests' },
-  { code: 500, label: 'Internal Server Error' },
-  { code: 502, label: 'Bad Gateway' },
-  { code: 503, label: 'Service Unavailable' }
-]
-
-/**
- * HTTP 方法對應的顏色主題 (與 RouteItem 保持一致或更強烈)
- */
-const METHOD_THEMES: Record<string, string> = {
-  GET: 'text-blue-400 border-blue-500/50 bg-blue-500/10 focus:border-blue-500 focus:ring-blue-500/30',
-  POST: 'text-yellow-400 border-yellow-500/50 bg-yellow-500/10 focus:border-yellow-500 focus:ring-yellow-500/30',
-  PUT: 'text-orange-400 border-orange-500/50 bg-orange-500/10 focus:border-orange-500 focus:ring-orange-500/30',
-  DELETE: 'text-red-400 border-red-500/50 bg-red-500/10 focus:border-red-500 focus:ring-red-500/30',
-  PATCH:
-    'text-green-400 border-green-500/50 bg-green-500/10 focus:border-green-500 focus:ring-green-500/30',
-  OPTIONS:
-    'text-purple-400 border-purple-500/50 bg-purple-500/10 focus:border-purple-500 focus:ring-purple-500/30',
-  HEAD: 'text-teal-400 border-teal-500/50 bg-teal-500/10 focus:border-teal-500 focus:ring-teal-500/30'
-}
 
 // --- 4. 響應式狀態 (State) ---
 // Store use
@@ -77,21 +44,6 @@ const isCopied = ref(false)
  */
 const route = computed(() => {
   return projectStore.routes.find((r) => r.id === props.routeId)
-})
-
-/**
- * 解析路徑片段，用於視覺化顯示 (Stage 18 Advanced)
- * 識別 :id 等參數格式
- */
-const pathSegments = computed(() => {
-  if (!route.value?.path) return []
-  return route.value.path
-    .split('/')
-    .filter(Boolean)
-    .map((seg) => ({
-      text: seg,
-      isParam: seg.startsWith(':')
-    }))
 })
 
 const methodSelectClasses = computed(() => {
@@ -131,7 +83,7 @@ watch(
       saveStatus.value = 'saved'
       // 切換路由時，立即驗證新內容
       if (newVal?.response?.body) {
-        validateJSON(newVal.response.body)
+        handleValidateJSON(newVal.response.body)
       } else {
         jsonError.value = null
       }
@@ -146,7 +98,7 @@ watch(
 watch(
   () => route.value?.response?.body,
   (newBody) => {
-    validateJSON(newBody || '')
+    handleValidateJSON(newBody || '')
   }
 )
 
@@ -228,34 +180,19 @@ const debouncedSave = (): void => {
 /**
  * 驗證 JSON 格式
  */
-const validateJSON = (content: string): void => {
-  if (!content.trim()) {
-    jsonError.value = null
-    return
-  }
-  try {
-    JSON.parse(content)
-    jsonError.value = null
-  } catch (e: unknown) {
-    // 截取錯誤訊息的第一行或簡化顯示
-    if (e instanceof Error) {
-      jsonError.value = e.message
-    } else {
-      jsonError.value = 'Invalid JSON format'
-    }
-  }
+const handleValidateJSON = (content: string): void => {
+  jsonError.value = validateJSON(content)
 }
 
 // --- Stage 25: Prettify JSON ---
 /**
  * 格式化 JSON 內容
  */
-const prettifyJSON = (): void => {
+const handlePrettifyJSON = (): void => {
   if (!route.value?.response?.body) return
 
   try {
-    const jsonObj = JSON.parse(route.value.response.body)
-    route.value.response.body = JSON.stringify(jsonObj, null, 2)
+    route.value.response.body = prettifyJSON(route.value.response.body)
     // 格式化後不需要顯示錯誤
     jsonError.value = null
   } catch (e) {
@@ -274,7 +211,7 @@ const handleKeydown = (e: KeyboardEvent): void => {
   // Alt + Shift + F (Common formatting shortcut)
   if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'f') {
     e.preventDefault()
-    prettifyJSON()
+    handlePrettifyJSON()
   }
 }
 
@@ -366,26 +303,6 @@ onUnmounted(() => {
               class="mr-0.5 rounded py-0.5 align-middle font-mono text-sm font-bold text-zinc-400"
               >http://localhost:{{ port }}{{ route.path }}</span
             >
-            <!-- <template v-if="pathSegments.length">
-              <div
-                v-for="(seg, index) in pathSegments"
-                :key="index"
-                class="inline-flex items-center align-middle"
-              >
-                <span class="font-mono text-sm text-zinc-400">/</span>
-                <span
-                  :class="[
-                    'rounded py-0.5 font-mono text-sm',
-                    seg.isParam
-                      ? 'border border-amber-500/30 bg-amber-500/20 text-amber-200'
-                      : 'text-zinc-400'
-                  ]"
-                >
-                  {{ seg.text }}
-                </span>
-              </div>
-            </template>
-            <span v-else class="align-middle font-mono text-sm text-zinc-400">/</span> -->
           </div>
           <button
             type="button"
@@ -564,7 +481,7 @@ onUnmounted(() => {
           type="button"
           class="flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-zinc-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           title="Format JSON (Alt+Shift+F)"
-          @click="prettifyJSON"
+          @click="handlePrettifyJSON"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

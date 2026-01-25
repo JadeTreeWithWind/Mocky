@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 // 直接使用全域定義的型別，確保 Single Source of Truth
 import { type Project, type Route, PROJECT_STATUS } from '../../../shared/types'
+import { fromOpenApi } from '../utils/transformer'
 
 // --- 7. 核心邏輯與 Store 定義 ---
 
@@ -250,11 +251,66 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  /**
-   * 獲取指定專案的運行 Port
-   */
   const getRunningPort = (projectId: string): number | undefined => {
     return runningPorts.value[projectId]
+  }
+
+  /**
+   * 匯入專案從 OpenAPI JSON
+   * @param jsonContent - OpenAPI JSON 字串
+   * @returns 新建立的專案 ID
+   */
+  const importProject = async (jsonContent: string): Promise<string> => {
+    lastError.value = null
+    isLoading.value = true
+
+    try {
+      const openApiDoc = JSON.parse(jsonContent)
+      const { project, routes: importedRoutes } = fromOpenApi(openApiDoc)
+
+      // 1. 建立專案
+      // 若匯入的資料沒有 port，預設使用 8000 (之後啟動時會自動+1)
+      const newProjectPayload = {
+        name: project.name || 'Imported Project',
+        description: project.description || '',
+        port: project.port || 8000
+      }
+
+      const newProject = await window.api.db.addProject(newProjectPayload)
+      projects.value.push(newProject)
+
+      // 2. 建立路由
+      // 使用 Promise.all 並行寫入以提升效能
+      const routePromises = importedRoutes.map((route) => {
+        // 確保必要欄位存在
+        const routePayload = {
+          projectId: newProject.id,
+          method: route.method || 'GET',
+          path: route.path || '/',
+          description: route.description || '',
+          isActive: route.isActive ?? true,
+          response: {
+            statusCode: route.response?.statusCode || 200,
+            body: route.response?.body || '{}',
+            delay: route.response?.delay || 0
+          }
+        }
+        return window.api.db.addRoute(routePayload)
+      })
+
+      await Promise.all(routePromises)
+
+      console.log(
+        `[Store] Imported project ${newProject.name} with ${importedRoutes.length} routes`
+      )
+      return newProject.id
+    } catch (error) {
+      console.error('[Store] Import project failed:', error)
+      lastError.value = '匯入專案失敗'
+      throw error
+    } finally {
+      isLoading.value = false
+    }
   }
 
   // --- 10. 對外暴露 (Exports) ---
@@ -275,6 +331,7 @@ export const useProjectStore = defineStore('project', () => {
     updateRoute,
     startServer,
     stopServer,
-    getRunningPort
+    getRunningPort,
+    importProject
   }
 })

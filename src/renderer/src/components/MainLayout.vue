@@ -207,8 +207,8 @@ const handleImportProject = async (): Promise<void> => {
   try {
     const content = await window.api.project.import()
     if (content) {
-      console.log('Imported content length:', content.length)
-      // TODO: Stage 4 will handle the parsing and persistence
+      const newProjectId = await projectStore.importProject(content)
+      navigateToProject(newProjectId)
     }
   } catch (error) {
     console.error('[Project] Import failed:', error)

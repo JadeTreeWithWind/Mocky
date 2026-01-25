@@ -14,6 +14,7 @@ import CreateProjectModal from './CreateProjectModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import LoadingOverlay from './LoadingOverlay.vue'
 import ErrorModal from './ErrorModal.vue'
+import ToastNotification from './ToastNotification.vue'
 
 import ContextMenu from './ContextMenu.vue'
 import { PROJECT_STATUS } from '../../../shared/types'
@@ -98,7 +99,30 @@ const statusBarText = computed(() => {
   return 'Ready'
 })
 
+/**
+ * 計算 Swagger 文件連結
+ */
+const statusBarDocsUrl = computed(() => {
+  const id = selectedProjectId.value
+  if (!id) return undefined
+
+  const project = projects.value.find((p) => p.id === id)
+  if (!project || project.status !== PROJECT_STATUS.RUNNING) return undefined
+
+  const port = projectStore.getRunningPort(id) ?? project.port
+  return `http://localhost:${port}/docs`
+})
+
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
+
+/**
+ * 開啟文件連結
+ */
+const handleOpenDocs = (): void => {
+  if (statusBarDocsUrl.value) {
+    window.open(statusBarDocsUrl.value, '_blank')
+  }
+}
 
 /**
  * 導航至指定專案詳情頁
@@ -306,7 +330,11 @@ onMounted(() => {
     </div>
 
     <!-- 傳入動態計算的 Status -->
-    <StatusBar :custom-status="statusBarText" />
+    <StatusBar
+      :custom-status="statusBarText"
+      :docs-url="statusBarDocsUrl"
+      @open-docs="handleOpenDocs"
+    />
 
     <CreateProjectModal
       :is-open="isCreateModalOpen"
@@ -339,5 +367,15 @@ onMounted(() => {
       :message="errorModalState.message"
       @close="errorModalState.isOpen = false"
     />
+
+    <!-- Global Toast Notification -->
+    <div
+      aria-live="assertive"
+      class="pointer-events-none fixed inset-0 z-50 flex items-end px-4 py-6 sm:items-start sm:p-6"
+    >
+      <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+        <ToastNotification />
+      </div>
+    </div>
   </div>
 </template>

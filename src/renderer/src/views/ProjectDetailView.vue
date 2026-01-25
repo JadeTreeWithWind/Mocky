@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { Plus, Search, Play, Square } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
+import { useUIStore } from '../stores/ui'
 import { PROJECT_STATUS } from '../../../shared/types'
 import RouteItem from '../components/RouteItem.vue'
 import RouteEditor from '../components/RouteEditor.vue'
@@ -13,6 +14,7 @@ import ConfirmDialog from '../components/ConfirmDialog.vue'
 // --- 3. 初始化 (Initialization) ---
 const route = useRoute()
 const projectStore = useProjectStore()
+const uiStore = useUIStore()
 const { routes, isLoading, projects } = storeToRefs(projectStore)
 
 // --- 4. 響應式狀態 (State) ---
@@ -82,10 +84,23 @@ const toggleServer = async (): Promise<void> => {
       if (typeof actualPort === 'number' && configuredPort && actualPort !== configuredPort) {
         portBusyMessage.value = `The configured port ${configuredPort} is occupied. The server is now running on port ${actualPort}.`
         isPortBusyOpen.value = true
+
+        // Show Toast with warning
+        uiStore.showToast(`Server started on port ${actualPort} (auto-incremented)`, 'info', {
+          label: 'Open Docs',
+          url: `http://localhost:${actualPort}/docs`
+        })
+      } else {
+        // Show Success Toast
+        uiStore.showToast(`Server started on port ${actualPort}`, 'success', {
+          label: 'Open Docs',
+          url: `http://localhost:${actualPort}/docs`
+        })
       }
     }
   } catch (error) {
     console.error('Failed to toggle server:', error)
+    uiStore.showToast('Failed to toggle server', 'error')
   }
 }
 

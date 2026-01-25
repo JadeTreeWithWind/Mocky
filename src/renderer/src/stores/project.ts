@@ -105,6 +105,17 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /**
+   * 檢查並重啟伺服器 (Hot Reload - Stage 29)
+   * 當路由資料變更時，若該專案正在運行，則自動重啟以套用變更
+   */
+  const checkAndRestartServer = async (projectId: string): Promise<void> => {
+    if (runningPorts.value[projectId]) {
+      console.log(`[Store] Hot Reload: Restarting server for project ${projectId}...`)
+      await startServer(projectId)
+    }
+  }
+
+  /**
    * 建立新路由 (預設值)
    * @param projectId - 專案 UUID
    * @returns {Promise<string>} 新增的路由 ID
@@ -130,6 +141,10 @@ export const useProjectStore = defineStore('project', () => {
 
       const newRoute = await window.api.db.addRoute(payload)
       routes.value.push(newRoute)
+
+      // Hot Reload
+      await checkAndRestartServer(projectId)
+
       return newRoute.id
     } catch (error) {
       console.error('[Store] Create route failed:', error)
@@ -145,10 +160,19 @@ export const useProjectStore = defineStore('project', () => {
   const deleteRoute = async (id: string): Promise<void> => {
     if (!id) return
 
+    // 暫存 projectId 以便後續重啟判斷
+    const route = routes.value.find((r) => r.id === id)
+    const projectId = route?.projectId
+
     try {
       const success = await window.api.db.deleteRoute(id)
       if (success) {
         routes.value = routes.value.filter((r) => r.id !== id)
+
+        // Hot Reload
+        if (projectId) {
+          await checkAndRestartServer(projectId)
+        }
       }
     } catch (error) {
       console.error('[Store] Delete route failed:', error)
@@ -165,6 +189,9 @@ export const useProjectStore = defineStore('project', () => {
     lastError.value = null
     try {
       await window.api.db.updateRoute(JSON.parse(JSON.stringify(route))) // 確保移除 Proxy
+
+      // Hot Reload
+      await checkAndRestartServer(route.projectId)
     } catch (error) {
       console.error('[Store] Update route failed:', error)
       lastError.value = '無法更新路由'

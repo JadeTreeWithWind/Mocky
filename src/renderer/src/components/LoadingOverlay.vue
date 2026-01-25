@@ -21,7 +21,7 @@ defineProps<Props>()
       class="flex flex-col items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-6 shadow-xl"
     >
       <Loader2 class="h-8 w-8 animate-spin text-zinc-200" />
-      <span class="text-sm font-medium text-zinc-300">Processing...</span>
+      <span class="text-base font-medium text-zinc-300">Processing...</span>
     </div>
   </div>
 </template>

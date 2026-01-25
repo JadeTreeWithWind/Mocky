@@ -38,7 +38,7 @@ const indicatorClass = computed(() => {
 
 <template>
   <footer
-    class="flex h-6 shrink-0 items-center justify-between border-t border-zinc-800 bg-zinc-950 px-3 text-xs text-zinc-400 select-none"
+    class="flex h-6 shrink-0 items-center justify-between border-t border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-400 select-none"
     role="contentinfo"
   >
     <div

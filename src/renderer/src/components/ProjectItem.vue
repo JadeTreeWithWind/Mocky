@@ -30,7 +30,7 @@ const emit = defineEmits<{
  * 容器主體的動態樣式
  */
 const containerClasses = computed(() => [
-  'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2.5 text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-zinc-600',
+  'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2.5 text-base transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-zinc-600',
   props.isActive
     ? 'bg-zinc-900 text-zinc-50 font-semibold shadow-md ring-1 ring-zinc-800'
     : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 font-medium'
@@ -40,7 +40,7 @@ const containerClasses = computed(() => [
  * Port 標籤的樣式
  */
 const badgeClasses = computed(() => [
-  'shrink-0 rounded px-2 py-0.5 text-[11px] font-mono font-bold tracking-wider transition-colors',
+  'shrink-0 rounded px-2 py-0.5 text-[13px] font-mono font-bold tracking-wider transition-colors',
   props.isActive
     ? 'bg-zinc-800 text-zinc-200 border border-zinc-700'
     : 'bg-zinc-900 text-zinc-600 border border-zinc-900 group-hover:border-zinc-700 group-hover:text-zinc-400'

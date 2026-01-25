@@ -136,7 +136,7 @@ onUnmounted(() => {
     <div
       v-if="visible"
       ref="menuRef"
-      class="fixed z-50 min-w-[160px] overflow-hidden rounded-md border border-zinc-800 bg-zinc-900/98 p-1 shadow-2xl ring-1 ring-white/10 backdrop-blur-md focus:outline-none"
+      class="fixed z-50 min-w-[180px] overflow-hidden rounded-md border border-zinc-800 bg-zinc-900/98 p-1 shadow-2xl ring-1 ring-white/10 backdrop-blur-md focus:outline-none"
       :style="{
         left: `${adjustedPosition.x}px`,
         top: `${adjustedPosition.y}px`
@@ -147,7 +147,7 @@ onUnmounted(() => {
           v-for="item in items"
           :key="item.label"
           type="button"
-          class="group flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors"
+          class="group flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-left text-base transition-colors"
           :class="[
             item.danger
               ? 'text-red-400 hover:bg-red-500/10 hover:text-red-300'
@@ -158,7 +158,7 @@ onUnmounted(() => {
           <component
             :is="item.icon"
             v-if="item.icon"
-            class="h-4 w-4"
+            class="h-5 w-5"
             :class="item.danger ? 'text-red-400/80' : 'text-zinc-400 group-hover:text-zinc-200'"
           />
           <span class="flex-1">{{ item.label }}</span>

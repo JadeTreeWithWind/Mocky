@@ -13,11 +13,11 @@ import { MonitorPlay } from 'lucide-vue-next' // 使用專案統一的圖標庫
       <MonitorPlay :size="48" class="text-zinc-500" aria-hidden="true" />
     </div>
 
-    <h2 id="welcome-title" class="mb-3 text-2xl font-bold tracking-tight text-zinc-100">
+    <h2 id="welcome-title" class="mb-3 text-3xl font-bold tracking-tight text-zinc-100">
       Welcome to Mocky
     </h2>
 
-    <p class="max-w-[300px] text-sm leading-relaxed text-zinc-400">
+    <p class="max-w-[400px] text-base leading-relaxed text-zinc-400">
       Select a project from the sidebar to get started, or create a new one to begin your API
       journey.
     </p>

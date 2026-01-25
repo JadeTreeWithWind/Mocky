@@ -429,7 +429,7 @@ onUnmounted(() => {
                   type="number"
                   min="0"
                   step="100"
-                  class="w-16 rounded-md border border-zinc-700 bg-zinc-800 px-2 py-1 pr-6 text-right text-xs font-bold text-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                  class="w-20 rounded-md border border-zinc-700 bg-zinc-800 px-2 py-1 pr-6 text-right text-xs font-bold text-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                 />
                 <span class="pointer-events-none absolute right-2 text-xs text-zinc-500">ms</span>
               </div>

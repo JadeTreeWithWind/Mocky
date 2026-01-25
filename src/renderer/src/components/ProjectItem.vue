@@ -39,10 +39,10 @@ const containerClasses = computed(() => [
 /**
  * 狀態指示燈的樣式
  */
-const indicatorClasses = computed(() => [
-  'h-2 w-2 shrink-0 rounded-full transition-colors',
-  props.isActive ? 'bg-green-500' : 'bg-zinc-600 group-hover:bg-zinc-500'
-])
+// const indicatorClasses = computed(() => [
+//   'h-2 w-2 shrink-0 rounded-full transition-colors',
+//   props.isActive ? 'bg-green-500' : 'bg-zinc-600 group-hover:bg-zinc-500'
+// ])
 
 /**
  * Port 標籤的樣式

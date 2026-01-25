@@ -22,7 +22,7 @@ import { MonitorPlay } from 'lucide-vue-next' // 使用專案統一的圖標庫
       journey.
     </p>
 
-    <div class="mt-8 h-px w-16 bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
+    <div class="mt-8 h-px w-16 bg-linear-to-r from-transparent via-zinc-700 to-transparent" />
   </div>
 </template>
 

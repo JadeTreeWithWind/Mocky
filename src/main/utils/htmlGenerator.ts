@@ -11,7 +11,11 @@ import { OpenAPIV3 } from 'openapi-types'
  * @param {string} title - 文檔標題
  * @returns {string} 完整的 HTML 字串
  */
-export const generateRedocHtml = (spec: OpenAPIV3.Document, title: string): string => {
+export const generateRedocHtml = (
+  spec: OpenAPIV3.Document,
+  title: string,
+  redocScript: string
+): string => {
   const specJson = JSON.stringify(spec)
 
   return `<!DOCTYPE html>
@@ -29,7 +33,9 @@ export const generateRedocHtml = (spec: OpenAPIV3.Document, title: string): stri
   </head>
   <body>
     <div id="redoc-container"></div>
-    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+    <script>
+      ${redocScript}
+    </script>
     <script>
       const spec = ${specJson};
       Redoc.init(spec, {

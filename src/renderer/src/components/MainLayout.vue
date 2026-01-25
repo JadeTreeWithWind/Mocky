@@ -3,9 +3,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, Download } from 'lucide-vue-next'
 
 import { useProjectStore } from '../stores/project'
+import { toOpenApi } from '../utils/transformer'
 import TitleBar from './TitleBar.vue'
 import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
@@ -58,6 +59,11 @@ const contextMenuItems = computed(() => [
     label: 'Edit',
     icon: Pencil,
     action: () => handleEditProject(contextMenuState.value.projectId)
+  },
+  {
+    label: 'Export JSON',
+    icon: Download,
+    action: () => handleExportProject(contextMenuState.value.projectId)
   },
   {
     label: 'Delete',
@@ -163,6 +169,35 @@ const handleOpenContextMenu = (event: MouseEvent, projectId: string): void => {
 const handleEditProject = (id: string): void => {
   // TODO: 實作專案編輯功能（開啟編輯彈窗）
   console.log('[Project] Edit requested for:', id)
+}
+
+/**
+ * 處理專案匯出邏輯
+ * @param id - 專案 UUID
+ */
+const handleExportProject = async (id: string): Promise<void> => {
+  const project = projects.value.find((p) => p.id === id)
+  if (!project) return
+
+  try {
+    // 獲取該專案的所有路由
+    const routes = await window.api.db.getRoutesByProjectId(id)
+
+    // 轉換為 OpenAPI 格式
+    const openApiDoc = toOpenApi(project, routes)
+    const jsonContent = JSON.stringify(openApiDoc, null, 2)
+
+    // 呼叫主進程下載
+    const filename = `${project.name.replace(/\s+/g, '_')}_openapi.json`
+    const success = await window.api.project.export(jsonContent, filename)
+
+    if (success) {
+      // TODO: 可以加入 Toast 提示
+      console.log('Export successful')
+    }
+  } catch (error) {
+    console.error('[Project] Export failed:', error)
+  }
 }
 
 // --- 8. 生命週期鉤子 (Lifecycle Hooks) ---

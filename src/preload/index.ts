@@ -57,6 +57,11 @@ const api = {
 
     stop: (projectId: string): Promise<boolean> =>
       ipcRenderer.invoke(IPC_CHANNELS.SERVER.STOP, projectId)
+  },
+
+  project: {
+    export: (content: string, filename?: string): Promise<boolean> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PROJECT.EXPORT, { content, filename })
   }
 }
 

@@ -26,6 +26,10 @@ export const IPC_CHANNELS = {
   SERVER: {
     START: 'server:start',
     STOP: 'server:stop'
+  },
+  PROJECT: {
+    EXPORT: 'project:export',
+    IMPORT: 'project:import' // Placeholder for future
   }
 } as const
 

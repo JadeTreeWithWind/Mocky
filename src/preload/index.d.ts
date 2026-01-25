@@ -69,6 +69,10 @@ interface ServerAPI {
   stop: (projectId: string) => Promise<boolean>
 }
 
+interface ProjectAPI {
+  export: (content: string, filename?: string) => Promise<boolean>
+}
+
 // --- 9. 全域擴充 (Global Augmentation) ---
 
 declare global {
@@ -80,6 +84,7 @@ declare global {
       windowControls: WindowControls
       db: DatabaseAPI
       server: ServerAPI
+      project: ProjectAPI
     }
   }
 }

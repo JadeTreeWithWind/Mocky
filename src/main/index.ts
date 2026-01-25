@@ -1,6 +1,7 @@
 // --- 1. 外部引用 (Imports) ---
-import { app, shell, BrowserWindow, ipcMain, WebContents } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, WebContents, dialog } from 'electron'
 import { join } from 'path'
+import { writeFile } from 'fs/promises'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
@@ -178,6 +179,28 @@ function registerIpcHandlers(): void {
     } catch (error) {
       console.error('[IPC] Failed to stop server:', error)
       return false
+    }
+  })
+
+  // --- 專案匯出/匯入 IPC ---
+  ipcMain.handle(IPC_CHANNELS.PROJECT.EXPORT, async (event, { content, filename }) => {
+    try {
+      const win = getWindowFromEvent(event.sender)
+      if (!win) return false
+
+      const { canceled, filePath } = await dialog.showSaveDialog(win, {
+        title: 'Export Project',
+        defaultPath: filename || 'project.json',
+        filters: [{ name: 'JSON Files', extensions: ['json'] }]
+      })
+
+      if (canceled || !filePath) return false
+
+      await writeFile(filePath, content, 'utf-8')
+      return true
+    } catch (error) {
+      console.error('[IPC] Failed to export project:', error)
+      throw error // 讓前端捕獲錯誤
     }
   })
 }

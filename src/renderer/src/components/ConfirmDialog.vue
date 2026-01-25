@@ -119,6 +119,7 @@ onUnmounted(() => {
 
           <div class="flex justify-end gap-3">
             <button
+              v-if="cancelText"
               type="button"
               class="rounded-md px-4 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
               @click="handleClose"

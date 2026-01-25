@@ -12,11 +12,14 @@ export const useProjectStore = defineStore('project', () => {
   const routes = ref<Route[]>([])
   const isLoading = ref(false)
   const lastError = ref<string | null>(null)
+  /** 儲存各專案實際運行的 Port (Key: ProjectId, Value: Port) */
+  const runningPorts = ref<Record<string, number>>({})
 
   // --- 7. 核心邏輯與函數 (Actions) ---
 
   /**
    * 從資料庫獲取所有專案列表
+   * ... (methods continue)
    */
   const fetchProjects = async (): Promise<void> => {
     isLoading.value = true
@@ -67,6 +70,10 @@ export const useProjectStore = defineStore('project', () => {
       const success = await window.api.db.deleteProject(id)
       if (success) {
         projects.value = projects.value.filter((p) => p.id !== id)
+        // 同步清除運行狀態
+        if (runningPorts.value[id]) {
+          delete runningPorts.value[id]
+        }
       }
     } catch (error) {
       console.error('[Store] Delete project failed:', error)
@@ -168,7 +175,7 @@ export const useProjectStore = defineStore('project', () => {
   /**
    * 啟動 Mock 伺服器
    */
-  const startServer = async (projectId: string): Promise<void> => {
+  const startServer = async (projectId: string): Promise<number | void> => {
     const project = projects.value.find((p) => p.id === projectId)
     if (!project) return
 
@@ -181,7 +188,11 @@ export const useProjectStore = defineStore('project', () => {
 
       // 更新狀態
       project.status = PROJECT_STATUS.RUNNING
+      // 記錄實際運行的 Port
+      runningPorts.value[projectId] = actualPort
+
       console.log(`[Store] Server started on port ${actualPort}`)
+      return actualPort
     } catch (error) {
       console.error('[Store] Failed to start server:', error)
       lastError.value = '無法啟動伺服器'
@@ -200,12 +211,23 @@ export const useProjectStore = defineStore('project', () => {
         if (project) {
           project.status = PROJECT_STATUS.STOPPED
         }
+        // 清除運行 Port 記錄
+        if (runningPorts.value[projectId]) {
+          delete runningPorts.value[projectId]
+        }
       }
     } catch (error) {
       console.error('[Store] Failed to stop server:', error)
       lastError.value = '無法停止伺服器'
       throw error
     }
+  }
+
+  /**
+   * 獲取指定專案的運行 Port
+   */
+  const getRunningPort = (projectId: string): number | undefined => {
+    return runningPorts.value[projectId]
   }
 
   // --- 10. 對外暴露 (Exports) ---
@@ -215,6 +237,7 @@ export const useProjectStore = defineStore('project', () => {
     routes,
     isLoading,
     lastError,
+    runningPorts,
     // Actions
     fetchProjects,
     createProject,
@@ -224,6 +247,7 @@ export const useProjectStore = defineStore('project', () => {
     deleteRoute,
     updateRoute,
     startServer,
-    stopServer
+    stopServer,
+    getRunningPort
   }
 })

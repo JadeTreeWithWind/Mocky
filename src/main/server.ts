@@ -1,6 +1,6 @@
 // --- 1. 外部引用 (Imports) ---
 import Fastify, { FastifyInstance } from 'fastify'
-import { AddressInfo } from 'net'
+import net from 'net'
 
 import { Route } from '../shared/types'
 
@@ -8,6 +8,48 @@ import { Route } from '../shared/types'
 
 class ServerManager {
   private servers: Map<string, FastifyInstance> = new Map()
+
+  /**
+   * 檢查 Port 是否可用
+   * @param port - 欲檢查的 Port
+   */
+  private checkPort(port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      const s = net.createServer()
+      s.once('error', () => resolve(false))
+      s.once('listening', () => {
+        s.close(() => resolve(true))
+      })
+      s.listen(port, '0.0.0.0')
+    })
+  }
+
+  /**
+   * 尋找下一個可用 Port
+   * @param startPort - 起始 Port
+   */
+  private async findAvailablePort(startPort: number): Promise<number> {
+    let port = startPort
+    const maxPort = 65535
+    // 限制嘗試次數避免無窮迴圈
+    let attempts = 0
+    const maxAttempts = 100
+
+    while (attempts < maxAttempts) {
+      // 動態引入 net 模組以確保在 Node環境執行
+      // 注意：在這個檔案頂部已經可以 import 'net'，這裡為了保險使用動態或直接改用頂部 helper
+      const isAvailable = await this.checkPort(port)
+      if (isAvailable) {
+        return port
+      }
+      port++
+      attempts++
+      if (port > maxPort) {
+        throw new Error('No available ports found within range')
+      }
+    }
+    throw new Error('Unable to find an available port after multiple attempts')
+  }
 
   /**
    * 啟動 Mock 伺服器
@@ -22,10 +64,14 @@ class ServerManager {
       await this.stop(projectId)
     }
 
-    // 2. 建立 Fastify 實例
+    // 2. 尋找可用 Port
+    const actualPort = await this.findAvailablePort(port)
+    console.log(`[Server] Requested port ${port}, using available port ${actualPort}`)
+
+    // 3. 建立 Fastify 實例
     const server = Fastify({ logger: true })
 
-    // 3. 註冊路由
+    // 4. 註冊路由
     console.log(`[Server] Project ${projectId} mounting ${routes.length} routes...`)
 
     routes.forEach((route) => {
@@ -63,17 +109,15 @@ class ServerManager {
     })
 
     try {
-      // 4. 啟動伺服器
+      // 5. 啟動伺服器
       // host 設為 '0.0.0.0' 或 'localhost'
-      const address = await server.listen({ port, host: '0.0.0.0' })
-      const serverAddress = server.server.address() as AddressInfo | null
-      const actualPort = serverAddress?.port ?? port
+      const address = await server.listen({ port: actualPort, host: '0.0.0.0' })
 
       console.log(
         `[Server] Project ${projectId} listening on ${address}, actual port: ${actualPort}`
       )
 
-      // 5. 存入 Map
+      // 6. 存入 Map
       this.servers.set(projectId, server)
 
       return actualPort

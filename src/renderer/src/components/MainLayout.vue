@@ -11,7 +11,9 @@ import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
 import CreateProjectModal from './CreateProjectModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
+
 import ContextMenu from './ContextMenu.vue'
+import { PROJECT_STATUS } from '../../../shared/types'
 
 // --- 2. 類型定義 (Type Definitions) ---
 interface CreateProjectPayload {
@@ -64,6 +66,24 @@ const contextMenuItems = computed(() => [
     action: () => triggerDeleteConfirm(contextMenuState.value.projectId)
   }
 ])
+
+/**
+ * 底部狀態列文字
+ */
+const statusBarText = computed(() => {
+  const id = selectedProjectId.value
+  if (!id) return 'Ready'
+
+  const project = projects.value.find((p) => p.id === id)
+  if (!project) return 'Ready'
+
+  if (project.status === PROJECT_STATUS.RUNNING) {
+    const runningPort = projectStore.getRunningPort(id) ?? project.port
+    return `Running on :${runningPort}`
+  }
+
+  return 'Ready'
+})
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
 
@@ -186,7 +206,8 @@ onMounted(() => {
       </main>
     </div>
 
-    <StatusBar />
+    <!-- 傳入動態計算的 Status -->
+    <StatusBar :custom-status="statusBarText" />
 
     <CreateProjectModal
       :is-open="isCreateModalOpen"

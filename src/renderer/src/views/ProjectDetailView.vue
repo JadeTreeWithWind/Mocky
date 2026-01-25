@@ -25,6 +25,10 @@ const isDeleteConfirmOpen = ref(false)
 /** 待刪除的路由 ID */
 const routeToDeleteId = ref<string | null>(null)
 
+/** Port 佔用提示彈窗狀態 */
+const isPortBusyOpen = ref(false)
+const portBusyMessage = ref('')
+
 // --- 5. 計算屬性 (Computed Properties) ---
 
 /**
@@ -71,7 +75,14 @@ const toggleServer = async (): Promise<void> => {
     if (isServerRunning.value) {
       await projectStore.stopServer(projectId.value)
     } else {
-      await projectStore.startServer(projectId.value)
+      const actualPort = await projectStore.startServer(projectId.value)
+
+      // 檢查 Port 是否變更
+      const configuredPort = currentProject.value?.port
+      if (typeof actualPort === 'number' && configuredPort && actualPort !== configuredPort) {
+        portBusyMessage.value = `The configured port ${configuredPort} is occupied. The server is now running on port ${actualPort}.`
+        isPortBusyOpen.value = true
+      }
     }
   } catch (error) {
     console.error('Failed to toggle server:', error)
@@ -286,6 +297,16 @@ onMounted(() => {
       :is-danger="true"
       @close="isDeleteConfirmOpen = false"
       @confirm="executeDeleteRoute"
+    />
+
+    <ConfirmDialog
+      :is-open="isPortBusyOpen"
+      title="Port Occupied"
+      :message="portBusyMessage"
+      confirm-text="OK"
+      :cancel-text="''"
+      @close="isPortBusyOpen = false"
+      @confirm="isPortBusyOpen = false"
     />
   </div>
 </template>

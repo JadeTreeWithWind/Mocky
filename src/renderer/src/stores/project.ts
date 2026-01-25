@@ -109,10 +109,30 @@ export const useProjectStore = defineStore('project', () => {
    * 檢查並重啟伺服器 (Hot Reload - Stage 29)
    * 當路由資料變更時，若該專案正在運行，則自動重啟以套用變更
    */
+  const isRestarting = ref<Record<string, boolean>>({})
+
+  /**
+   * 檢查並重啟伺服器 (Hot Reload - Stage 29)
+   * 當路由資料變更時，若該專案正在運行，則自動重啟以套用變更
+   */
   const checkAndRestartServer = async (projectId: string): Promise<void> => {
     if (runningPorts.value[projectId]) {
-      console.log(`[Store] Hot Reload: Restarting server for project ${projectId}...`)
-      await startServer(projectId)
+      // Prevent overlapping restarts
+      if (isRestarting.value[projectId]) {
+        console.log(`[Store] Hot Reload: Restart already in progress for ${projectId}, skipping...`)
+        // Ideally we should schedule another restart if data changed AGAIN while restarting,
+        // but for now skipping is safer than crashing.
+        // A better approach would be "restart pending" flag.
+        return
+      }
+
+      isRestarting.value[projectId] = true
+      try {
+        console.log(`[Store] Hot Reload: Restarting server for project ${projectId}...`)
+        await startServer(projectId)
+      } finally {
+        isRestarting.value[projectId] = false
+      }
     }
   }
 

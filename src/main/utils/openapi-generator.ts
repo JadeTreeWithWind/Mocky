@@ -5,6 +5,7 @@ export interface ProjectInfo {
   name: string
   description?: string
   version?: string
+  serverUrl?: string // For "Try it out" functionality
 }
 
 export const toOpenApi = (project: ProjectInfo, routes: Route[]): OpenAPIV3.Document => {
@@ -58,7 +59,7 @@ export const toOpenApi = (project: ProjectInfo, routes: Route[]): OpenAPIV3.Docu
     paths[openApiPath]![method] = operation
   })
 
-  return {
+  const doc: OpenAPIV3.Document = {
     openapi: '3.0.0',
     info: {
       title: project.name,
@@ -67,6 +68,13 @@ export const toOpenApi = (project: ProjectInfo, routes: Route[]): OpenAPIV3.Docu
     },
     paths
   }
+
+  // 5. Add Server URL if provided
+  if (project.serverUrl) {
+    doc.servers = [{ url: project.serverUrl }]
+  }
+
+  return doc
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

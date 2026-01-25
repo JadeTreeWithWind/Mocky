@@ -23,6 +23,8 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
+    "@fastify/swagger": "^9.6.1",
+    "@fastify/swagger-ui": "^5.2.4",
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@tailwindcss/vite": "^4.1.18",
     "electron-updater": "^6.7.3",

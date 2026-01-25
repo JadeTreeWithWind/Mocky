@@ -263,6 +263,7 @@ export const useProjectStore = defineStore('project', () => {
   const importProject = async (jsonContent: string): Promise<string> => {
     lastError.value = null
     isLoading.value = true
+    const startTime = Date.now()
 
     try {
       const openApiDoc = JSON.parse(jsonContent)
@@ -309,6 +310,12 @@ export const useProjectStore = defineStore('project', () => {
       lastError.value = '匯入專案失敗'
       throw error
     } finally {
+      // 防止 Loading 畫面閃爍 (至少顯示 500ms)
+      const MIN_LOADING_TIME = 500
+      const elapsed = Date.now() - startTime
+      if (elapsed < MIN_LOADING_TIME) {
+        await new Promise((resolve) => setTimeout(resolve, MIN_LOADING_TIME - elapsed))
+      }
       isLoading.value = false
     }
   }

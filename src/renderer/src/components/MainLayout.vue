@@ -12,6 +12,8 @@ import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
 import CreateProjectModal from './CreateProjectModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
+import LoadingOverlay from './LoadingOverlay.vue'
+import ErrorModal from './ErrorModal.vue'
 
 import ContextMenu from './ContextMenu.vue'
 import { PROJECT_STATUS } from '../../../shared/types'
@@ -33,6 +35,11 @@ const { projects } = storeToRefs(projectStore)
 const isCreateModalOpen = ref(false)
 const isConfirmDeleteOpen = ref(false)
 const projectToDeleteId = ref<string | null>(null) // 命名語義化
+const errorModalState = ref({
+  isOpen: false,
+  title: '',
+  message: ''
+})
 
 const contextMenuState = ref({
   visible: false,
@@ -203,15 +210,44 @@ const handleExportProject = async (id: string): Promise<void> => {
 /**
  * 處理專案匯入邏輯 (Stage 3)
  */
+/**
+ * 顯示錯誤彈窗
+ */
+const showError = (title: string, message: string): void => {
+  errorModalState.value = {
+    isOpen: true,
+    title,
+    message
+  }
+}
+
+/**
+ * 處理專案匯入邏輯 (Stage 3 + Stage 5 Enhanced)
+ */
 const handleImportProject = async (): Promise<void> => {
   try {
     const content = await window.api.project.import()
     if (content) {
+      // Stage 5: Postman 相容性檢查
+      try {
+        const json = JSON.parse(content)
+        if (json.info?.schema?.includes('getpostman.com')) {
+          showError(
+            'Format Not Supported',
+            'Postman Collection format is not currently supported. Please convert it to OpenAPI/Swagger format first.'
+          )
+          return
+        }
+      } catch (e) {
+        // Ignore JSON parse error here, let transformer handle it or it will be caught below
+      }
+
       const newProjectId = await projectStore.importProject(content)
       navigateToProject(newProjectId)
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Project] Import failed:', error)
+    showError('Import Failed', error.message || 'An unknown error occurred during import.')
   }
 }
 
@@ -291,6 +327,15 @@ onMounted(() => {
       :position="{ x: contextMenuState.x, y: contextMenuState.y }"
       :items="contextMenuItems"
       @close="contextMenuState.visible = false"
+    />
+
+    <LoadingOverlay :is-loading="projectStore.isLoading" />
+
+    <ErrorModal
+      :is-open="errorModalState.isOpen"
+      :title="errorModalState.title"
+      :message="errorModalState.message"
+      @close="errorModalState.isOpen = false"
     />
   </div>
 </template>

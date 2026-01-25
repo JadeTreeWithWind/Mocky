@@ -3,7 +3,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { Plus, Pencil, Trash2, Download, FileDown, FileType } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, Download, FileDown, FileType, ChevronsRight } from 'lucide-vue-next'
 
 import { useProjectStore } from '../stores/project'
 import { toOpenApi } from '../utils/transformer'
@@ -311,40 +311,60 @@ onMounted(() => {
     <TitleBar />
 
     <div class="flex flex-1 overflow-hidden">
-      <aside class="flex w-[250px] shrink-0 flex-col border-r border-zinc-800 bg-zinc-950">
-        <div class="flex items-center justify-between px-4 py-3">
-          <h2 class="text-sm font-bold tracking-widest text-zinc-400 uppercase">Projects</h2>
-          <div class="flex items-center gap-1">
-            <button
-              type="button"
-              class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-              title="Import OpenAPI"
-              @click="handleImportProject"
-            >
-              <FileDown :size="14" />
-            </button>
-            <button
-              type="button"
-              class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-              title="Create Project"
-              @click="isCreateModalOpen = true"
-            >
-              <Plus :size="14" />
-            </button>
-          </div>
+      <aside
+        class="group relative flex shrink-0 flex-col border-r border-zinc-800 bg-zinc-950 transition-all duration-300 ease-in-out"
+        :class="selectedProjectId ? 'w-10 hover:w-[250px]' : 'w-[250px]'"
+      >
+        <!-- Collapse Indicator -->
+        <div
+          v-if="selectedProjectId"
+          class="absolute top-3 left-0 flex w-full items-center justify-center text-zinc-300 transition-opacity duration-300 group-hover:opacity-0"
+        >
+          <ChevronsRight :size="20" />
         </div>
 
-        <nav class="flex-1 space-y-0.5 overflow-y-auto px-2 py-1">
-          <ProjectItem
-            v-for="project in projects"
-            :key="project.id"
-            :name="project.name"
-            :port="project.port"
-            :is-active="selectedProjectId === project.id"
-            @click="navigateToProject(project.id)"
-            @contextmenu.prevent="handleOpenContextMenu($event, project.id)"
-          />
-        </nav>
+        <div
+          class="flex h-full min-w-[250px] flex-col transition-opacity duration-300"
+          :class="
+            selectedProjectId
+              ? 'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100'
+              : ''
+          "
+        >
+          <div class="flex items-center justify-between px-4 py-3">
+            <h2 class="text-sm font-bold tracking-widest text-zinc-400 uppercase">Projects</h2>
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                title="Import OpenAPI"
+                @click="handleImportProject"
+              >
+                <FileDown :size="14" />
+              </button>
+              <button
+                type="button"
+                class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                title="Create Project"
+                @click="isCreateModalOpen = true"
+              >
+                <Plus :size="14" />
+              </button>
+            </div>
+          </div>
+
+          <nav class="flex-1 space-y-0.5 overflow-y-auto px-2 py-1">
+            <ProjectItem
+              v-for="project in projects"
+              :key="project.id"
+              :name="project.name"
+              :port="project.port"
+              :is-active="selectedProjectId === project.id"
+              @click="navigateToProject(project.id)"
+              @contextmenu.prevent="handleOpenContextMenu($event, project.id)"
+            />
+          </nav>
+        </div>
       </aside>
 
       <main class="flex-1 overflow-auto bg-zinc-950">

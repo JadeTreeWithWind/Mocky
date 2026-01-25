@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
-import { Minus, Square, X } from 'lucide-vue-next'
+import { Minus, Square, X, Drama } from 'lucide-vue-next'
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
 
@@ -32,11 +32,12 @@ const handleClose = (): void => {
     role="banner"
   >
     <div class="flex items-center gap-2 pl-3">
-      <div
+      <!-- <div
         class="h-4 w-4 rounded-full bg-zinc-200 shadow-sm shadow-zinc-500/20"
         aria-hidden="true"
-      />
-      <span class="text-sm font-semibold tracking-wide text-zinc-300 uppercase">Mocky</span>
+      /> -->
+      <Drama :size="20" />
+      <span class="text-xs font-semibold tracking-wide text-zinc-300 uppercase">Mocky</span>
     </div>
 
     <div class="window-controls flex h-full">

@@ -66,6 +66,9 @@ const saveTimeout = ref<ReturnType<typeof setTimeout> | undefined>(undefined)
 // Stage 23: JSON Validation
 const jsonError = ref<string | null>(null)
 
+// Copy feedback state
+const isCopied = ref(false)
+
 // --- 5. 計算屬性 (Computed Properties) ---
 /**
  * 根據 ID 從 Store 獲取路由物件
@@ -98,6 +101,24 @@ const methodSelectClasses = computed(() => {
   const themeClass = METHOD_THEMES[route.value.method] || defaultClass
 
   return `h-10 appearance-none rounded-md border px-4 py-2 pr-8 text-sm font-bold focus:ring-1 focus:outline-none transition-colors ${themeClass}`
+})
+
+/**
+ * 獲取當前路由所屬專案的 Port
+ * 優先顯示實際運行中的 Port (Running Port)
+ * 若未運行則顯示設定的 Port
+ */
+const port = computed(() => {
+  if (!route.value) return 8000
+  const projectId = route.value.projectId
+
+  // 優先檢查是否有正在運行的 Port
+  const running = projectStore.runningPorts[projectId]
+  if (running) return running
+
+  // 否則查找專案設定
+  const project = projectStore.projects.find((p) => p.id === projectId)
+  return project?.port || 8000
 })
 
 // --- 6. 偵聽器 (Watchers) ---
@@ -151,6 +172,25 @@ const handlePathBlur = (): void => {
   let p = route.value.path.trim()
   if (p && !p.startsWith('/')) {
     route.value.path = `/${p}`
+  }
+}
+
+/**
+ * 複製完整路徑到剪貼簿
+ */
+const copyPath = async (): Promise<void> => {
+  if (!route.value) return
+
+  const fullUrl = `http://localhost:${port.value}${route.value.path}`
+
+  try {
+    await navigator.clipboard.writeText(fullUrl)
+    isCopied.value = true
+    setTimeout(() => {
+      isCopied.value = false
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to copy URL:', err)
   }
 }
 
@@ -250,27 +290,113 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div v-if="route" class="relative flex h-full w-full flex-col">
+  <!-- TODO: 未來修正 -->
+  <!-- 暫時用 max-w-[65vw] 限制最大寬度 ，避免畫面因為內容過多無限延伸超出視窗-->
+  <div v-if="route" class="relative flex h-full w-full max-w-[65vw] flex-col">
     <!-- Stage 16: Editor Header -->
     <header class="border-b border-zinc-800 bg-zinc-900/30 px-6 py-4">
-      <div class="flex items-start gap-4">
-        <!-- Method Select -->
-        <div class="relative shrink-0">
-          <select v-model="route.method" :class="methodSelectClasses">
-            <option
-              v-for="method in HTTP_METHOD_OPTIONS"
-              :key="method"
-              :value="method"
-              class="bg-zinc-800 text-zinc-100"
+      <div class="flex flex-col gap-4">
+        <div class="flex w-full flex-row gap-4">
+          <!-- Method Select -->
+          <div class="relative shrink-0">
+            <select v-model="route.method" :class="methodSelectClasses">
+              <option
+                v-for="method in HTTP_METHOD_OPTIONS"
+                :key="method"
+                :value="method"
+                class="bg-zinc-800 text-zinc-100"
+              >
+                {{ method }}
+              </option>
+            </select>
+            <!-- Custom Arrow Icon -->
+            <div
+              class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-zinc-400"
             >
-              {{ method }}
-            </option>
-          </select>
-          <!-- Custom Arrow Icon -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+          </div>
+          <!-- Path Input -->
+          <div class="flex-1">
+            <input
+              v-model="route.path"
+              type="text"
+              placeholder="/api/users/:id"
+              class="w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 font-mono text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              @blur="handlePathBlur"
+            />
+          </div>
+          <!-- Toggle Switch -->
+          <div class="pt-2">
+            <label
+              class="relative inline-flex cursor-pointer items-center"
+              title="Enable/Disable Route"
+            >
+              <input v-model="route.isActive" type="checkbox" class="peer sr-only" />
+              <div
+                class="h-6 w-11 rounded-full bg-zinc-700 peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-500/50 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full"
+              ></div>
+            </label>
+          </div>
+        </div>
+
+        <!-- completed path -->
+
+        <!-- Path Visualization -->
+        <div class="flex max-w-dvw min-w-0 flex-1 items-center justify-between">
           <div
-            class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-zinc-400"
+            class="relative mr-1 shrink-0 rounded-md border border-zinc-700 bg-zinc-900 p-1.5 text-sm"
           >
+            URL
+          </div>
+          <div class="mt-1.5 min-w-0 flex-1 truncate px-1">
+            <span
+              class="mr-0.5 rounded py-0.5 align-middle font-mono text-sm font-bold text-zinc-400"
+              >http://localhost:{{ port }}{{ route.path }}</span
+            >
+            <!-- <template v-if="pathSegments.length">
+              <div
+                v-for="(seg, index) in pathSegments"
+                :key="index"
+                class="inline-flex items-center align-middle"
+              >
+                <span class="font-mono text-sm text-zinc-400">/</span>
+                <span
+                  :class="[
+                    'rounded py-0.5 font-mono text-sm',
+                    seg.isParam
+                      ? 'border border-amber-500/30 bg-amber-500/20 text-amber-200'
+                      : 'text-zinc-400'
+                  ]"
+                >
+                  {{ seg.text }}
+                </span>
+              </div>
+            </template>
+            <span v-else class="align-middle font-mono text-sm text-zinc-400">/</span> -->
+          </div>
+          <button
+            type="button"
+            class="ml-2 flex cursor-pointer items-center justify-center rounded p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 focus:ring-1 focus:ring-blue-500/50 focus:outline-none"
+            :class="{ 'text-emerald-400 hover:text-emerald-300': isCopied }"
+            :title="isCopied ? 'Copied!' : 'Copy full URL'"
+            @click="copyPath"
+          >
+            <!-- Check Icon (Copied) -->
             <svg
+              v-if="isCopied"
               xmlns="http://www.w3.org/2000/svg"
               width="14"
               height="14"
@@ -281,67 +407,45 @@ onUnmounted(() => {
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="m6 9 6 6 6-6" />
+              <polyline points="20 6 9 17 4 12" />
             </svg>
-          </div>
+            <!-- Copy Icon (Default) -->
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
         </div>
 
         <!-- Inputs Container -->
-        <div class="flex-1 space-y-3">
-          <!-- Path Input & Visualization -->
-          <div>
-            <div class="relative">
+        <div class="flex items-center">
+          <div
+            class="relative mr-2 shrink-0 rounded-md border border-zinc-700 bg-zinc-900 p-1.5 text-sm"
+          >
+            Description
+          </div>
+          <div class="flex-1 space-y-3">
+            <!-- Description Input -->
+            <div>
               <input
-                v-model="route.path"
+                v-model="route.description"
                 type="text"
-                placeholder="/api/users/:id"
-                class="w-full rounded-md border border-zinc-700 bg-zinc-900 px-4 py-2 font-mono text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                @blur="handlePathBlur"
+                placeholder="Enter a brief description..."
+                class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm text-zinc-300 placeholder-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
               />
             </div>
-            <!-- Path Visualization -->
-            <div class="mt-1.5 flex min-h-6 flex-wrap items-center gap-0.5 px-1">
-              <template v-if="pathSegments.length">
-                <div v-for="(seg, index) in pathSegments" :key="index" class="flex items-center">
-                  <span class="mr-0.5 text-zinc-600">/</span>
-                  <span
-                    :class="[
-                      'rounded px-1.5 py-0.5 font-mono text-xs',
-                      seg.isParam
-                        ? 'border border-amber-500/30 bg-amber-500/20 text-amber-200'
-                        : 'text-zinc-400'
-                    ]"
-                  >
-                    {{ seg.text }}
-                  </span>
-                </div>
-              </template>
-              <span v-else class="font-mono text-xs text-zinc-600">/</span>
-            </div>
           </div>
-
-          <!-- Description Input -->
-          <div>
-            <input
-              v-model="route.description"
-              type="text"
-              placeholder="Enter a brief description..."
-              class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm text-zinc-300 placeholder-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <!-- Toggle Switch -->
-        <div class="pt-2">
-          <label
-            class="relative inline-flex cursor-pointer items-center"
-            title="Enable/Disable Route"
-          >
-            <input v-model="route.isActive" type="checkbox" class="peer sr-only" />
-            <div
-              class="h-6 w-11 rounded-full bg-zinc-700 peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-500/50 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full"
-            ></div>
-          </label>
         </div>
       </div>
     </header>

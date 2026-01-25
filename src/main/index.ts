@@ -9,6 +9,8 @@ import icon from '../../resources/icon.png?asset'
 import { dbService } from './db'
 import { serverManager } from './server'
 import { IPC_CHANNELS } from '../shared/ipc-channels'
+import { toOpenApi } from './utils/openapi-generator'
+import { generateRedocHtml } from './utils/htmlGenerator'
 
 // --- 3. 常量宣告 (Constants) ---
 const APP_USER_MODEL_ID = 'com.electron.app' // TODO: 正式發布時應替換為具體的 Bundle ID
@@ -233,6 +235,30 @@ function registerIpcHandlers(): void {
       return content
     } catch (error) {
       console.error('[IPC] Failed to import project:', error)
+      throw error
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.PROJECT.EXPORT_HTML, async (event, { project, routes }) => {
+    try {
+      const win = getWindowFromEvent(event.sender)
+      if (!win) return false
+
+      const spec = toOpenApi(project, routes)
+      const html = generateRedocHtml(spec, project.name)
+
+      const { canceled, filePath } = await dialog.showSaveDialog(win, {
+        title: 'Export Documentation',
+        defaultPath: `${project.name}-docs.html`,
+        filters: [{ name: 'HTML Files', extensions: ['html'] }]
+      })
+
+      if (canceled || !filePath) return false
+
+      await writeFile(filePath, html, 'utf-8')
+      return true
+    } catch (error) {
+      console.error('[IPC] Failed to export HTML:', error)
       throw error
     }
   })

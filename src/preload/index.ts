@@ -63,6 +63,9 @@ const api = {
     export: (content: string, filename?: string): Promise<boolean> =>
       ipcRenderer.invoke(IPC_CHANNELS.PROJECT.EXPORT, { content, filename }),
 
+    exportHtml: (payload: { project: Project; routes: Route[] }): Promise<boolean> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PROJECT.EXPORT_HTML, payload),
+
     import: (): Promise<string | null> => ipcRenderer.invoke(IPC_CHANNELS.PROJECT.IMPORT)
   }
 }

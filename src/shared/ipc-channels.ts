@@ -29,6 +29,7 @@ export const IPC_CHANNELS = {
   },
   PROJECT: {
     EXPORT: 'project:export',
+    EXPORT_HTML: 'project:exportHtml',
     IMPORT: 'project:import' // Placeholder for future
   }
 } as const

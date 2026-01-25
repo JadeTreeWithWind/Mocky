@@ -32,13 +32,13 @@ const displayStatus = computed(() => {
  */
 const indicatorClass = computed(() => {
   // 未來可加入 'Error', 'Busy' 等不同顏色的邏輯判斷
-  return 'h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+  return 'h-2 w-2 rounded-full bg-emerald-600'
 })
 </script>
 
 <template>
   <footer
-    class="flex h-6 shrink-0 items-center justify-between border-t border-zinc-800 bg-zinc-900 px-3 text-[14px] text-zinc-400 select-none"
+    class="flex h-6 shrink-0 items-center justify-between border-t border-zinc-800 bg-zinc-950 px-3 text-xs text-zinc-400 select-none"
     role="contentinfo"
   >
     <div

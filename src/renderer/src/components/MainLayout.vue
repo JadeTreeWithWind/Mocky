@@ -311,9 +311,9 @@ onMounted(() => {
     <TitleBar />
 
     <div class="flex flex-1 overflow-hidden">
-      <aside class="flex w-[250px] shrink-0 flex-col border-r border-zinc-800 bg-zinc-900">
+      <aside class="flex w-[250px] shrink-0 flex-col border-r border-zinc-800 bg-zinc-950">
         <div class="flex items-center justify-between px-4 py-3">
-          <h2 class="text-xs font-semibold tracking-wider text-zinc-500 uppercase">Projects</h2>
+          <h2 class="text-xs font-bold tracking-widest text-zinc-400 uppercase">Projects</h2>
           <div class="flex items-center gap-1">
             <button
               type="button"

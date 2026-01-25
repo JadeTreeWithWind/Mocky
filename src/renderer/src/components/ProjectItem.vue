@@ -30,28 +30,20 @@ const emit = defineEmits<{
  * 容器主體的動態樣式
  */
 const containerClasses = computed(() => [
-  'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-blue-500/50',
+  'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2.5 text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-zinc-600',
   props.isActive
-    ? 'bg-zinc-800 text-zinc-100 shadow-sm'
-    : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'
+    ? 'bg-zinc-900 text-zinc-50 font-semibold shadow-md ring-1 ring-zinc-800'
+    : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 font-medium'
 ])
-
-/**
- * 狀態指示燈的樣式
- */
-// const indicatorClasses = computed(() => [
-//   'h-2 w-2 shrink-0 rounded-full transition-colors',
-//   props.isActive ? 'bg-green-500' : 'bg-zinc-600 group-hover:bg-zinc-500'
-// ])
 
 /**
  * Port 標籤的樣式
  */
 const badgeClasses = computed(() => [
-  'shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase transition-colors',
+  'shrink-0 rounded px-2 py-0.5 text-[11px] font-mono font-bold tracking-wider transition-colors',
   props.isActive
-    ? 'bg-zinc-700 text-zinc-300'
-    : 'bg-zinc-800 text-zinc-500 group-hover:bg-zinc-700 group-hover:text-zinc-400'
+    ? 'bg-zinc-800 text-zinc-200 border border-zinc-700'
+    : 'bg-zinc-900 text-zinc-600 border border-zinc-900 group-hover:border-zinc-700 group-hover:text-zinc-400'
 ])
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---

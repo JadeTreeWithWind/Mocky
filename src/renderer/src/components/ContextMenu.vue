@@ -159,7 +159,7 @@ onUnmounted(() => {
             :is="item.icon"
             v-if="item.icon"
             class="h-4 w-4"
-            :class="item.danger ? 'text-red-400/80' : 'text-zinc-500 group-hover:text-zinc-300'"
+            :class="item.danger ? 'text-red-400/80' : 'text-zinc-400 group-hover:text-zinc-200'"
           />
           <span class="flex-1">{{ item.label }}</span>
         </button>

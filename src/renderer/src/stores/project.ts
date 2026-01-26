@@ -254,7 +254,14 @@ export const useProjectStore = defineStore('project', () => {
   const updateRoute = async (route: Route): Promise<void> => {
     lastError.value = null
     try {
-      await window.api.db.updateRoute(JSON.parse(JSON.stringify(route))) // 確保移除 Proxy
+      const updatedRoute = await window.api.db.updateRoute(JSON.parse(JSON.stringify(route))) // 確保移除 Proxy
+
+      if (updatedRoute) {
+        const index = routes.value.findIndex((r) => r.id === updatedRoute.id)
+        if (index !== -1) {
+          routes.value[index] = updatedRoute
+        }
+      }
 
       // Hot Reload
       await checkAndRestartServer(route.projectId)

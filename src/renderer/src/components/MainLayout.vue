@@ -19,7 +19,8 @@ import {
 
 import { useProjectStore } from '../stores/project'
 import { useUIStore } from '../stores/ui'
-import { toOpenApi } from '../../../shared/utils/openapi-generator'
+import { useProjectExport } from '../composables/useProjectExport'
+import { useProjectImport } from '../composables/useProjectImport'
 import TitleBar from './TitleBar.vue'
 import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
@@ -47,6 +48,8 @@ const projectStore = useProjectStore()
 const uiStore = useUIStore()
 const { projects } = storeToRefs(projectStore)
 const { locale, t } = useI18n()
+const { exportProjectJson, exportProjectHtml } = useProjectExport()
+const { importProjectFromFile } = useProjectImport()
 
 // --- 4. 響應式狀態 (State) ---
 const isCreateModalOpen = ref(false)
@@ -141,11 +144,6 @@ const statusBarText = computed(() => {
 /**
  * 開啟文件連結
  */
-// const handleOpenDocs = (): void => {
-//   if (statusBarDocsUrl.value) {
-//     window.open(statusBarDocsUrl.value, '_blank')
-//   }
-// }
 
 /**
  * 導航至指定專案詳情頁
@@ -256,30 +254,12 @@ const handleEditProject = (id: string): void => {
  * 處理專案匯出邏輯
  * @param id - 專案 UUID
  */
+/**
+ * 處理專案匯出邏輯
+ * @param id - 專案 UUID
+ */
 const handleExportProject = async (id: string): Promise<void> => {
-  const project = projects.value.find((p) => p.id === id)
-  if (!project) return
-
-  try {
-    // 獲取該專案的所有路由
-    const routes = await window.api.db.getRoutesByProjectId(id)
-
-    // 轉換為 OpenAPI 格式
-    const openApiDoc = toOpenApi(project, routes)
-    const jsonContent = JSON.stringify(openApiDoc, null, 2)
-
-    // 呼叫主進程下載
-    const filename = `${project.name.replace(/\s+/g, '_')}_openapi.json`
-    const success = await window.api.project.export(jsonContent, filename)
-
-    if (success) {
-      console.log('Export successful')
-      uiStore.showToast(t('project.export_success'), 'success')
-    }
-  } catch (error) {
-    console.error('[Project] Export failed:', error)
-    uiStore.showToast('Export failed', 'error')
-  }
+  await exportProjectJson(id)
 }
 
 /**
@@ -288,11 +268,12 @@ const handleExportProject = async (id: string): Promise<void> => {
  */
 const handleExportHtml = async (id: string): Promise<void> => {
   try {
-    await projectStore.exportHtml(id)
-    uiStore.showToast(t('project.export_success'), 'success')
+    await exportProjectHtml(id)
   } catch (error) {
-    console.error('[Project] Export HTML failed:', error)
-    showError('Export Failed', 'Failed to export documentation to HTML. See console for details.')
+    console.error('[Project] HTML Export failed', error)
+    // Composable usually handles toast, but if it throws we might want to show modal
+    // In this case check if you want specific error modal for HTML export
+    showError(t('common.error'), 'Failed to export to HTML')
   }
 }
 
@@ -313,33 +294,18 @@ const showError = (title: string, message: string): void => {
 /**
  * 處理專案匯入邏輯 (Stage 3 + Stage 5 Enhanced)
  */
+/**
+ * 處理專案匯入邏輯
+ */
 const handleImportProject = async (): Promise<void> => {
   try {
-    const content = await window.api.project.import()
-    if (content) {
-      // Stage 5: Postman 相容性檢查
-      try {
-        const json = JSON.parse(content)
-        if (json.info?.schema?.includes('getpostman.com')) {
-          showError(
-            'Format Not Supported',
-            'Postman Collection format is not currently supported. Please convert it to OpenAPI/Swagger format first.'
-          )
-          return
-        }
-      } catch {
-        // Ignore JSON parse error here, let transformer handle it or it will be caught below
-      }
-
-      const newProjectId = await projectStore.importProject(content)
+    const newProjectId = await importProjectFromFile()
+    if (newProjectId) {
       navigateToProject(newProjectId)
-      uiStore.showToast(t('project.import_success'), 'success')
     }
   } catch (error: unknown) {
-    console.error('[Project] Import failed:', error)
-    const errorMessage =
-      error instanceof Error ? error.message : 'An unknown error occurred during import.'
-    showError(t('project.import_failed'), errorMessage)
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    showError(t('project.import_failed'), msg)
   }
 }
 

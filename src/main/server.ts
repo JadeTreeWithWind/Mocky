@@ -11,7 +11,7 @@ import { toOpenApi } from '../shared/utils/openapi-generator'
 
 // --- 3. 常量宣告 (Constants) ---
 const MAX_PORT_ATTEMPTS = 100
-const DEFAULT_HOST = '0.0.0.0'
+const DEFAULT_HOST = '127.0.0.1'
 
 class ServerManager {
   private servers: Map<string, FastifyInstance> = new Map()

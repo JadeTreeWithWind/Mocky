@@ -320,7 +320,7 @@ onMounted(() => {
         <!-- Collapse Indicator -->
         <div
           v-if="selectedProjectId"
-          class="absolute top-3 left-0 flex w-full items-center justify-center text-zinc-300 transition-opacity duration-300 group-hover:opacity-0"
+          class="pointer-events-none absolute top-3 left-0 flex w-full items-center justify-center text-zinc-300 transition-opacity duration-300 group-hover:opacity-0"
         >
           <ChevronsRight :size="20" />
         </div>

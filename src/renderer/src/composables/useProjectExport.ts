@@ -28,7 +28,11 @@ export function useProjectExport(): {
       const jsonContent = JSON.stringify(openApiDoc, null, 2)
 
       // Call main process to download
-      const filename = `${project.name.replace(/\s+/g, '_')}_openapi.json`
+      const safeName = project.name
+        .trim()
+        .replace(/\s+/g, '_')
+        .replace(/[\\/:*?"<>|]+/g, '')
+      const filename = `${safeName || 'project'}_openapi.json`
       const success = await window.api.project.export(jsonContent, filename)
 
       if (!success) {

@@ -48,7 +48,11 @@ const api = {
 
     /** 刪除路由 */
     deleteRoute: (id: string): Promise<boolean> =>
-      ipcRenderer.invoke(IPC_CHANNELS.DB.DELETE_ROUTE, id)
+      ipcRenderer.invoke(IPC_CHANNELS.DB.DELETE_ROUTE, id),
+
+    /** 重新排序路由 */
+    reorderRoutes: (projectId: string, routes: Route[]): Promise<boolean> =>
+      ipcRenderer.invoke(IPC_CHANNELS.DB.REORDER_ROUTES, projectId, routes)
   },
 
   server: {

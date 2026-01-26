@@ -10,6 +10,7 @@ import { PROJECT_STATUS } from '../../../shared/types'
 import RouteItem from '../components/RouteItem.vue'
 import RouteEditor from '../components/RouteEditor.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import Draggable from 'vuedraggable'
 
 // --- 3. 初始化 (Initialization) ---
 const route = useRoute()
@@ -63,6 +64,16 @@ const filteredRoutes = computed(() => {
       r.path.toLowerCase().includes(query) ||
       (r.description && r.description.toLowerCase().includes(query))
   )
+})
+
+/**
+ * 用於拖拽排序的路由列表 (Writable Computed)
+ */
+const routeList = computed({
+  get: () => routes.value,
+  set: (val) => {
+    projectStore.reorderRoutes(projectId.value, val)
+  }
 })
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
@@ -306,16 +317,40 @@ onMounted(() => {
         </div>
 
         <template v-else>
-          <RouteItem
-            v-for="item in filteredRoutes"
-            :key="item.id"
-            :method="item.method"
-            :path="item.path"
-            :is-selected="selectedRouteId === item.id"
-            :is-enabled="item.isActive"
-            @click="handleSelectRoute(item.id)"
-            @delete="handleDeleteRoute(item.id)"
-          />
+          <!-- 搜尋模式下禁用排序 (顯示過濾列表) -->
+          <template v-if="searchQuery">
+            <RouteItem
+              v-for="item in filteredRoutes"
+              :key="item.id"
+              :method="item.method"
+              :path="item.path"
+              :is-selected="selectedRouteId === item.id"
+              :is-enabled="item.isActive"
+              @click="handleSelectRoute(item.id)"
+              @delete="handleDeleteRoute(item.id)"
+            />
+          </template>
+
+          <!-- 一般模式下啟用拖拽排序 -->
+          <Draggable
+            v-else
+            v-model="routeList"
+            item-key="id"
+            :animation="200"
+            ghost-class="ghost"
+            class="flex flex-col space-y-1"
+          >
+            <template #item="{ element }">
+              <RouteItem
+                :method="element.method"
+                :path="element.path"
+                :is-selected="selectedRouteId === element.id"
+                :is-enabled="element.isActive"
+                @click="handleSelectRoute(element.id)"
+                @delete="handleDeleteRoute(element.id)"
+              />
+            </template>
+          </Draggable>
         </template>
       </div>
     </aside>
@@ -370,5 +405,10 @@ onMounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.ghost {
+  opacity: 0.5;
+  background-color: #27272a; /* zinc-800 */
 }
 </style>

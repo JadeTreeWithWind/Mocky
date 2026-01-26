@@ -62,6 +62,11 @@ interface DatabaseAPI {
    * @param route - 完整的路由物件
    */
   updateRoute: (route: Route) => Promise<Route | null>
+
+  /**
+   * 重新排序路由
+   */
+  reorderRoutes: (projectId: string, routes: Route[]) => Promise<boolean>
 }
 
 interface ServerAPI {

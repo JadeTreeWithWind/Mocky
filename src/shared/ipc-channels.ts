@@ -21,7 +21,8 @@ export const IPC_CHANNELS = {
     GET_ROUTES: 'db:getRoutesByProjectId',
     ADD_ROUTE: 'db:addRoute',
     UPDATE_ROUTE: 'db:updateRoute',
-    DELETE_ROUTE: 'db:deleteRoute'
+    DELETE_ROUTE: 'db:deleteRoute',
+    REORDER_ROUTES: 'db:reorderRoutes'
   },
   SERVER: {
     START: 'server:start',

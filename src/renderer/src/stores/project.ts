@@ -218,6 +218,25 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /**
+   * 重新排序路由
+   */
+  const reorderRoutes = async (projectId: string, newRoutes: Route[]): Promise<void> => {
+    // 樂觀更新
+    const originalRoutes = [...routes.value]
+    routes.value = newRoutes
+
+    try {
+      await window.api.db.reorderRoutes(projectId, JSON.parse(JSON.stringify(newRoutes)))
+      // 路由順序可能影響匹配邏輯 (Mock Server usually matches top-down)，因此需要熱重載
+      await checkAndRestartServer(projectId)
+    } catch (error) {
+      console.error('[Store] Reorder routes failed', error)
+      routes.value = originalRoutes // Revert
+      lastError.value = '排序失敗'
+    }
+  }
+
+  /**
    * 啟動 Mock 伺服器
    */
   const startServer = async (projectId: string): Promise<number | void> => {
@@ -390,6 +409,7 @@ export const useProjectStore = defineStore('project', () => {
     createRoute,
     deleteRoute,
     updateRoute,
+    reorderRoutes,
     startServer,
     stopServer,
     getRunningPort,

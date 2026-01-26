@@ -148,6 +148,16 @@ function registerIpcHandlers(): void {
     }
   })
 
+  ipcMain.handle(IPC_CHANNELS.DB.REORDER_ROUTES, async (_, projectId, routes) => {
+    try {
+      if (!projectId || !routes) return false
+      return await dbService.reorderRoutes(projectId, routes)
+    } catch (error) {
+      console.error('[IPC] Failed to reorder routes:', error)
+      return false
+    }
+  })
+
   ipcMain.handle(IPC_CHANNELS.DB.DELETE_ROUTE, async (_, id) => {
     try {
       if (!id) return false

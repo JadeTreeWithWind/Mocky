@@ -167,6 +167,29 @@ class DBService {
   }
 
   /**
+   * 重新排序專案路由
+   * @param projectId - 專案 ID
+   * @param routes - 排序後且完整的路由列表 (for this project)
+   */
+  async reorderRoutes(projectId: string, routes: Route[]): Promise<boolean> {
+    await this.init()
+    if (!this.db) return false
+
+    // 只保留此專案以外的路由，並接上傳入的新排序路由
+    await this.db.update((data) => {
+      if (!data.routes) return
+
+      const otherRoutes = data.routes.filter((r) => r.projectId !== projectId)
+      // 確保傳入的 routes 屬於該專案 (安全檢查)
+      const validNewRoutes = routes.filter((r) => r.projectId === projectId)
+
+      data.routes = [...otherRoutes, ...validNewRoutes]
+    })
+
+    return true
+  }
+
+  /**
    * 更新路由
    * @param route - 更新後的路由資料
    * @returns {Promise<Route | null>} 更新後的路由，若找不到則回傳 null

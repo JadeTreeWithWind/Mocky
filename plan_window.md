@@ -11,94 +11,93 @@
 **目標**：準備好 Windows 專用的圖示資源，並安裝必要的構建工具。
 
 - **實作檔案**:
-- [ ] `build/icon.png`: 高解析度原始檔 (至少 1024x1024)。
-- [ ] `build/icon.ico`: Windows 專用圖示 (包含 256x256, 128x128 等多尺寸)。
-- [ ] `package.json`: 新增 `devDependencies`。
+- [x] `build/icon.png`: 高解析度原始檔 (至少 1024x1024)。
+- [x] `build/icon.ico`: Windows 專用圖示 (包含 256x256, 128x128 等多尺寸)。
+- [x] `package.json`: 新增 `devDependencies`。
 
 - **功能與操作**:
-- [ ] 使用 [ConvertICO](https://convertico.com/) 或 ImageMagick 將 PNG 轉為 ICO。
-- [ ] 執行 `pnpm install --save-dev electron-builder`。
+- [x] 使用 [ConvertICO](https://convertico.com/) 或 ImageMagick 將 PNG 轉為 ICO。
+- [x] 執行 `pnpm install --save-dev electron-builder`。
 
 - **驗證 Checklist**:
-- [ ] 專案根目錄下存在 `build/icon.ico` 檔案。
-- [ ] `node_modules` 中包含 `electron-builder`。
-- [ ] 執行 `npx electron-builder --version` 能正確顯示版本號。
+- [x] 專案根目錄下存在 `build/icon.ico` 檔案。
+- [x] `node_modules` 中包含 `electron-builder`。
+- [x] 執行 `npx electron-builder --version` 能正確顯示版本號。
 
 #### Stage 2: 建構配置與路徑對應 (Configuration)
 
 **目標**：在 `package.json` 中告訴打包工具如何處理你的檔案，這是最容易出錯的地方。
 
 - **實作檔案**:
-- [ ] `package.json`: 新增 `build` 設定區塊。
+- [x] `package.json`: 新增 `build` 設定區塊 (使用 `electron-builder.yml` 替代)。
 
 - **功能與操作**:
-- [ ] 設定 `appId`: `com.yourname.mocky` (必須唯一)。
-- [ ] 設定 `directories.output`: `release` (指定輸出資料夾)。
-- [ ] **關鍵設定 `files**`: 明確指定要打包哪些資料夾。
-- `"dist/**/*"` (Vue 編譯後的檔案)
-- `"dist-electron/**/*"` (Electron Main 編譯後的檔案)
+- [x] 設定 `appId`: `com.mocky.app` (必須唯一)。
+- [x] 設定 `directories.output`: `release` (指定輸出資料夾)。
+- [x] **關鍵設定 `files**`: 明確指定要打包哪些資料夾。
+- `"out/**/*"` (Electron-Vite 編譯後的檔案)
 - `"package.json"`
 
-- [ ] **關鍵設定 `extraResources**`: 如果你有用到 `redoc.standalone.js`或預設的`db.json` 範本，必須在此宣告，否則打包後會找不到檔案。
+- [x] **關鍵設定 `extraResources**`: 如果你有用到 `redoc.standalone.js`或預設的`db.json` 範本，必須在此宣告，否則打包後會找不到檔案。
 
 - **驗證 Checklist**:
-- [ ] `package.json` 格式正確 (無紅色語法錯誤)。
-- [ ] 確認 `main` 欄位指向的是 **編譯後** 的入口 (例如 `dist-electron/main/index.js`)，而不是 `.ts` 原始檔。
+- [x] `package.json` 格式正確 (無紅色語法錯誤)。
+- [x] 確認 `main` 欄位指向的是 **編譯後** 的入口 (例如 `out/main/index.js`)，而不是 `.ts` 原始檔。
 
 #### Stage 3: 預編譯與指令腳本 (Pre-Build & Scripts)
 
 **目標**：確保在打包前，所有 TypeScript 代碼都已正確編譯為 JavaScript。
 
 - **實作檔案**:
-- [ ] `package.json`: `scripts` 區塊。
+- [x] `package.json`: `scripts` 區塊。
 
 - **功能與操作**:
-- [ ] 定義指令 `"build": "vue-tsc --noEmit && vite build && electron-builder build --config electron-builder.yml"` (若配置寫在 yml) 或直接在 package.json 設定。
-- [ ] 確保 `vite build` 會同時編譯 Renderer (Vue) 和 Main Process (Electron)。
+- [x] 定義指令 `"build": "npm run typecheck && electron-vite build"`。
+- [x] 確保 `electron-vite build` 會同時編譯 Renderer, Main, Preload Process 到 `out/` 目錄。
 
 - **驗證 Checklist**:
-- [ ] 手動執行 `pnpm run build` (不執行 electron-builder)。
-- [ ] 檢查專案目錄，確認 `dist/index.html` 存在且有內容。
-- [ ] 檢查 `dist-electron/` 資料夾，確認 `index.js` (Main process) 存在且代碼已轉譯 (無 TypeScript 語法)。
+- [x] 手動執行 `npm run build` (不執行 electron-builder)。
+- [x] 檢查專案目錄，確認 `out/renderer/index.html` 存在且有內容。
+- [x] 檢查 `out/main/` 資料夾，確認 `index.js` (Main process) 存在且代碼已轉譯。
 
 #### Stage 4: 解包測試 (Unpacked Verification)
 
 **目標**：產生「免安裝版」的執行檔，快速驗證打包後的程式邏輯是否正常 (這比每次都跑安裝檔快得多)。
 
 - **實作檔案**:
-- [ ] `package.json`: 調整 `win.target` 加入 `"dir"` (資料夾模式) 或直接執行指令參數。
+- [x] `package.json`: 調整 `win.target` 加入 `"dir"` (資料夾模式) 或直接執行指令參數。
 
 - **功能與操作**:
-- [ ] 執行指令：`npx electron-builder --dir`。
-- [ ] 這會產生 `release/win-unpacked/` 資料夾。
+- [x] 執行指令：`npx electron-builder --dir` (使用 `npm run build:unpack`)。
+- [x] 這會產生 `release/win-unpacked/` 資料夾。
 
 - **驗證 Checklist**:
-- [ ] 進入 `release/win-unpacked/`，雙擊 `Mocky.exe`。
-- [ ] **核心驗證**: App 能順利啟動，無白屏 (White Screen of Death)。
-- [ ] **資料庫驗證**: 建立一個新專案，確認 `AppData/Roaming/Mocky/db.json` 有被正確建立。
-- [ ] **圖示驗證**: 工作列 (Taskbar) 顯示的是你的 Mocky Logo，而不是 Electron 預設圖示。
+- [x] 進入 `release/win-unpacked/`，雙擊 `Mocky.exe`。
+- [x] **核心驗證**: App 能順利啟動，無白屏 (White Screen of Death)。
+- [x] **資料庫驗證**: 建立一個新專案，確認 `AppData/Roaming/Mocky/db.json` 有被正確建立。
+- [x] **圖示驗證**: 工作列 (Taskbar) 顯示的是你的 Mocky Logo，而不是 Electron 預設圖示。
 
 #### Stage 5: 安裝檔製作與最終驗收 (Installer & E2E)
 
 **目標**：產出最終交付給使用者的 `Setup.exe`，並測試完整的安裝/移除流程。
 
 - **實作檔案**:
-- [ ] `package.json`: `nsis` 設定區塊 (一鍵安裝 vs 輔助安裝)。
+- [x] `package.json`: `nsis` 設定區塊 (一鍵安裝 vs 輔助安裝) - 已在 `electron-builder.yml` 中設定。
 
 - **功能與操作**:
-- [ ] 設定 NSIS 選項：
+- [x] 設定 NSIS 選項：
 - `oneClick: false` (允許使用者選路徑)。
 - `allowToChangeInstallationDirectory: true`。
 - `createDesktopShortcut: true`。
 
-- [ ] 執行完整打包指令：`pnpm run electron:build`。
+- [x] 執行完整打包指令：`npm run build:win` (使用 `npm run electron:build` 的別名)。
 
 - **驗證 Checklist**:
-- [ ] `release/` 資料夾中出現 `Mocky Setup 1.0.0.exe`。
-- [ ] **安裝測試**: 執行安裝檔，流程順暢，且能選擇安裝路徑。
-- [ ] **捷徑測試**: 桌面和開始選單正確出現 Mocky捷徑。
-- [ ] **移除測試**: 到 Windows「設定」->「應用程式」執行移除，確認應用程式被乾淨移除。
-- [ ] **防火牆測試**: 啟動 Mock Server (Port 8000) 時，Windows 防火牆可能會跳出詢問，確認點擊「允許」後外部設備 (如手機) 能透過區域網路連上 Mock Server (選用測試)。
+- [x] `release/` 資料夾中出現 `mocky-1.0.0-setup.exe`。
+- [x] **安裝測試**: 執行安裝檔，流程順暢，且能選擇安裝路徑。
+- [x] **捷徑測試**: 桌面和開始選單正確出現 Mocky捷徑。
+- [x] **移除測試**: 到 Windows「設定」->「應用程式」執行移除，確認應用程式被乾淨移除。
+- [x] **防火牆測試**: 啟動 Mock Server (Port 8000) 時，Windows 防火牆可能會跳出詢問，確認點擊「允許」後外部設備 (如手機) 能透過區域網路連上 Mock Server (選用測試)。
 
 ---
 

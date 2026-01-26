@@ -231,7 +231,7 @@ const handleEditProject = (id: string): void => {
       id: project.id,
       name: project.name,
       port: project.port,
-      description: project.description,
+      description: project.description || '',
       version: project.version || '1.0.0'
     }
     isCreateModalOpen.value = true

@@ -12,7 +12,7 @@
   <!-- <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue" alt="Platform">   -->
   <img src="https://img.shields.io/badge/Platform-Windows" alt="Platform">
   <img src="https://img.shields.io/badge/Version-1.0.0-green" alt="Version">
-  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
+  <img src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-yellow" alt="License">
 
 </p>
 

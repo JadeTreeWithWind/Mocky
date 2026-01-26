@@ -13,7 +13,11 @@
   <img src="https://img.shields.io/badge/Platform-Windows" alt="Platform">
   <img src="https://img.shields.io/badge/Version-1.0.0-green" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
-  ⚠️ Note: This project is available for personal and non-commercial use only.
+
+</p>
+
+<p align="center">
+    ⚠️ Note: This project is available for personal and non-commercial use only.
 </p>
 
 ---

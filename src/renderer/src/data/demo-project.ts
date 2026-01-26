@@ -8,6 +8,7 @@ export const DEMO_PROJECT = {
   paths: {
     '/hello': {
       get: {
+        tags: ['Demo'],
         summary: 'Get API',
         responses: {
           '200': {
@@ -27,6 +28,7 @@ export const DEMO_PROJECT = {
     },
     '/member/{id}': {
       post: {
+        tags: ['Demo'],
         summary: 'Post API',
         responses: {
           '200': {
@@ -56,6 +58,7 @@ export const DEMO_PROJECT = {
     },
     '/point/{id}': {
       put: {
+        tags: ['Demo'],
         summary: 'Put API',
         responses: {
           '200': {
@@ -85,6 +88,7 @@ export const DEMO_PROJECT = {
     },
     '/article/{id}': {
       delete: {
+        tags: ['Demo'],
         summary: 'Delete API',
         responses: {
           '200': {

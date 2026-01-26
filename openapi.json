@@ -1,0 +1,2836 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Dashboard API",
+    "description": "儀表板API",
+    "version": "0.6.0"
+  },
+  "paths": {
+    "/v1/dashboard/overview": {
+      "get": {
+        "tags": [
+          "總覽 Overview"
+        ],
+        "summary": "總覽資訊",
+        "description": "<ul>\n<li>classTotal ： 總開課數</li>\n<li>classIncrease ： 開課數增加</li>\n<li>classDecrease ： 開課數減少</li>\n<li>studentTotal ： 總學員數量</li>\n<li>studentIncrease ： 總學員數量增加</li>\n<li>studentDecrease ： 總學員數量減少</li>\n<li>appropriationTotal ： 總核銷率</li>\n<li>appropriationIncrease ： 總核銷率增加</li>\n<li>appropriationDecrease ： 總核銷率減少</li>\n<li>completeRate ： 平均結訓率</li>\n<li>completeRateIncrease ： 平均結訓率增加</li>\n<li>completeRateDecrease ： 平均結訓率減少</li>\n<li>satisfiedRate ： 平均滿意度</li>\n<li>satisfiedRateIncrease ： 平均滿意度增加</li>\n<li>satisfiedRateDecrease ： 平均滿意度減少</li>\n<li>newStudent： 本月新增學員</li>\n<li>newStudentIncrease： 本月新增學員增加</li>\n<li>newStudentDecrease ： 本月新增學員減少</li>",
+        "operationId": "getOverview_v1_dashboard_overview_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "classTotal": 139,
+                    "classIncrease": 0.0,
+                    "classDecrease": 36,
+                    "studentTotal": 1291,
+                    "studentIncrease": 0.6,
+                    "studentDecrease": 0,
+                    "appropriationTotal": 92.8,
+                    "appropriationIncrease": 6.8,
+                    "appropriationDecrease": 0,
+                    "completeRate": 84.2,
+                    "completeRateIncrease": 0,
+                    "completeRateDecrease": 7.5,
+                    "satisfiedRate": 92,
+                    "satisfiedRateIncrease": 8,
+                    "satisfiedRateDecrease": 0,
+                    "newStudent": 23,
+                    "newStudentIncrease": 3,
+                    "newStudentDecrease": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/overview/courseTrend": {
+      "get": {
+        "tags": [
+          "總覽 Overview"
+        ],
+        "summary": "總開課趨勢",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 該年每季度</li>\n</ul>\n<li>yaxis ： Y軸</li>\n<ul>\n<li>title ： Y軸標題</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 資料名稱</li>\n<li>data ： 開課數量</li>\n</ul>",
+        "operationId": "getOverviewCourseTrend_v1_dashboard_overview_courseTrend_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "該年每季度",
+                      "categories": [
+                        "113 Q1",
+                        "113 Q2",
+                        "113 Q3",
+                        "113 Q4",
+                        "114 Q1",
+                        "114 Q2",
+                        "114 Q3",
+                        "114 Q4",
+                        "115 Q1"
+                      ]
+                    },
+                    "yaxis": {
+                      "title": "開課數量"
+                    },
+                    "series": [
+                      {
+                        "name": "開課數量",
+                        "data": [
+                          30,
+                          46,
+                          70,
+                          110,
+                          92,
+                          100,
+                          125,
+                          150,
+                          175
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/overview/hotCourse": {
+      "get": {
+        "tags": [
+          "總覽 Overview"
+        ],
+        "summary": "前五熱門課程",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 開課類別 (抓前5筆)</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 資料名稱</li>\n<li>data ： 學員人數</li>\n</ul>",
+        "operationId": "getOverviewTopCourse_v1_dashboard_overview_hotCourse_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "開課類別",
+                      "categories": [
+                        "資通安全管理",
+                        "人工智慧",
+                        "資訊管理",
+                        "作業系統",
+                        "資料庫應用"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "學員人數",
+                        "data": [
+                          263,
+                          230,
+                          200,
+                          180,
+                          150
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/overview/courseRate": {
+      "get": {
+        "tags": [
+          "總覽 Overview"
+        ],
+        "summary": "各校開課比例",
+        "description": "<ul>\n<li>labels ： 學校名稱 </li>\n<li>series ： 開課數量 </li>\n</ul>",
+        "operationId": "getOverviewCourseRate_v1_dashboard_overview_courseRate_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "labels": [
+                      "健行科技大學",
+                      "勤益科技大學",
+                      "正修科技大學",
+                      "崑山科技大學",
+                      "嘉南科技大學",
+                      "中華科技大學",
+                      "中台科技大學",
+                      "中華醫事科技大學",
+                      "樹德科技大學",
+                      "朝陽科技大學"
+                    ],
+                    "series": [
+                      29,
+                      18,
+                      16,
+                      13,
+                      12,
+                      11,
+                      10,
+                      10,
+                      10,
+                      10
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/overview/fundAppropriation": {
+      "get": {
+        "tags": [
+          "總覽 Overview"
+        ],
+        "summary": "核播狀態分佈",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n</ul>\n<li>series ： 件數</li>\n<li>labels ： 核播狀態</li>\n</ul>",
+        "operationId": "getOverviewFundAppropriation_v1_dashboard_overview_fundAppropriation_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "核播狀態"
+                    },
+                    "series": [
+                      219,
+                      302,
+                      47,
+                      6
+                    ],
+                    "labels": [
+                      "待申請",
+                      "審核中",
+                      "已完成",
+                      "已撥款"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/overview/satisfiedDistribution": {
+      "get": {
+        "tags": [
+          "總覽 Overview"
+        ],
+        "summary": "滿意度評分分佈",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 滿意度評分</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 資料名稱</li>\n<li>data ： 評分人數</li>\n</ul>",
+        "operationId": "getOverviewSatisfiedDistribution_v1_dashboard_overview_satisfiedDistribution_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "滿意度評分",
+                      "categories": [
+                        "非常不滿意",
+                        "不滿意",
+                        "普通",
+                        "滿意",
+                        "非常滿意"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "評分人數",
+                        "data": [
+                          5,
+                          98,
+                          193,
+                          243,
+                          202
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/overview/govCompleteRate": {
+      "get": {
+        "tags": [
+          "總覽 Overview"
+        ],
+        "summary": "前十熱門機關結訓率",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 機關名稱 (抓前10筆)</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 資料名稱</li>\n<li>data ： 結訓率/退訓率 (相加需等於100)</li>\n</ul>",
+        "operationId": "getOverviewTopGovCompleteRate_v1_dashboard_overview_govCompleteRate_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "機關名稱",
+                      "categories": [
+                        "桃園市政府",
+                        "臺北市政府",
+                        "新北市政府",
+                        "臺中市政府",
+                        "高雄市政府",
+                        "基隆市政府",
+                        "宜蘭縣政府",
+                        "新竹縣政府",
+                        "苗栗縣政府",
+                        "臺南市政府"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "結訓率",
+                        "data": [
+                          96,
+                          95,
+                          88,
+                          85,
+                          84,
+                          83,
+                          83,
+                          82,
+                          81,
+                          80
+                        ]
+                      },
+                      {
+                        "name": "退訓率",
+                        "data": [
+                          4,
+                          5,
+                          12,
+                          15,
+                          16,
+                          17,
+                          18,
+                          19,
+                          20,
+                          21
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/overview/studentStatus": {
+      "get": {
+        "tags": [
+          "總覽 Overview"
+        ],
+        "summary": "學員總狀態",
+        "description": "<ul>\n<li>labels ： 學員狀態</li>\n<li>series ： 學員人數</li>\n</ul>",
+        "operationId": "getOverviewStudentStatus_v1_dashboard_overview_studentStatus_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "labels": [
+                      "已報名",
+                      "上課中",
+                      "已退訓",
+                      "已結訓"
+                    ],
+                    "series": [
+                      26,
+                      152,
+                      47,
+                      6
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/school/list": {
+      "get": {
+        "tags": [
+          "開課單位 School"
+        ],
+        "summary": "開課單位列表",
+        "description": "<ul>\n<li>list ： 開課單位列表</li>\n<ul>\n<li>id ： 開課單位id</li>\n<li>name ： 開課單位名稱</li>\n</ul>\n</ul>",
+        "operationId": "getSchoolList_v1_dashboard_school_list_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "list": [
+                      {
+                        "id": 1,
+                        "name": "健行科技大學"
+                      },
+                      {
+                        "id": 2,
+                        "name": "臺灣科技大學"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/school/courseStudentRate": {
+      "get": {
+        "tags": [
+          "開課單位 School"
+        ],
+        "summary": "課程學生人數比例",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 開課單位</li>\n</ul>   \n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 資料名稱</li>\n<li>data ： 總開課數量</li>\n</ul>",
+        "operationId": "getCourseStudentRate_v1_dashboard_school_courseStudentRate_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "開課單位",
+                      "categories": [
+                        "臺灣大學",
+                        "健行科技大學",
+                        "中國文化大學",
+                        "空中大學",
+                        "崑山科技大學",
+                        "東吳大學",
+                        "中興大學",
+                        "逢甲大學",
+                        "臺灣科技大學",
+                        "東南科技大學",
+                        "勤益科技大學",
+                        "海洋大學",
+                        "師範大學",
+                        "元智大學",
+                        "朝陽科技大學"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "總開課數量",
+                        "data": [
+                          4,
+                          5,
+                          7,
+                          6,
+                          5,
+                          8,
+                          7,
+                          10,
+                          8,
+                          10,
+                          7,
+                          10,
+                          4,
+                          7,
+                          6
+                        ]
+                      },
+                      {
+                        "name": "總學員人數",
+                        "data": [
+                          126,
+                          185,
+                          201,
+                          198,
+                          187,
+                          205,
+                          191,
+                          214,
+                          194,
+                          200,
+                          170,
+                          200,
+                          134,
+                          165,
+                          176
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/school/{schoolId}/courseStudentRate": {
+      "get": {
+        "tags": [
+          "開課單位 School"
+        ],
+        "summary": "特定學校課程學生人數比例",
+        "description": "<p>Required</p>\n<ul>schoolId ： 學校id</ul>\n<p>Response</p>\n<ul>\n<li>labels ： 資料名稱</li>\n<li>series ： 實際資料</li>\n</ul>",
+        "operationId": "getCourseStudentRate_v1_dashboard_school__schoolId__courseStudentRate_get",
+        "parameters": [
+          {
+            "name": "schoolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Schoolid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "labels": [
+                      "開課數",
+                      "學員人數"
+                    ],
+                    "series": [
+                      16,
+                      452
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/school/{schoolId}/courseTypeRate": {
+      "get": {
+        "tags": [
+          "開課單位 School"
+        ],
+        "summary": "特定學校課程類型比例",
+        "description": "<p>Required</p>\n<ul>schoolId ： 學校id</ul>\n<p>Response</p>\n<ul>\n<li>series ： 資料</li>\n<ul>\n<li>data ： 資料</li>\n<ul>\n<li>x ： 課程類型</li>\n<li>y ： 該類型開課數量</li>\n</ul>\n</ul>\n</ul>",
+        "operationId": "getCourseTypeRate_v1_dashboard_school__schoolId__courseTypeRate_get",
+        "parameters": [
+          {
+            "name": "schoolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Schoolid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "series": [
+                      {
+                        "data": [
+                          {
+                            "x": "資通安全管理",
+                            "y": 30
+                          },
+                          {
+                            "x": "人工智慧",
+                            "y": 20
+                          },
+                          {
+                            "x": "資訊管理",
+                            "y": 16
+                          },
+                          {
+                            "x": "作業系統",
+                            "y": 15
+                          },
+                          {
+                            "x": "資料庫應用",
+                            "y": 14
+                          },
+                          {
+                            "x": "資通網路與安全",
+                            "y": 11
+                          },
+                          {
+                            "x": "資通安全防護技術",
+                            "y": 10
+                          },
+                          {
+                            "x": "系統分析與設計",
+                            "y": 9
+                          },
+                          {
+                            "x": "資通安全法",
+                            "y": 8
+                          },
+                          {
+                            "x": "資料結構",
+                            "y": 5
+                          },
+                          {
+                            "x": "程式設計",
+                            "y": 3
+                          },
+                          {
+                            "x": "軟體工程",
+                            "y": 3
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/school/completeRate": {
+      "get": {
+        "tags": [
+          "開課單位 School"
+        ],
+        "summary": "前十開課單位結訓率",
+        "description": "<p>Response</p>\n<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 開課單位 (抓前10開課單位)</li>\n</ul>   \n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 資料名稱</li>\n<li>data ： 結訓率/退訓率 (相加需為100%)</li>\n</ul>",
+        "operationId": "getCourseTypeRate_v1_dashboard_school_completeRate_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "開課單位",
+                      "categories": [
+                        "臺灣大學",
+                        "健行科技大學",
+                        "中國文化大學",
+                        "空中大學",
+                        "崑山科技大學",
+                        "東吳大學",
+                        "中興大學",
+                        "逢甲大學",
+                        "臺灣科技大學",
+                        "東南科技大學"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "結訓率",
+                        "data": [
+                          96,
+                          95,
+                          88,
+                          85,
+                          84,
+                          83,
+                          83,
+                          82,
+                          81,
+                          80
+                        ]
+                      },
+                      {
+                        "name": "退訓率",
+                        "data": [
+                          4,
+                          5,
+                          12,
+                          15,
+                          16,
+                          17,
+                          18,
+                          19,
+                          20,
+                          21
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/school/satisfiedTrend": {
+      "get": {
+        "tags": [
+          "開課單位 School"
+        ],
+        "summary": "開課單位滿意度趨勢",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 該年每季度</li>\n</ul>\n<li>yaxis ： Y軸</li>\n<ul>\n<li>title ： Y軸標題</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 開課單位</li>\n<li>data ： 平均滿意度</li>\n</ul>",
+        "operationId": "getCourseTypeRate_v1_dashboard_school_satisfiedTrend_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "該年每季度",
+                      "categories": [
+                        "113 Q1",
+                        "113 Q2",
+                        "113 Q3",
+                        "113 Q4",
+                        "114 Q1",
+                        "114 Q2",
+                        "114 Q3",
+                        "114 Q4"
+                      ]
+                    },
+                    "yaxis": {
+                      "title": "平均滿意度"
+                    },
+                    "series": [
+                      {
+                        "name": "健行科技大學",
+                        "data": [
+                          72,
+                          75,
+                          73,
+                          78,
+                          82,
+                          80,
+                          85,
+                          89
+                        ]
+                      },
+                      {
+                        "name": "勤益科技大學",
+                        "data": [
+                          87,
+                          84,
+                          81,
+                          78,
+                          76,
+                          73,
+                          71,
+                          69
+                        ]
+                      },
+                      {
+                        "name": "正修科技大學",
+                        "data": [
+                          85,
+                          82,
+                          84,
+                          77,
+                          79,
+                          74,
+                          72,
+                          69
+                        ]
+                      },
+                      {
+                        "name": "崑山科技大學",
+                        "data": [
+                          73,
+                          78,
+                          75,
+                          82,
+                          79,
+                          84,
+                          81,
+                          88
+                        ]
+                      },
+                      {
+                        "name": "嘉南科技大學",
+                        "data": [
+                          89,
+                          85,
+                          87,
+                          83,
+                          79,
+                          81,
+                          76,
+                          72
+                        ]
+                      },
+                      {
+                        "name": "弘光科技大學",
+                        "data": [
+                          75,
+                          73,
+                          81,
+                          74,
+                          83,
+                          78,
+                          85,
+                          79
+                        ]
+                      },
+                      {
+                        "name": "朝陽科技大學",
+                        "data": [
+                          71,
+                          76,
+                          69,
+                          77,
+                          74,
+                          81,
+                          78,
+                          85
+                        ]
+                      },
+                      {
+                        "name": "樹德科技大學",
+                        "data": [
+                          80,
+                          85,
+                          82,
+                          87,
+                          79,
+                          83,
+                          86,
+                          89
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/school/{schoolId}/satisfiedTrend": {
+      "get": {
+        "tags": [
+          "開課單位 School"
+        ],
+        "summary": "特定開課單位滿意度趨勢",
+        "description": "<p>Required</p>\n<ul>schoolId ： 學校id</ul>\n<p>Response</p>\n<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 該年每季度</li>\n</ul>\n<li>yaxis ： Y軸</li>\n<ul>\n<li>title ： Y軸標題</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 開課單位</li>\n<li>data ： 平均滿意度</li>\n</ul>",
+        "operationId": "getSpecificTopSchoolSatisfiedTrend_v1_dashboard_school__schoolId__satisfiedTrend_get",
+        "parameters": [
+          {
+            "name": "schoolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Schoolid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "該年每季度",
+                      "categories": [
+                        "113 Q1",
+                        "113 Q2",
+                        "113 Q3",
+                        "113 Q4",
+                        "114 Q1",
+                        "114 Q2",
+                        "114 Q3",
+                        "114 Q4"
+                      ]
+                    },
+                    "yaxis": {
+                      "title": "平均滿意度"
+                    },
+                    "series": [
+                      {
+                        "name": "健行科技大學",
+                        "data": [
+                          72,
+                          75,
+                          73,
+                          78,
+                          82,
+                          80,
+                          85,
+                          89
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/course/courseRate": {
+      "get": {
+        "tags": [
+          "課程 Course"
+        ],
+        "summary": "開課類別比例",
+        "description": "<ul>\n<li>labels ： X軸標題</li>\n<li>series ： 開課堂數</li>\n</ul>",
+        "operationId": "getSignUpType_v1_dashboard_course_courseRate_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "labels": [
+                      "程式設計",
+                      "軟體工程",
+                      "人工智慧",
+                      "資料庫應用",
+                      "系統分析與設計",
+                      "資通安全管理",
+                      "資訊管理",
+                      "作業系統",
+                      "資訊安全",
+                      "資料結構"
+                    ],
+                    "series": [
+                      29,
+                      18,
+                      16,
+                      13,
+                      12,
+                      11,
+                      10,
+                      10,
+                      10,
+                      10
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/course/signUpType": {
+      "get": {
+        "tags": [
+          "課程 Course"
+        ],
+        "summary": "開課類別報名率",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 開課類別</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 標題</li>\n<li>data ： 報名率</li>\n</ul>\n</ul>",
+        "operationId": "getSignUpType_v1_dashboard_course_signUpType_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "開課類別",
+                      "categories": [
+                        "程式設計",
+                        "軟體工程",
+                        "人工智慧",
+                        "資料庫應用",
+                        "系統分析與設計",
+                        "資通安全管理",
+                        "資訊管理",
+                        "作業系統",
+                        "資訊安全",
+                        "資料結構",
+                        "程式設計",
+                        "軟體工程",
+                        "人工智慧",
+                        "資料庫應用",
+                        "系統分析與設計",
+                        "資通安全管理",
+                        "資訊管理",
+                        "作業系統",
+                        "資訊安全",
+                        "資料結構"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "報名率",
+                        "data": [
+                          96.2,
+                          95.8,
+                          92.2,
+                          91.6,
+                          91.1,
+                          89.1,
+                          88.7,
+                          86.2,
+                          86.1,
+                          85.9,
+                          96.2,
+                          95.8,
+                          92.2,
+                          91.6,
+                          91.1,
+                          89.1,
+                          88.7,
+                          86.2,
+                          86.1,
+                          85.9
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/course/hotCompleteRate": {
+      "get": {
+        "tags": [
+          "課程 Course"
+        ],
+        "summary": "前10熱門課程類別結訓率",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 開課類別 (抓前10熱門課程)</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 標題 (課程人數, 結訓人數, 退訓人數)</li>\n<li>data ： 資料</li>\n</ul>\n</ul>",
+        "operationId": "getHotCompleteRate_v1_dashboard_course_hotCompleteRate_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "開課類別",
+                      "categories": [
+                        "程式設計",
+                        "軟體工程",
+                        "人工智慧",
+                        "資料庫應用",
+                        "系統分析與設計",
+                        "資通安全管理",
+                        "資訊管理",
+                        "作業系統",
+                        "資訊安全",
+                        "資料結構"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "課程人數",
+                        "data": [
+                          126,
+                          185,
+                          201,
+                          198,
+                          187,
+                          205,
+                          191,
+                          214,
+                          194,
+                          200
+                        ]
+                      },
+                      {
+                        "name": "結訓人數",
+                        "data": [
+                          115,
+                          162,
+                          199,
+                          182,
+                          177,
+                          199,
+                          189,
+                          183,
+                          184,
+                          192
+                        ]
+                      },
+                      {
+                        "name": "退訓人數",
+                        "data": [
+                          11,
+                          23,
+                          2,
+                          16,
+                          10,
+                          6,
+                          2,
+                          11,
+                          10,
+                          8
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/course/courseTrend": {
+      "get": {
+        "tags": [
+          "課程 Course"
+        ],
+        "summary": "開課堂數趨勢",
+        "description": "<ul>\n<li>xaxis ： X軸 (該年每季度)</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 季度名稱</li>\n</ul>\n<li>yaxis ： Y軸</li>\n<ul>\n<li>title ： Y軸標題</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 標題 </li>\n<li>data ： 資料(開課堂數)</li>\n</ul>\n</ul>",
+        "operationId": "getCourseTrend_v1_dashboard_course_courseTrend_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "該年每季度",
+                      "categories": [
+                        "113 Q1",
+                        "113 Q2",
+                        "113 Q3",
+                        "113 Q4",
+                        "114 Q1",
+                        "114 Q2",
+                        "114 Q3",
+                        "114 Q4"
+                      ]
+                    },
+                    "yaxis": {
+                      "title": "總開課堂數"
+                    },
+                    "series": [
+                      {
+                        "name": "程式設計",
+                        "data": [
+                          10,
+                          12,
+                          15,
+                          13,
+                          11,
+                          14,
+                          16,
+                          17
+                        ]
+                      },
+                      {
+                        "name": "軟體工程",
+                        "data": [
+                          9,
+                          10,
+                          12,
+                          11,
+                          13,
+                          14,
+                          15,
+                          16
+                        ]
+                      },
+                      {
+                        "name": "人工智慧",
+                        "data": [
+                          11,
+                          12,
+                          13,
+                          14,
+                          15,
+                          16,
+                          17,
+                          18
+                        ]
+                      },
+                      {
+                        "name": "資料庫應用",
+                        "data": [
+                          12,
+                          13,
+                          14,
+                          15,
+                          16,
+                          17,
+                          18,
+                          19
+                        ]
+                      },
+                      {
+                        "name": "系統分析與設計",
+                        "data": [
+                          13,
+                          14,
+                          15,
+                          16,
+                          17,
+                          18,
+                          19,
+                          20
+                        ]
+                      },
+                      {
+                        "name": "資通安全管理",
+                        "data": [
+                          14,
+                          15,
+                          16,
+                          17,
+                          18,
+                          19,
+                          20,
+                          21
+                        ]
+                      },
+                      {
+                        "name": "資訊管理",
+                        "data": [
+                          15,
+                          16,
+                          17,
+                          18,
+                          19,
+                          20,
+                          21,
+                          22
+                        ]
+                      },
+                      {
+                        "name": "作業系統",
+                        "data": [
+                          16,
+                          17,
+                          18,
+                          19,
+                          20,
+                          21,
+                          22,
+                          23
+                        ]
+                      },
+                      {
+                        "name": "資訊安全",
+                        "data": [
+                          17,
+                          18,
+                          19,
+                          20,
+                          21,
+                          22,
+                          23,
+                          24
+                        ]
+                      },
+                      {
+                        "name": "資料結構",
+                        "data": [
+                          18,
+                          19,
+                          20,
+                          21,
+                          22,
+                          23,
+                          24,
+                          25
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/course/courseTotal/credit": {
+      "get": {
+        "tags": [
+          "課程 Course"
+        ],
+        "summary": "開課數量(學分班)",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 區域</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 標題 (總開課數量, 第一階段, 第二階段, 第三階段)</li>\n<li>data ： 資料</li>\n</ul>\n</ul>",
+        "operationId": "getCourseTotalCredit_v1_dashboard_course_courseTotal_credit_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "區域",
+                      "categories": [
+                        "北區",
+                        "中區",
+                        "南區"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "總開課數量",
+                        "data": [
+                          252,
+                          164,
+                          402
+                        ]
+                      },
+                      {
+                        "name": "第一階段",
+                        "data": [
+                          126,
+                          185,
+                          201
+                        ]
+                      },
+                      {
+                        "name": "第二階段",
+                        "data": [
+                          115,
+                          162,
+                          199
+                        ]
+                      },
+                      {
+                        "name": "第三階段",
+                        "data": [
+                          11,
+                          23,
+                          2
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/course/courseTotal/career": {
+      "get": {
+        "tags": [
+          "課程 Course"
+        ],
+        "summary": "開課數量(職訓班)",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 區域</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 標題 (總開課數量, 第一階段, 第二階段, 第三階段)</li>\n<li>data ： 資料</li>\n</ul>\n</ul>",
+        "operationId": "getCourseTotalCareer_v1_dashboard_course_courseTotal_career_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "區域",
+                      "categories": [
+                        "北區",
+                        "中區",
+                        "南區"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "總開課數量",
+                        "data": [
+                          438,
+                          334,
+                          363
+                        ]
+                      },
+                      {
+                        "name": "第一階段",
+                        "data": [
+                          123,
+                          122,
+                          122
+                        ]
+                      },
+                      {
+                        "name": "第二階段",
+                        "data": [
+                          153,
+                          110,
+                          122
+                        ]
+                      },
+                      {
+                        "name": "第三階段",
+                        "data": [
+                          162,
+                          102,
+                          99
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/course/studentTotal/credit": {
+      "get": {
+        "tags": [
+          "課程 Course"
+        ],
+        "summary": "參訓人數(學分班)",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 區域</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 課程名稱</li>\n<li>data ： 學員人數</li>\n</ul>\n</ul>",
+        "operationId": "getStudentTotalCredit_v1_dashboard_course_studentTotal_credit_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "區域",
+                      "categories": [
+                        "北區",
+                        "中區",
+                        "南區"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "資料庫應用",
+                        "data": [
+                          10,
+                          12,
+                          15
+                        ]
+                      },
+                      {
+                        "name": "資料結構",
+                        "data": [
+                          9,
+                          10,
+                          12
+                        ]
+                      },
+                      {
+                        "name": "人工智慧",
+                        "data": [
+                          11,
+                          12,
+                          13
+                        ]
+                      },
+                      {
+                        "name": "資訊管理",
+                        "data": [
+                          12,
+                          13,
+                          14
+                        ]
+                      },
+                      {
+                        "name": "系統分析與設計",
+                        "data": [
+                          13,
+                          14,
+                          15
+                        ]
+                      },
+                      {
+                        "name": "資通網路與安全",
+                        "data": [
+                          13,
+                          14,
+                          15
+                        ]
+                      },
+                      {
+                        "name": "作業系統",
+                        "data": [
+                          13,
+                          14,
+                          15
+                        ]
+                      },
+                      {
+                        "name": "程式設計",
+                        "data": [
+                          13,
+                          14,
+                          15
+                        ]
+                      },
+                      {
+                        "name": "資通安全管理",
+                        "data": [
+                          13,
+                          14,
+                          15
+                        ]
+                      },
+                      {
+                        "name": "資通安全法令與規範",
+                        "data": [
+                          13,
+                          14,
+                          15
+                        ]
+                      },
+                      {
+                        "name": "資通安全防護技術",
+                        "data": [
+                          13,
+                          14,
+                          15
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/course/studentTotal/career": {
+      "get": {
+        "tags": [
+          "課程 Course"
+        ],
+        "summary": "參訓人數(職訓班)",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 區域</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 課程名稱</li>\n<li>data ： 學員人數</li>\n</ul>\n</ul>",
+        "operationId": "getStudentTotalCareer_v1_dashboard_course_studentTotal_career_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "區域",
+                      "categories": [
+                        "北區",
+                        "中區",
+                        "南區"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "業務持續運作管理",
+                        "data": [
+                          13,
+                          16,
+                          19
+                        ]
+                      },
+                      {
+                        "name": "Web應用程式安全",
+                        "data": [
+                          14,
+                          10,
+                          12
+                        ]
+                      },
+                      {
+                        "name": "系統及網站滲透測試",
+                        "data": [
+                          15,
+                          12,
+                          13
+                        ]
+                      },
+                      {
+                        "name": "網路架構與部署安全",
+                        "data": [
+                          16,
+                          13,
+                          14
+                        ]
+                      },
+                      {
+                        "name": "資通安全概論",
+                        "data": [
+                          17,
+                          14,
+                          15
+                        ]
+                      },
+                      {
+                        "name": "通訊與網路安全",
+                        "data": [
+                          18,
+                          14,
+                          15
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/student/creditStatus": {
+      "get": {
+        "tags": [
+          "學員 Student"
+        ],
+        "summary": "學分班學員狀態",
+        "description": "<ul>\n<li>labels ： 學分班學員狀態</li>\n<li>series ： 學員人數</li>\n</ul>",
+        "operationId": "getCreditStatus_v1_dashboard_student_creditStatus_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "labels": [
+                      "皆未上課",
+                      "已完成1門",
+                      "已完成2門",
+                      "已完成3門"
+                    ],
+                    "series": [
+                      235,
+                      30,
+                      50,
+                      58
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/student/careerStatus": {
+      "get": {
+        "tags": [
+          "學員 Student"
+        ],
+        "summary": "職能班學員狀態",
+        "description": "<ul>\n<li>labels ： 職能班學員狀態</li>\n<li>series ： 學員人數</li>\n</ul>",
+        "operationId": "getCareerStatus_v1_dashboard_student_careerStatus_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "labels": [
+                      "皆未上課",
+                      "已完成1門",
+                      "已完成2門",
+                      "已完成3門"
+                    ],
+                    "series": [
+                      237,
+                      227,
+                      26,
+                      2
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/student/totalTrend": {
+      "get": {
+        "tags": [
+          "學員 Student"
+        ],
+        "summary": "學員總人數趨勢",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 每季度名稱</li>\n</ul>\n<li>yaxis ： Y軸</li>\n<ul>\n<li>title ： Y軸標題</li>\n</ul>\n<li>series ： 學員總人數</li>\n<ul>\n<li>name ： 學員人數</li>\n<li>data ： 學員人數</li>\n</ul>\n</ul>",
+        "operationId": "getTotalTrend_v1_dashboard_student_totalTrend_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "該年每季度",
+                      "categories": [
+                        "113 Q1",
+                        "113 Q2",
+                        "113 Q3",
+                        "113 Q4",
+                        "114 Q1",
+                        "114 Q2",
+                        "114 Q3",
+                        "114 Q4",
+                        "115 Q1"
+                      ]
+                    },
+                    "yaxis": {
+                      "title": "學員人數"
+                    },
+                    "series": [
+                      {
+                        "name": "學員人數",
+                        "data": [
+                          130,
+                          146,
+                          170,
+                          210,
+                          192,
+                          200,
+                          225,
+                          250,
+                          375
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/student/govRate": {
+      "get": {
+        "tags": [
+          "學員 Student"
+        ],
+        "summary": "政府機關學員比例",
+        "description": "<ul>\n<li>labels ： 政府機關名稱</li>\n<li>series ： 學員人數</li>\n</ul>",
+        "operationId": "getGovRate_v1_dashboard_student_govRate_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "labels": [
+                      "台北市政府",
+                      "台中市政府",
+                      "台南市政府",
+                      "高雄市政府",
+                      "新北市政府",
+                      "新竹市政府",
+                      "基隆市政府"
+                    ],
+                    "series": [
+                      26,
+                      36,
+                      10,
+                      46,
+                      38,
+                      26,
+                      42
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/student/govDetail": {
+      "get": {
+        "tags": [
+          "學員 Student"
+        ],
+        "summary": "機關參訓人數",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 機關名稱</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 參訓類型</li>\n<li>group ： 分組資訊</li>\n<li>data ： 學員人數</li>\n</ul>\n</ul>",
+        "operationId": "getStudentTotalCareer_v1_dashboard_student_govDetail_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "機關名稱",
+                      "categories": [
+                        "總統府",
+                        "行政院",
+                        "內政部",
+                        "外交部",
+                        "國防部",
+                        "財政部",
+                        "教育部",
+                        "法務部",
+                        "經濟部",
+                        "交通部"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "機關薦派 參訓",
+                        "group": "recommend",
+                        "data": [
+                          10,
+                          12,
+                          15,
+                          18,
+                          20,
+                          22,
+                          25,
+                          28,
+                          30,
+                          32
+                        ]
+                      },
+                      {
+                        "name": "機關薦派 取消",
+                        "group": "recommend",
+                        "data": [
+                          3,
+                          6,
+                          9,
+                          12,
+                          15,
+                          18,
+                          21,
+                          24,
+                          27,
+                          30
+                        ]
+                      },
+                      {
+                        "name": "自行報名 參訓",
+                        "group": "self",
+                        "data": [
+                          11,
+                          14,
+                          17,
+                          20,
+                          23,
+                          26,
+                          29,
+                          32,
+                          35,
+                          38
+                        ]
+                      },
+                      {
+                        "name": "自行報名 取消",
+                        "group": "self",
+                        "data": [
+                          3,
+                          3,
+                          3,
+                          4,
+                          5,
+                          6,
+                          7,
+                          8,
+                          9,
+                          10
+                        ]
+                      },
+                      {
+                        "name": "合計 參訓",
+                        "group": "total",
+                        "data": [
+                          24,
+                          28,
+                          34,
+                          40,
+                          45,
+                          48,
+                          54,
+                          58,
+                          62,
+                          64
+                        ]
+                      },
+                      {
+                        "name": "合計 取消",
+                        "group": "total",
+                        "data": [
+                          4,
+                          8,
+                          12,
+                          16,
+                          20,
+                          24,
+                          28,
+                          32,
+                          36,
+                          40
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/finance/appropriationStatus": {
+      "get": {
+        "tags": [
+          "財務 Finance"
+        ],
+        "summary": "待處理款項帳齡分析",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 帳齡區間</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 待核撥金額</li>\n<li>data ： 待核撥金額</li>\n</ul>",
+        "operationId": "getSchoolList_v1_dashboard_finance_appropriationStatus_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "帳齡區間",
+                      "categories": [
+                        "0-30 天",
+                        "31-60 天",
+                        "60-90 天",
+                        "90天以上"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "待核撥金額",
+                        "data": [
+                          140000,
+                          24000,
+                          16000,
+                          8000
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/finance/totalTrend": {
+      "get": {
+        "tags": [
+          "財務 Finance"
+        ],
+        "summary": "總核撥金額趨勢",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 該年每季度</li>\n</ul>\n<li>yaxis ： Y軸</li>\n<ul>\n<li>title ： Y軸標題</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 資料名稱</li>\n<li>data ： 資料</li>\n</ul>\n</ul>",
+        "operationId": "getSchoolList_v1_dashboard_finance_totalTrend_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "該年每季度",
+                      "categories": [
+                        "113 Q1",
+                        "113 Q2",
+                        "113 Q3",
+                        "113 Q4",
+                        "114 Q1",
+                        "114 Q2",
+                        "114 Q3",
+                        "114 Q4",
+                        "115 Q1"
+                      ]
+                    },
+                    "yaxis": {
+                      "title": "總核撥金額"
+                    },
+                    "series": [
+                      {
+                        "name": "總核撥金額",
+                        "data": [
+                          130000,
+                          146000,
+                          170000,
+                          210000,
+                          190000,
+                          200000,
+                          225000,
+                          250000,
+                          375000
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/review/{courseId}/teaching": {
+      "get": {
+        "tags": [
+          "滿意度調查 Review"
+        ],
+        "summary": "教師教學滿意程度",
+        "description": "<p>Required</p>\n<ul>courseId ： 課程id</ul>\n<p>Response</p>\n<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 滿意度調查項目</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 滿意度</li>\n<li>data ： 人數</li>\n</ul>\n</ul>",
+        "operationId": "getTeachingReviewRate_v1_dashboard_review__courseId__teaching_get",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Courseid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "滿意度調查項目",
+                      "categories": [
+                        "表達能力清晰度",
+                        "是否符合議題",
+                        "講述進度掌握度",
+                        "教師教學態度",
+                        "綜合整體表現"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "非常滿意",
+                        "data": [
+                          44,
+                          41,
+                          36,
+                          46,
+                          43
+                        ]
+                      },
+                      {
+                        "name": "滿意",
+                        "data": [
+                          15,
+                          16.7,
+                          19,
+                          13,
+                          16
+                        ]
+                      },
+                      {
+                        "name": "普通",
+                        "data": [
+                          1,
+                          3,
+                          5,
+                          1,
+                          1
+                        ]
+                      },
+                      {
+                        "name": "不滿意",
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ]
+                      },
+                      {
+                        "name": "非常不滿意",
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/review/{courseId}/course": {
+      "get": {
+        "tags": [
+          "滿意度調查 Review"
+        ],
+        "summary": "課程內容滿意程度",
+        "description": "<p>Required</p>\n<ul>courseId ： 課程id</ul>\n<p>Response</p>\n<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 滿意度調查項目</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 滿意度</li>\n<li>data ： 人數</li>\n</ul>\n</ul>",
+        "operationId": "getCourseReviewRate_v1_dashboard_review__courseId__course_get",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Courseid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "滿意度調查項目",
+                      "categories": [
+                        "課程安排適當性",
+                        "內容深度(難度)符合學員程度",
+                        "內容廣度(豐富性)符合學員需求",
+                        "講述內容對執行業務之助益",
+                        "講述內容對自我知識累積之助益"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "非常滿意",
+                        "data": [
+                          35,
+                          31,
+                          34,
+                          33,
+                          36
+                        ]
+                      },
+                      {
+                        "name": "滿意",
+                        "data": [
+                          24,
+                          21,
+                          23,
+                          24,
+                          21
+                        ]
+                      },
+                      {
+                        "name": "普通",
+                        "data": [
+                          1,
+                          8,
+                          3,
+                          3,
+                          3
+                        ]
+                      },
+                      {
+                        "name": "不滿意",
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ]
+                      },
+                      {
+                        "name": "非常不滿意",
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/review/{courseId}/other": {
+      "get": {
+        "tags": [
+          "滿意度調查 Review"
+        ],
+        "summary": "其他項目滿意程度",
+        "description": "<p>Required</p>\n<ul>courseId ： 課程id</ul>\n<p>Response</p>\n<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 滿意度調查項目</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 滿意度</li>\n<li>data ： 人數</li>\n</ul>\n</ul>",
+        "operationId": "getCourseReviewRate_v1_dashboard_review__courseId__other_get",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Courseid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "滿意度調查項目",
+                      "categories": [
+                        "報名作業(線上報名)",
+                        "報到便利性",
+                        "工作人員服務態度",
+                        "場地、空間及設備安排(線上設備流暢性)",
+                        "時間安排(時段、頻率)",
+                        "對本研習綜合評價"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "非常滿意",
+                        "data": [
+                          35,
+                          40,
+                          42,
+                          41,
+                          35,
+                          36
+                        ]
+                      },
+                      {
+                        "name": "滿意",
+                        "data": [
+                          19,
+                          18,
+                          15,
+                          17,
+                          19,
+                          22
+                        ]
+                      },
+                      {
+                        "name": "普通",
+                        "data": [
+                          5,
+                          2,
+                          3,
+                          2,
+                          6,
+                          2
+                        ]
+                      },
+                      {
+                        "name": "不滿意",
+                        "data": [
+                          1,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ]
+                      },
+                      {
+                        "name": "非常不滿意",
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboard/other/consultCount": {
+      "get": {
+        "tags": [
+          "其他 Other"
+        ],
+        "summary": "諮詢問題類型及服務人數",
+        "description": "<ul>\n<li>xaxis ： X軸</li>\n<ul>\n<li>title ： X軸標題</li>\n<li>categories ： 時間</li>\n</ul>\n<li>series ： 實際資料</li>\n<ul>\n<li>name ： 諮詢問題類型</li>\n<li>data ： 諮詢人數</li>\n</ul>",
+        "operationId": "getConsultCount_v1_dashboard_other_consultCount_get",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "success",
+                  "data": {
+                    "xaxis": {
+                      "title": "時間",
+                      "categories": [
+                        "114年6月",
+                        "114年7月",
+                        "114年8月",
+                        "114年9月",
+                        "114年10月",
+                        "114年11月",
+                        "114年12月",
+                        "115年1月",
+                        "115年2月",
+                        "115年3月",
+                        "115年4月",
+                        "115年5月",
+                        "115年6月"
+                      ]
+                    },
+                    "series": [
+                      {
+                        "name": "學員資格",
+                        "data": [
+                          8,
+                          12,
+                          6,
+                          15,
+                          9,
+                          11,
+                          7,
+                          14,
+                          5,
+                          10,
+                          13,
+                          8,
+                          12
+                        ]
+                      },
+                      {
+                        "name": "學分認列",
+                        "data": [
+                          4,
+                          7,
+                          2,
+                          9,
+                          5,
+                          1,
+                          8,
+                          3,
+                          6,
+                          4,
+                          7,
+                          2,
+                          5
+                        ]
+                      },
+                      {
+                        "name": "請款",
+                        "data": [
+                          2,
+                          5,
+                          8,
+                          3,
+                          6,
+                          4,
+                          7,
+                          1,
+                          9,
+                          5,
+                          3,
+                          8,
+                          6
+                        ]
+                      },
+                      {
+                        "name": "課程",
+                        "data": [
+                          6,
+                          3,
+                          9,
+                          7,
+                          4,
+                          8,
+                          2,
+                          5,
+                          7,
+                          9,
+                          4,
+                          6,
+                          3
+                        ]
+                      },
+                      {
+                        "name": "報名",
+                        "data": [
+                          3,
+                          8,
+                          5,
+                          2,
+                          7,
+                          6,
+                          4,
+                          9,
+                          3,
+                          8,
+                          5,
+                          7,
+                          4
+                        ]
+                      },
+                      {
+                        "name": "公假",
+                        "data": [
+                          1,
+                          4,
+                          2,
+                          6,
+                          3,
+                          5,
+                          1,
+                          7,
+                          2,
+                          4,
+                          6,
+                          3,
+                          8
+                        ]
+                      },
+                      {
+                        "name": "學校方詢問",
+                        "data": [
+                          5,
+                          2,
+                          7,
+                          4,
+                          8,
+                          3,
+                          6,
+                          2,
+                          5,
+                          7,
+                          4,
+                          9,
+                          1
+                        ]
+                      },
+                      {
+                        "name": "資安概論相關",
+                        "data": [
+                          2,
+                          6,
+                          4,
+                          1,
+                          5,
+                          7,
+                          3,
+                          8,
+                          4,
+                          2,
+                          6,
+                          5,
+                          7
+                        ]
+                      },
+                      {
+                        "name": "其他",
+                        "data": [
+                          1,
+                          3,
+                          0,
+                          2,
+                          4,
+                          1,
+                          5,
+                          0,
+                          3,
+                          1,
+                          2,
+                          4,
+                          1
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Response": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "Response"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

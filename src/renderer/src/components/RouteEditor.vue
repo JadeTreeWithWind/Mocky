@@ -73,6 +73,19 @@ const port = computed(() => {
   return project?.port || 8000
 })
 
+/**
+ * Group name (Single Tag)
+ */
+const groupString = computed({
+  get: () => route.value?.tags?.[0] || '',
+  set: (val: string) => {
+    if (route.value) {
+      const trimmed = val.trim()
+      route.value.tags = trimmed ? [trimmed] : []
+    }
+  }
+})
+
 // --- 6. 偵聽器 (Watchers) ---
 // 監聽路由資料變更
 watch(
@@ -341,6 +354,23 @@ onUnmounted(() => {
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
           </button>
+        </div>
+
+        <!-- Tags Input (Stage New) -->
+        <div class="flex items-center">
+          <div
+            class="relative mr-2 shrink-0 rounded-md border border-zinc-700 bg-zinc-900 p-1.5 text-sm"
+          >
+            Group
+          </div>
+          <div class="flex-1">
+            <input
+              v-model="groupString"
+              type="text"
+              placeholder="e.g. User"
+              class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm text-zinc-300 placeholder-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
+            />
+          </div>
         </div>
 
         <!-- Inputs Container -->

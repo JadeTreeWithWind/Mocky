@@ -196,6 +196,7 @@ export const useProjectStore = defineStore('project', () => {
         method: 'GET' as const,
         path: '/new-endpoint',
         description: 'New API Endpoint',
+        tags: [],
         isActive: true,
         response: {
           statusCode: 200,
@@ -377,6 +378,7 @@ export const useProjectStore = defineStore('project', () => {
           method: route.method || 'GET',
           path: route.path || '/',
           description: route.description || '',
+          tags: route.tags || [],
           isActive: route.isActive ?? true,
           response: {
             statusCode: route.response?.statusCode || 200,

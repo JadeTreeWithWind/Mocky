@@ -3,10 +3,10 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { Plus, Search, Play, Square } from 'lucide-vue-next'
+import { Plus, Search, Play, Square, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
 import { useUIStore } from '../stores/ui'
-import { PROJECT_STATUS } from '../../../shared/types'
+import { PROJECT_STATUS, type Route } from '../../../shared/types'
 import RouteItem from '../components/RouteItem.vue'
 import RouteEditor from '../components/RouteEditor.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
@@ -32,51 +32,115 @@ const routeToDeleteId = ref<string | null>(null)
 const isPortBusyOpen = ref(false)
 const portBusyMessage = ref('')
 
-// --- 5. 計算屬性 (Computed Properties) ---
+/** 當前展開的群組名稱 (Accordion Only One) */
+const expandedGroup = ref<string | null>(null)
 
 /**
- * 從專案列表取得當前專案資料
+ * 依照 Tags 分組路由
  */
-const currentProject = computed(() => projects.value.find((p) => p.id === projectId.value))
+const groupedRoutes = computed(() => {
+  const map = new Map<string, Route[]>()
+  const ungrouped: Route[] = []
+  const list = filteredRoutes.value
 
-/**
- * 伺服器是否運行中
- */
-const isServerRunning = computed(() => currentProject.value?.status === PROJECT_STATUS.RUNNING)
+  list.forEach((r) => {
+    if (!r.tags || r.tags.length === 0) {
+      ungrouped.push(r)
+    } else {
+      r.tags.forEach((tag) => {
+        if (!map.has(tag)) {
+          map.set(tag, [])
+        }
+        map.get(tag)?.push(r)
+      })
+    }
+  })
 
-/**
- * 從路由衍生當前專案 ID (單一事實來源)
- */
-const projectId = computed(() => {
-  const id = route.params.id
-  return typeof id === 'string' ? id : ''
-})
+  // Convert map to array and sort
+  const groups: { name: string; routes: Route[] }[] = []
 
-/**
- * 根據搜尋關鍵字過濾路由列表
- */
-const filteredRoutes = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-  if (!query) return routes.value
+  // Add Tags (sorted alphabetically)
+  const sortedTags = Array.from(map.keys()).sort()
+  sortedTags.forEach((tag) => {
+    groups.push({ name: tag, routes: map.get(tag)! })
+  })
 
-  return routes.value.filter(
-    (r) =>
-      r.path.toLowerCase().includes(query) ||
-      (r.description && r.description.toLowerCase().includes(query))
-  )
-})
-
-/**
- * 用於拖拽排序的路由列表 (Writable Computed)
- */
-const routeList = computed({
-  get: () => routes.value,
-  set: (val) => {
-    projectStore.reorderRoutes(projectId.value, val)
+  // Add Ungrouped at the end
+  if (ungrouped.length > 0) {
+    groups.push({ name: 'Ungrouped', routes: ungrouped })
   }
+
+  // If list is empty but we have no groups? (Handled by filteredRoutes check in template)
+  // If no tags at all, just return Ungrouped
+  if (groups.length === 0 && list.length > 0) {
+    return [{ name: 'Ungrouped', routes: list }]
+  }
+
+  // Auto-expand first group if nothing expanded (UX improvement)
+  if (groups.length > 0 && !expandedGroup.value) {
+    // We defer this slightly to avoid side-effects during computed calc, usually unnecessary but safer
+    // Actually, setting ref in computed is bad. Let watcher handle it or strictly user interaction.
+    // For now, let's keep it closed or user-driven?
+    // User asked "click other tag -> collapse old one", implying user interaction.
+  }
+
+  return groups
 })
 
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
+
+/**
+ * 切換群組收合狀態 (Accordion)
+ */
+const toggleGroup = (groupName: string): void => {
+  if (expandedGroup.value === groupName) {
+    expandedGroup.value = null // Close if clicking same
+  } else {
+    expandedGroup.value = groupName // Open new, closes others
+  }
+}
+
+/**
+ * 處理群組內的排序 (Drag & Drop)
+ * 將群組內的新順序套用到全域列表，同時保留非此群組項目的位置
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleGroupReorder = (groupName: string, newGroupRoutes: any[]): void => {
+  // 1. 複製當前完整列表
+  const newFullList = [...routes.value]
+
+  // 2. 找出此群組原本包含哪些路由的「全域索引位置」
+  // 邏輯：遍歷全域列表，若該路由屬於此群組，則記錄其 Index
+  const targetIndices: number[] = []
+
+  newFullList.forEach((r, index) => {
+    // 判斷該路由是否屬於目前正在操作的群組
+    const rTags = r.tags || []
+    const isUngrouped = groupName === 'Ungrouped' && rTags.length === 0
+    const hasTag = rTags.includes(groupName)
+
+    if (isUngrouped || hasTag) {
+      targetIndices.push(index)
+    }
+  })
+
+  // 安全檢查：數量應該要一致
+  if (targetIndices.length !== newGroupRoutes.length) {
+    console.warn('[Reorder] Count mismatch, skipping update', {
+      expected: targetIndices.length,
+      actual: newGroupRoutes.length
+    })
+    return
+  }
+
+  // 3. 將新的群組順序，依序填入原本的索引位置 (Preserve Slots)
+  targetIndices.forEach((targetIndex, i) => {
+    newFullList[targetIndex] = newGroupRoutes[i]
+  })
+
+  // 4. 更新 Store
+  projectStore.reorderRoutes(projectId.value, newFullList)
+}
 
 /**
  * 切換伺服器運行狀態
@@ -188,6 +252,43 @@ const executeDeleteRoute = async (): Promise<void> => {
   }
 }
 
+// --- 5. 計算屬性 (Computed Properties) ---
+
+/**
+ * 從路由衍生當前專案 ID (單一事實來源)
+ */
+const projectId = computed(() => {
+  const id = route.params.id
+  return typeof id === 'string' ? id : ''
+})
+
+/**
+ * 從專案列表取得當前專案資料
+ */
+const currentProject = computed(() => projects.value.find((p) => p.id === projectId.value))
+
+/**
+ * 伺服器是否運行中
+ */
+const isServerRunning = computed(() => currentProject.value?.status === PROJECT_STATUS.RUNNING)
+
+/**
+ * 根據搜尋關鍵字過濾路由列表
+ */
+const filteredRoutes = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return routes.value
+
+  return routes.value.filter(
+    (r) =>
+      r.path.toLowerCase().includes(query) ||
+      (r.description && r.description.toLowerCase().includes(query))
+  )
+})
+
+/**
+ * 依照 Tags 分組路由 (Grouped View)
+ */
 // --- 6. 偵聽器 (Watchers) ---
 
 /**
@@ -320,7 +421,7 @@ onMounted(() => {
         </div>
 
         <template v-else>
-          <!-- 搜尋模式下禁用排序 (顯示過濾列表) -->
+          <!-- Search Mode: Flat List -->
           <template v-if="searchQuery">
             <RouteItem
               v-for="item in filteredRoutes"
@@ -334,26 +435,51 @@ onMounted(() => {
             />
           </template>
 
-          <!-- 一般模式下啟用拖拽排序 -->
-          <Draggable
-            v-else
-            v-model="routeList"
-            item-key="id"
-            :animation="200"
-            ghost-class="ghost"
-            class="flex flex-col space-y-1"
-          >
-            <template #item="{ element }">
-              <RouteItem
-                :method="element.method"
-                :path="element.path"
-                :is-selected="selectedRouteId === element.id"
-                :is-enabled="element.isActive"
-                @click="handleSelectRoute(element.id)"
-                @delete="handleDeleteRoute(element.id)"
-              />
+          <!-- Standard Mode: Grouped Accordion with Drag & Drop -->
+          <template v-else>
+            <template v-for="group in groupedRoutes" :key="group.name">
+              <!-- Group Header -->
+              <div
+                v-if="group.name !== 'Ungrouped' || group.routes.length > 0"
+                class="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 text-xs font-semibold text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+                @click="toggleGroup(group.name)"
+              >
+                <div class="flex items-center gap-1.5">
+                  <component
+                    :is="expandedGroup === group.name ? ChevronDown : ChevronRight"
+                    :size="12"
+                  />
+                  <span :class="group.name === 'Ungrouped' ? 'italic opacity-70' : ''">
+                    {{ group.name }}
+                  </span>
+                </div>
+                <span class="text-[10px] text-zinc-600">{{ group.routes.length }}</span>
+              </div>
+
+              <!-- Routes List (Draggable) -->
+              <div v-show="expandedGroup === group.name" class="pl-2">
+                <Draggable
+                  :model-value="group.routes"
+                  item-key="id"
+                  :animation="200"
+                  ghost-class="ghost"
+                  class="flex flex-col space-y-1"
+                  @update:model-value="(val) => handleGroupReorder(group.name, val)"
+                >
+                  <template #item="{ element }">
+                    <RouteItem
+                      :method="element.method"
+                      :path="element.path"
+                      :is-selected="selectedRouteId === element.id"
+                      :is-enabled="element.isActive"
+                      @click="handleSelectRoute(element.id)"
+                      @delete="handleDeleteRoute(element.id)"
+                    />
+                  </template>
+                </Draggable>
+              </div>
             </template>
-          </Draggable>
+          </template>
         </template>
       </div>
     </aside>

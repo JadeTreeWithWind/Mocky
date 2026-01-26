@@ -14,6 +14,10 @@
   --color-text-muted: #a1a1aa; /* zinc-400 */
 }
 
+button {
+  @apply cursor-pointer;
+}
+
 :root {
   color-scheme: dark;
 }

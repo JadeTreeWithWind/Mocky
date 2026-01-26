@@ -47,7 +47,7 @@ const handleCreateDemo = async (): Promise<void> => {
     <div class="mt-8 flex flex-col items-center gap-4">
       <button
         type="button"
-        class="group flex items-center gap-2 rounded-full bg-zinc-100 px-6 py-2.5 text-sm font-semibold text-zinc-900 shadow-lg shadow-zinc-900/20 transition-all hover:scale-105 hover:bg-white focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 disabled:cursor-not-allowed disabled:opacity-50"
+        class="group flex cursor-pointer items-center gap-2 rounded-full bg-zinc-100 px-6 py-2.5 text-sm font-semibold text-zinc-900 shadow-lg shadow-zinc-900/20 transition-all hover:scale-105 hover:bg-white focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 disabled:cursor-not-allowed disabled:opacity-50"
         :disabled="isCreatingDemo"
         @click="handleCreateDemo"
       >

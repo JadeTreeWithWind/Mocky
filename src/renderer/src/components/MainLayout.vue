@@ -364,7 +364,7 @@ onMounted(() => {
             <div class="flex items-center gap-1">
               <button
                 type="button"
-                class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                class="cursor-pointer rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                 title="Import OpenAPI"
                 @click="handleImportProject"
               >
@@ -372,7 +372,7 @@ onMounted(() => {
               </button>
               <button
                 type="button"
-                class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                class="cursor-pointer rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                 title="Create Project"
                 @click="
                   () => {

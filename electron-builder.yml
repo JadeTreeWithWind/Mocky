@@ -1,11 +1,27 @@
 appId: com.mocky.app
 productName: Mocky
+electronLanguages:
+  - en-US
+  - zh-TW
 directories:
   output: release
   buildResources: build
 files:
   - out/**/*
   - package.json
+  - '!**/*.{md,markdown,MD}'
+  - '!**/*.{ts,tsx}'
+  - '!**/*.{map,js.map}'
+  - '!**/test/**'
+  - '!**/tests/**'
+  - '!**/example/**'
+  - '!**/examples/**'
+  - '!**/docs/**'
+  - '!**/images/**'
+  - '!**/.npmignore'
+  - '!**/.eslintrc*'
+  - '!**/.prettierrc*'
+  - '!**/tsconfig.json'
 
 extraResources:
   - from: src/shared

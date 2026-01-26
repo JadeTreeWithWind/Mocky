@@ -9,17 +9,11 @@
 </p>
 
 <p align="center">
-  <a href="#功能特色">功能特色</a> •
-  <a href="#快速開始">快速開始</a> •
-  <a href="#使用指南">使用指南</a> •
-  <a href="#技術架構">技術架構</a> •
-  <a href="#開發指南">開發指南</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue" alt="Platform">
+  <!-- <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue" alt="Platform">   -->
+  <img src="https://img.shields.io/badge/Platform-Windows" alt="Platform">
   <img src="https://img.shields.io/badge/Version-1.0.0-green" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
+  ⚠️ Note: This project is available for personal and non-commercial use only.
 </p>
 
 ---
@@ -154,7 +148,7 @@
 
 ## 📄 授權
 
-本專案採用 [MIT License](LICENSE) 授權。
+本專案採用 [Attribution-NonCommercial-ShareAlike 4.0 International](LICENSE) 規範授權。
 
 ---
 

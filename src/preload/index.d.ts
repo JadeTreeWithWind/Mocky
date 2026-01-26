@@ -39,7 +39,7 @@ interface DatabaseAPI {
    * @param project - 更新的專案資料
    */
   updateProject: (
-    project: Pick<Project, 'id' | 'name' | 'port' | 'description'>
+    project: Pick<Project, 'id' | 'name' | 'port' | 'description' | 'version'>
   ) => Promise<Project>
 
   /**

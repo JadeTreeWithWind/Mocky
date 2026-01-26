@@ -46,11 +46,18 @@ export const useProjectStore = defineStore('project', () => {
     name: string
     port: number
     description: string
+    version: string
   }): Promise<Project> => {
     lastError.value = null
 
     try {
-      const newProject = await window.api.db.addProject(payload)
+      // 確保將 version 傳遞給後端，如果未提供則使用預設值
+      const projectPayload = {
+        ...payload,
+        version: payload.version || '1.0.0'
+      }
+
+      const newProject = await window.api.db.addProject(projectPayload)
       projects.value.push(newProject)
       return newProject
     } catch (error) {
@@ -65,7 +72,7 @@ export const useProjectStore = defineStore('project', () => {
    * @param project - 更新的專案資料
    */
   const updateProject = async (
-    project: Pick<Project, 'id' | 'name' | 'port' | 'description'>
+    project: Pick<Project, 'id' | 'name' | 'port' | 'description' | 'version'>
   ): Promise<Project> => {
     lastError.value = null
 
@@ -354,7 +361,8 @@ export const useProjectStore = defineStore('project', () => {
       const newProjectPayload = {
         name: project.name || 'Imported Project',
         description: project.description || '',
-        port: project.port || 8000
+        port: project.port || 8000,
+        version: project.version || '1.0.0'
       }
 
       const newProject = await window.api.db.addProject(newProjectPayload)

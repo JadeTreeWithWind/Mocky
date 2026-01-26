@@ -89,7 +89,7 @@ class DBService {
    * @param project - 更新後的專案資料
    */
   async updateProject(
-    project: Pick<Project, 'id' | 'name' | 'port' | 'description'>
+    project: Pick<Project, 'id' | 'name' | 'port' | 'description' | 'version'>
   ): Promise<Project> {
     await this.init()
     if (!this.db) throw new Error('DB not initialized')

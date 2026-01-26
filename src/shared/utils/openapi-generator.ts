@@ -88,7 +88,8 @@ export const fromOpenApi = (
 ): { project: Partial<Project>; routes: Partial<Route>[] } => {
   const project: Partial<Project> = {
     name: document.info.title || 'Imported Project',
-    description: document.info.description
+    description: document.info.description,
+    version: document.info.version || '1.0.0'
   }
 
   const routes: Partial<Route>[] = []

@@ -219,6 +219,9 @@ onMounted(() => {
         <div class="mb-2 flex items-center justify-between">
           <h2 class="truncate text-sm font-bold text-zinc-100" :title="currentProject.name">
             {{ currentProject.name }}
+            <span class="ml-2 text-xs font-normal text-zinc-500"
+              >v{{ currentProject.version || '1.0.0' }}</span
+            >
           </h2>
           <button
             v-if="currentProject?.port"

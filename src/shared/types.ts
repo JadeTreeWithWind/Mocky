@@ -20,6 +20,7 @@ export const ProjectSchema = z.object({
   port: z.number().int().min(1).max(65535),
   createdAt: z.string(),
   updatedAt: z.string(),
+  version: z.string().default('1.0.0'),
   status: z.enum([PROJECT_STATUS.STOPPED, PROJECT_STATUS.RUNNING]).default(PROJECT_STATUS.STOPPED)
 })
 

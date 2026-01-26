@@ -25,6 +25,7 @@ interface CreateProjectPayload {
   name: string
   port: number
   description: string
+  version: string
 }
 
 // --- 3. 初始化 (Initialization) ---
@@ -230,7 +231,8 @@ const handleEditProject = (id: string): void => {
       id: project.id,
       name: project.name,
       port: project.port,
-      description: project.description
+      description: project.description,
+      version: project.version || '1.0.0'
     }
     isCreateModalOpen.value = true
   }

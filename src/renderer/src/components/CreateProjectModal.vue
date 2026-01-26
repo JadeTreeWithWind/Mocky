@@ -8,6 +8,7 @@ interface ProjectPayload {
   name: string
   port: number
   description: string
+  version: string
 }
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
 // --- 3. 常量宣告 (Constants) ---
 /** 預設的服務連接埠號 */
 const DEFAULT_PORT = 8000
+const DEFAULT_VERSION = '1.0.0'
 
 // --- 4. 屬性與事件 (Props & Emits) ---
 const props = defineProps<Props>()
@@ -36,6 +38,7 @@ const emit = defineEmits<{
 const nameInputRef = ref<HTMLInputElement | null>(null)
 const projectName = ref('') // 避免與原生屬性衝突，使用具體命名
 const projectPort = ref<number>(DEFAULT_PORT)
+const projectVersion = ref(DEFAULT_VERSION)
 const projectDescription = ref('')
 
 // --- 6. 計算屬性 (Computed Properties) ---
@@ -55,6 +58,7 @@ const isFormValid = computed(() => {
 const resetForm = (): void => {
   projectName.value = ''
   projectPort.value = DEFAULT_PORT
+  projectVersion.value = DEFAULT_VERSION
   projectDescription.value = ''
 }
 
@@ -65,6 +69,7 @@ const initForm = (): void => {
   if (props.project) {
     projectName.value = props.project.name
     projectPort.value = props.project.port
+    projectVersion.value = props.project.version || DEFAULT_VERSION
     projectDescription.value = props.project.description
   } else {
     resetForm()
@@ -91,6 +96,7 @@ const handleSubmit = (): void => {
   const payload = {
     name: projectName.value,
     port: projectPort.value,
+    version: projectVersion.value,
     description: projectDescription.value
   }
 
@@ -198,6 +204,16 @@ onUnmounted(() => {
                 type="number"
                 min="1"
                 max="65535"
+                class="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-zinc-400"> 版本 </label>
+              <input
+                v-model.trim="projectVersion"
+                type="text"
+                placeholder="1.0.0"
                 class="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
               />
             </div>

@@ -1,9 +1,10 @@
-# Mocky - 開發藍圖 (masterplan.md)
+# Mocky - 開發藍圖 (Masterplan)
 
 ## 應用程式概述
 
 **應用程式名稱**: Mocky
 **目標**: 建立一個桌面應用程式，讓開發者能透過圖形介面輕鬆建立和管理 Mock API 服務
+**當前狀態**: ✅ 1.0.0 正式版已發布
 
 ### 核心價值
 
@@ -20,124 +21,95 @@
 
 - **專案經理 (PM)**: 查看 API 文檔和規格
 
-## 核心功能與特性
+## 核心功能與特性 (Features)
 
 ### 1. 圖形化 API 編輯器
 
-- **分頁管理**: 使用分頁來組織不同的 API 群組（作為 router）
-- **API 基本資訊設定**:
-  - HTTP Method 選擇 (GET, POST, PUT, DELETE 等)
-  - API 路徑定義
+- ✅ **分頁管理**: 使用分頁來組織不同的 API 群組
+- ✅ **群組分類**: 支援自訂 Tags 進行路由分組與過濾
+- ✅ **API 基本資訊設定**:
+  - HTTP Method 選擇 (GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD)
+  - API 路徑定義 (支援動態參數如 `/users/:id`)
   - API 描述文字
-- **回應設定**:
-  - HTTP 狀態碼選擇（預設 200）
-  - JSON 格式回應內容編輯
+  - 路由啟用/停用開關 (Toggle Active/Inactive)
+- ✅ **回應設定**:
+  - HTTP 狀態碼選擇 (自訂任意代碼)
+  - 模擬延遲 (Response Delay)
+  - **Monaco Editor**: 提供專業級 JSON 編輯體驗 (格式化、驗證)
 
 ### 2. 專案資訊管理
 
-- **API 專案設定頁面**:
-  - 專案標題
-  - 專案說明
-  - API 版本資訊
-  - 服務 Port 設定（預設 8000，可自訂）
+- ✅ **API 專案設定**:
+  - 專案標題、說明、版本
+  - 服務 Port 設定 (預設 8000)
 
 ### 3. 檔案匯入/匯出功能
 
-- **匯入**: 支援 OpenAPI JSON 格式檔案匯入，自動填入表單
-- **匯出選項**:
-  - OpenAPI JSON 檔案
-  - 靜態文檔網頁（參考 Redocly 生成）
+- ✅ **匯入**: 支援 OpenAPI v3 JSON 格式匯入，自動轉換為專案路由
+- ✅ **匯出**:
+  - OpenAPI JSON 檔案 (標準格式)
+  - 靜態文檔網頁 (基於 Redoc 生成的單一 HTML 檔)
 
 ### 4. 本地服務器管理
 
-- **啟動服務**: 手動點擊啟動按鈕啟動 mock API 服務器
-- **智慧 Port 管理**: 自動檢測 Port 可用性，被占用時自動遞增 (+1)
-- **狀態提示**: Toast 通知顯示啟動成功訊息及服務網址
+- ✅ **啟動服務**: 基於 Fastify 的高效能 Mock Server
+- ✅ **智慧 Port 管理**: 自動檢測並避開佔用 Port (Auto-increment)
+- ✅ **熱重載 (Hot Reload)**: 修改路由或回應後立即生效，無需手動重啟
+- ✅ **API 文檔**: 內建 Swagger UI (`/docs`) 供即時測試
 
-## 技術架構
+## 技術架構 (Stack)
 
 ### 包管理
 
-- **前/後端**: pnpm
+- **工具**: pnpm (Monorepo Workspace)
 
-### 前端技術棧 (Renderer Process)
+### 前端技術棧 (Renderer)
 
 - **核心框架**: Vue.js 3 (Script Setup)
-- **狀態管理**: Pinia (管理專案設定與 API 列表狀態)
-- **路由管理**: Vue Router (處理 App 內部的頁面切換)
-- **UI 框架**: Tailwind CSS + Shadcn-vue (提供現代化、可存取性高的元件)
+- **狀態管理**: Pinia (Single Source of Truth)
+- **路由管理**: Vue Router
+- **UI 框架**: Tailwind CSS 4 (Utility-first)
+- **編輯器核心**: Monaco Editor (via @guolao/vue-monaco-editor)
 - **圖示庫**: Lucide-vue-next
+- **國際化**: Vue I18n
 
-### 後端服務與邏輯 (Main Process)
+### 後端服務與邏輯 (Main)
 
-- **Mock 伺服器核心**: Fastify (Node.js adapter)
-- **動態路由匹配**: path-to-regexp (解析如 /users/:id 的動態路徑)
-- **跨進程通訊**: Electron IPC (處理前端與 Mock 伺服器之間的指令傳遞，如啟動/停止服務)
+- **Mock 伺服器核心**: Fastify (Node.js)
+- **動態路由匹配**: path-to-regexp
+- **跨進程通訊**: Electron IPC
+- **其它工具**:
+  - `fs/promises` (檔案操作)
+  - `htmlGenerator` (Redoc 生成)
 
 ### 資料儲存
 
-- **資料庫抽象層**: LowDB (將本地 JSON 檔案作為資料庫操作)
-- **檔案操作**: Node.js fs/promises
-- **Schema 驗證**: Zod (確保匯入/匯出的 JSON 格式正確)
+- **資料庫**: LowDB (本地 JSON 檔案 `db.json`)
+- **Schema 驗證**: Zod (Runtime Type Checking)
 
 ### 跨平台支援
 
-- **目標平台**: Windows, macOS, Linux
-- **打包工具**: Electron Builder
+- **核心**: Electron
+- **打包工具**: Electron Builder (支援 NSIS Installer, Portable)
+- **平台**: Windows, macOS, Linux
 
-## 使用者介面設計原則
-
-### 設計理念
-
-- **直觀易用**: 參考 Swagger UI 的熟悉介面設計
-- **分層架構**: 清楚的資訊層次（專案 → 路由 → API）
-- **即時反饋**: 操作結果的即時提示和狀態顯示
-
-### 主要頁面結構
-
-1. **API 編輯頁面**: 主要工作區域，分頁式管理不同路由
-2. **資訊設定頁面**: 專案基本資訊和伺服器設定
-3. **設定頁面**: 應用程式偏好設定
-
-## 安全考量
+## 安全考量 (Security)
 
 ### 資料安全
 
-- **本地儲存**: 所有資料僅存放在使用者本機
-- **檔案權限**: 確保建立的檔案有適當的存取權限
+- ✅ **本地優先**: 資料完全存放於使用者本機 (`userData` 目錄)
+- ✅ **權限控管**: 僅申請必要的檔案讀寫權限
 
 ### 服務安全
 
-- **本地服務**: 服務僅監聽 localhost，不對外開放
-- **Port 管理**: 智慧選擇可用 Port，避免衝突
+- ✅ **Localhost Only**: Mock Server 強制監聽 `127.0.0.1`，防止區網外洩風險
+- ✅ **Port 隔離**: 智慧 Port 選擇避免服務衝突
 
-## 未來擴充可能性
+## 開發規範與品質 (Guidelines)
 
-### 短期擴充功能
-
-- **請求日誌**: 顯示 API 呼叫記錄
-- **API 測試工具**: 內建 API 測試功能
-- **範本系統**: 預建常用 API 結構範本
-
-### 長期擴充功能
-
-- **批次匯入**: 支援 Postman Collection、Insomnia 等格式
-- **協作功能**: 專案分享和版本控制整合
-- **進階回應**: 支援多種回應格式和錯誤狀態碼
-
-## 成功指標
-
-### 技術指標
-
-- 應用程式啟動時間 < 5 秒
-- API 服務啟動時間 < 3 秒
-- 支援同時管理 50+ API 端點
-
-### 使用者體驗指標
-
-- 新使用者能在 10 分鐘內建立第一個 Mock API
-- 介面操作直觀，無需學習文檔
-- 穩定運行，無異常崩潰
+- **代碼風格**: ESLint + Prettier
+- **架構原則**: Logic/View 分離 (Composables 優先)
+- **型別安全**: 全面採取 TypeScript
 
 ## 結論
 

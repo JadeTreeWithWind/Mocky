@@ -77,45 +77,6 @@
 
 ---
 
-## 🚀 快速開始
-
-### 系統需求
-
-- **Node.js** >= 18.x
-- **pnpm** >= 8.x (推薦) 或 npm
-
-### 安裝
-
-```bash
-# 克隆專案
-git clone https://github.com/your-username/mocky.git
-cd mocky
-
-# 安裝依賴
-pnpm install
-```
-
-### 開發模式
-
-```bash
-pnpm dev
-```
-
-### 建置發行版
-
-```bash
-# Windows
-pnpm build:win
-
-# macOS
-pnpm build:mac
-
-# Linux
-pnpm build:linux
-```
-
----
-
 ## 📚 使用指南
 
 ### 1. 建立專案

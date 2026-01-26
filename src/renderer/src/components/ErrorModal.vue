@@ -1,6 +1,9 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
 import { AlertCircle, X } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // --- 2. 類型定義 (Type Definitions) ---
 interface Props {
@@ -50,7 +53,7 @@ const emit = defineEmits<{
               <h3 class="font-semibold">{{ title }}</h3>
             </div>
             <button
-              class="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+              class="cursor-pointer rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
               @click="emit('close')"
             >
               <X class="h-4 w-4" />
@@ -63,10 +66,10 @@ const emit = defineEmits<{
 
           <div class="flex justify-end border-t border-zinc-800 bg-zinc-900/50 p-3">
             <button
-              class="rounded-md bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-700 hover:text-white"
+              class="cursor-pointer rounded-md bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-700 hover:text-white"
               @click="emit('close')"
             >
-              Close
+              {{ t('common.close') }}
             </button>
           </div>
         </div>

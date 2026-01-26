@@ -147,7 +147,7 @@ onUnmounted(() => {
           v-for="item in items"
           :key="item.label"
           type="button"
-          class="group flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-left text-base transition-colors"
+          class="group flex w-full cursor-pointer items-center gap-2.5 rounded-sm px-3 py-2 text-left text-base transition-colors"
           :class="[
             item.danger
               ? 'text-red-400 hover:bg-red-500/10 hover:text-red-300'

@@ -3,6 +3,7 @@
 // 第三方庫
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
+import { useI18n } from 'vue-i18n'
 
 // 內部資源
 import { useProjectStore } from '../stores/project'
@@ -20,11 +21,12 @@ const props = defineProps<{
 const HTTP_METHOD_OPTIONS = HTTP_METHODS_SCHEMA.options
 
 const SAVE_DELAY_MS = 300
-const SAVING_INDICATOR_MS = 300
+const SAVING_INDICATOR_MS = 500
 
 // --- 4. 響應式狀態 (State) ---
 // Store use
 const projectStore = useProjectStore()
+const { t } = useI18n()
 
 type SaveStatus = 'saved' | 'saving' | 'unsaved'
 const saveStatus = ref<SaveStatus>('saved')
@@ -35,6 +37,7 @@ const jsonError = ref<string | null>(null)
 
 // Copy feedback state
 const isCopied = ref(false)
+const isMethodMenuOpen = ref(false)
 
 // --- 5. 計算屬性 (Computed Properties) ---
 /**
@@ -44,15 +47,6 @@ const isCopied = ref(false)
  */
 const route = computed(() => {
   return projectStore.routes.find((r) => r.id === props.routeId)
-})
-
-const methodSelectClasses = computed(() => {
-  if (!route.value) return ''
-  const defaultClass =
-    'border-zinc-700 bg-zinc-800 text-zinc-100 focus:border-blue-500 focus:ring-blue-500'
-  const themeClass = METHOD_THEMES[route.value.method] || defaultClass
-
-  return `h-10 appearance-none rounded-md border px-4 py-2 pr-8 text-sm font-bold focus:ring-1 focus:outline-none transition-colors ${themeClass}`
 })
 
 /**
@@ -247,34 +241,79 @@ onUnmounted(() => {
         <div class="flex w-full flex-row gap-4">
           <!-- Method Select -->
           <div class="relative shrink-0">
-            <select v-model="route.method" :class="methodSelectClasses">
-              <option
-                v-for="method in HTTP_METHOD_OPTIONS"
-                :key="method"
-                :value="method"
-                class="bg-zinc-800 text-zinc-100"
-              >
-                {{ method }}
-              </option>
-            </select>
-            <!-- Custom Arrow Icon -->
-            <div
-              class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-zinc-400"
+            <button
+              type="button"
+              class="flex cursor-pointer items-center justify-between gap-3 text-sm font-bold transition-all focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              :class="[
+                'h-10 rounded-md border px-4 py-2 text-zinc-100',
+                METHOD_THEMES[route.method] || 'border-zinc-700 bg-zinc-800'
+              ]"
+              @click="isMethodMenuOpen = !isMethodMenuOpen"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+              <span>{{ route.method }}</span>
+              <div
+                class="transition-transform duration-200"
+                :class="{ 'rotate-180': isMethodMenuOpen }"
               >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </div>
+            </button>
+
+            <!-- Custom Dropdown Menu -->
+            <Transition
+              enter-active-class="transition duration-100 ease-out"
+              enter-from-class="transform scale-95 opacity-0 translate-y-2"
+              enter-to-class="transform scale-100 opacity-100 translate-y-0"
+              leave-active-class="transition duration-75 ease-in"
+              leave-from-class="transform scale-100 opacity-100 translate-y-0"
+              leave-to-class="transform scale-95 opacity-0 translate-y-2"
+            >
+              <div
+                v-if="isMethodMenuOpen"
+                class="absolute top-12 left-0 z-50 w-32 overflow-hidden rounded-md border border-zinc-700 bg-zinc-900 shadow-xl ring-1 ring-black/20"
+              >
+                <div class="py-1">
+                  <button
+                    v-for="method in HTTP_METHOD_OPTIONS"
+                    :key="method"
+                    type="button"
+                    class="flex w-full cursor-pointer items-center px-4 py-2 text-left text-sm font-bold transition-colors hover:bg-zinc-800"
+                    :class="[route.method === method ? 'bg-zinc-800' : '']"
+                    @click="
+                      () => {
+                        route!.method = method
+                        isMethodMenuOpen = false
+                      }
+                    "
+                  >
+                    <span
+                      class="opacity-70"
+                      :class="METHOD_THEMES[method]?.match(/text-\w+-\d+/)?.[0] || 'text-zinc-300'"
+                      >{{ method }}</span
+                    >
+                  </button>
+                </div>
+              </div>
+            </Transition>
+
+            <!-- Backdrop -->
+            <div
+              v-if="isMethodMenuOpen"
+              class="fixed inset-0 z-40 bg-transparent"
+              @click="isMethodMenuOpen = false"
+            ></div>
           </div>
           <!-- Path Input -->
           <div class="flex-1">
@@ -307,9 +346,9 @@ onUnmounted(() => {
           <div
             class="relative mr-1 shrink-0 rounded-md border border-zinc-700 bg-zinc-900 p-1.5 text-sm"
           >
-            URL
+            {{ t('common.url') }}
           </div>
-          <div class="mt-1.5 min-w-0 flex-1 truncate px-1">
+          <div class="min-w-0 flex-1 truncate px-1">
             <span
               class="mr-0.5 rounded py-0.5 align-middle font-mono text-sm font-bold text-zinc-400"
               >http://localhost:{{ port }}{{ route.path }}</span
@@ -319,7 +358,7 @@ onUnmounted(() => {
             type="button"
             class="ml-2 flex cursor-pointer items-center justify-center rounded p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 focus:ring-1 focus:ring-blue-500/50 focus:outline-none"
             :class="{ 'text-emerald-400 hover:text-emerald-300': isCopied }"
-            :title="isCopied ? 'Copied!' : 'Copy full URL'"
+            :title="isCopied ? t('common.copied') : t('common.copy')"
             @click="copyPath"
           >
             <!-- Check Icon (Copied) -->
@@ -361,7 +400,7 @@ onUnmounted(() => {
           <div
             class="relative mr-2 shrink-0 rounded-md border border-zinc-700 bg-zinc-900 p-1.5 text-sm"
           >
-            Group
+            {{ t('common.group') }}
           </div>
           <div class="flex-1">
             <input
@@ -378,7 +417,7 @@ onUnmounted(() => {
           <div
             class="relative mr-2 shrink-0 rounded-md border border-zinc-700 bg-zinc-900 p-1.5 text-sm"
           >
-            Description
+            {{ t('common.description') }}
           </div>
           <div class="flex-1 space-y-3">
             <!-- Description Input -->
@@ -386,7 +425,7 @@ onUnmounted(() => {
               <input
                 v-model="route.description"
                 type="text"
-                placeholder="Enter a brief description..."
+                :placeholder="t('common.description') + '...'"
                 class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm text-zinc-300 placeholder-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
               />
             </div>
@@ -407,7 +446,7 @@ onUnmounted(() => {
             <span
               class="flex h-5 items-center rounded bg-zinc-800 px-1.5 text-[10px] font-bold tracking-wider text-zinc-400 uppercase"
             >
-              Status
+              {{ t('common.status') }}
             </span>
             <div class="group relative flex items-center">
               <input
@@ -468,7 +507,7 @@ onUnmounted(() => {
             <span
               class="flex h-5 items-center rounded bg-zinc-800 px-1.5 text-[10px] font-bold tracking-wider text-zinc-400 uppercase"
             >
-              Latency
+              {{ t('common.latency') }}
             </span>
             <div class="flex items-center gap-1">
               <div class="relative flex items-center">
@@ -480,7 +519,9 @@ onUnmounted(() => {
                   step="100"
                   class="w-20 rounded-md border border-zinc-700 bg-zinc-800 px-2 py-1 pr-6 text-right text-xs font-bold text-zinc-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                 />
-                <span class="pointer-events-none absolute right-2 text-xs text-zinc-500">ms</span>
+                <span class="pointer-events-none absolute right-2 text-xs text-zinc-500">{{
+                  t('common.ms')
+                }}</span>
               </div>
 
               <!-- Quick Options -->
@@ -489,7 +530,7 @@ onUnmounted(() => {
                   v-for="ms in [0, 500, 2000]"
                   :key="ms"
                   type="button"
-                  class="rounded border border-transparent px-1.5 py-1 text-[10px] font-medium transition-colors"
+                  class="cursor-pointer rounded border border-transparent px-1.5 py-1 text-[10px] font-medium transition-colors"
                   :class="
                     route.response.delay === ms
                       ? 'border-blue-500/30 bg-blue-500/20 text-blue-400'
@@ -507,7 +548,7 @@ onUnmounted(() => {
         <!-- Stage 25: Format JSON Button -->
         <button
           type="button"
-          class="flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-zinc-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          class="flex cursor-pointer items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-zinc-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           title="Format JSON (Alt+Shift+F)"
           @click="handlePrettifyJSON"
         >
@@ -525,7 +566,7 @@ onUnmounted(() => {
             <polyline points="16 18 22 12 16 6"></polyline>
             <polyline points="8 6 2 12 8 18"></polyline>
           </svg>
-          Format
+          {{ t('common.format') }}
         </button>
       </div>
 
@@ -593,14 +634,17 @@ onUnmounted(() => {
       class="absolute right-6 text-xs font-medium transition-all duration-300"
       :class="jsonError ? 'bottom-12' : 'bottom-4'"
     >
-      <span v-if="saveStatus === 'saving'" class="flex items-center gap-1 text-blue-400">
-        <span class="animate-pulse">●</span> Saving...
+      <span
+        v-if="saveStatus === 'saving'"
+        class="flex items-center justify-center gap-1 text-blue-400"
+      >
+        <span class="animate-spin">✤</span> {{ t('route.saving') }}
       </span>
       <span v-else-if="saveStatus === 'saved'" class="flex items-center gap-1 text-zinc-500">
-        <span class="text-emerald-500">✓</span> Saved
+        <span class="text-emerald-500">✓</span> {{ t('route.saved') }}
       </span>
       <span v-else-if="saveStatus === 'unsaved'" class="flex items-center gap-1 text-amber-500">
-        <span class="animate-bounce">●</span> Unsaved
+        <span class="animate-spin">✤</span> {{ t('route.unsaved') }}
       </span>
     </div>
   </div>

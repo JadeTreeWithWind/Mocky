@@ -43,7 +43,7 @@ const handleClose = (): void => {
     <div class="window-controls flex h-full">
       <button
         type="button"
-        class="flex h-full w-10 items-center justify-center transition-colors hover:bg-zinc-700"
+        class="flex h-full w-10 cursor-pointer items-center justify-center transition-colors hover:bg-zinc-700"
         tabindex="-1"
         aria-label="Minimize"
         @click="handleMinimize"
@@ -53,7 +53,7 @@ const handleClose = (): void => {
 
       <button
         type="button"
-        class="flex h-full w-10 items-center justify-center transition-colors hover:bg-zinc-700"
+        class="flex h-full w-10 cursor-pointer items-center justify-center transition-colors hover:bg-zinc-700"
         tabindex="-1"
         aria-label="Maximize"
         @click="handleMaximize"
@@ -63,7 +63,7 @@ const handleClose = (): void => {
 
       <button
         type="button"
-        class="flex h-full w-10 items-center justify-center transition-colors hover:bg-red-600 active:bg-red-700"
+        class="flex h-full w-10 cursor-pointer items-center justify-center transition-colors hover:bg-red-600 active:bg-red-700"
         tabindex="-1"
         aria-label="Close"
         @click="handleClose"

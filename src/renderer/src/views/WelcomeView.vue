@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { MonitorPlay, Rocket } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
 import { DEMO_PROJECT } from '../data/demo-project'
 
 const router = useRouter()
+const { t } = useI18n()
 const projectStore = useProjectStore()
 const isCreatingDemo = ref(false)
 
@@ -36,12 +38,11 @@ const handleCreateDemo = async (): Promise<void> => {
     </div>
 
     <h2 id="welcome-title" class="mb-3 text-3xl font-bold tracking-tight text-zinc-100">
-      Welcome to Mocky
+      {{ t('welcome.title') }}
     </h2>
 
     <p class="max-w-[400px] text-base leading-relaxed text-zinc-400">
-      Select a project from the sidebar to get started, or create a new one to begin your API
-      journey.
+      {{ t('welcome.description') }}
     </p>
 
     <div class="mt-8 flex flex-col items-center gap-4">
@@ -56,7 +57,7 @@ const handleCreateDemo = async (): Promise<void> => {
           class="text-zinc-600 transition-colors group-hover:text-zinc-900"
           :class="{ 'animate-pulse': isCreatingDemo }"
         />
-        <span>{{ isCreatingDemo ? 'Creating...' : 'Get Started with Demo' }}</span>
+        <span>{{ isCreatingDemo ? t('welcome.demo_creating') : t('welcome.demo_button') }}</span>
       </button>
 
       <div class="h-px w-16 bg-linear-to-r from-transparent via-zinc-800 to-transparent" />

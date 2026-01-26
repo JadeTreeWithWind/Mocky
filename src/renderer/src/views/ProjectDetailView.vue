@@ -2,6 +2,7 @@
 // --- 1. 外部引用 (Imports) ---
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { Plus, Search, Play, Square, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
@@ -14,6 +15,7 @@ import Draggable from 'vuedraggable'
 
 // --- 3. 初始化 (Initialization) ---
 const route = useRoute()
+const { t } = useI18n()
 const projectStore = useProjectStore()
 const uiStore = useUIStore()
 const { routes, isLoading, projects } = storeToRefs(projectStore)
@@ -161,14 +163,18 @@ const toggleServer = async (): Promise<void> => {
         isPortBusyOpen.value = true
 
         // Show Toast with warning
-        uiStore.showToast(`Server started on port ${actualPort} (auto-incremented)`, 'info', {
-          label: 'Open Docs',
-          url: `http://localhost:${actualPort}/docs`
-        })
+        uiStore.showToast(
+          `${t('project.server_running')}${actualPort} (auto-incremented)`,
+          'info',
+          {
+            label: t('project.open_docs'),
+            url: `http://localhost:${actualPort}/docs`
+          }
+        )
       } else {
         // Show Success Toast
-        uiStore.showToast(`Server started on port ${actualPort}`, 'success', {
-          label: 'Open Docs',
+        uiStore.showToast(`${t('project.server_running')}${actualPort}`, 'success', {
+          label: t('project.open_docs'),
           url: `http://localhost:${actualPort}/docs`
         })
       }
@@ -333,7 +339,7 @@ onMounted(() => {
                 : 'opacity-50'
             "
             class="ml-2 flex items-center gap-1 rounded bg-zinc-800 px-1.5 py-0.5 text-zinc-400"
-            :title="`Open API Documentation (Port: ${currentProject.port})`"
+            :title="t('project.open_docs') + ` (Port: ${currentProject.port})`"
             :disabled="!isServerRunning"
             @click.stop="openDocs"
           >
@@ -365,12 +371,14 @@ onMounted(() => {
           @click="toggleServer"
         >
           <component :is="isServerRunning ? Square : Play" :size="12" class="fill-current" />
-          {{ isServerRunning ? 'Stop Server' : 'Start Server' }}
+          {{ isServerRunning ? t('project.stop_server') : t('project.start_server') }}
         </button>
       </div>
 
       <div class="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
-        <h3 class="text-xs font-semibold tracking-wider text-zinc-500 uppercase">Routes</h3>
+        <h3 class="text-xs font-semibold tracking-wider text-zinc-500 uppercase">
+          {{ t('common.route') }}
+        </h3>
 
         <div class="flex items-center gap-2">
           <span class="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">
@@ -378,8 +386,8 @@ onMounted(() => {
           </span>
 
           <button
-            class="flex items-center justify-center rounded p-1 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-            aria-label="Add Route"
+            class="flex cursor-pointer items-center justify-center rounded p-1 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+            :aria-label="t('route.new_route')"
             @click="handleAddRoute"
           >
             <Plus :size="14" />
@@ -393,7 +401,7 @@ onMounted(() => {
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search routes..."
+            :placeholder="t('route.search_placeholder')"
             class="w-full rounded border border-zinc-800 bg-zinc-950/50 py-1.5 pr-2 pl-8 text-xs text-zinc-300 placeholder-zinc-600 transition-colors focus:border-zinc-700 focus:outline-none"
           />
           <Search
@@ -415,9 +423,9 @@ onMounted(() => {
           class="flex h-32 flex-col items-center justify-center space-y-2 px-4 text-center"
         >
           <p v-if="routes.length === 0" class="text-xs text-zinc-600 italic">
-            No routes yet. Click + to add one.
+            {{ t('route.no_routes') }}
           </p>
-          <p v-else class="text-xs text-zinc-600 italic">No routes match your search.</p>
+          <p v-else class="text-xs text-zinc-600 italic">{{ t('route.no_match') }}</p>
         </div>
 
         <template v-else>
@@ -450,7 +458,7 @@ onMounted(() => {
                     :size="12"
                   />
                   <span :class="group.name === 'Ungrouped' ? 'italic opacity-70' : ''">
-                    {{ group.name }}
+                    {{ group.name === 'Ungrouped' ? t('common.group') + ' (None)' : group.name }}
                   </span>
                 </div>
                 <span class="text-[10px] text-zinc-600">{{ group.routes.length }}</span>
@@ -495,9 +503,9 @@ onMounted(() => {
         </div>
 
         <div v-else class="flex flex-1 flex-col items-center justify-center text-center">
-          <p class="mb-2 text-lg font-medium text-zinc-400">Select a route to edit</p>
+          <p class="mb-2 text-lg font-medium text-zinc-400">{{ t('route.select_to_edit') }}</p>
           <p class="font-mono text-xs tracking-tight text-zinc-600">
-            Project: {{ projectId || 'Unknown' }}
+            {{ t('common.project') }}: {{ projectId || 'Unknown' }}
           </p>
         </div>
       </Transition>
@@ -505,9 +513,10 @@ onMounted(() => {
 
     <ConfirmDialog
       :is-open="isDeleteConfirmOpen"
-      title="Delete Route"
-      message="Are you sure you want to delete this route? This action cannot be undone."
-      confirm-text="Delete"
+      :title="t('route.delete_confirm_title')"
+      :message="t('route.delete_confirm_message')"
+      :confirm-text="t('common.delete')"
+      :cancel-text="t('common.cancel')"
       :is-danger="true"
       @close="isDeleteConfirmOpen = false"
       @confirm="executeDeleteRoute"

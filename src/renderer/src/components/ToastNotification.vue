@@ -41,7 +41,7 @@ const handleAction = (): void => {
             <button
               v-if="toast.action"
               type="button"
-              class="mt-1 text-xs font-semibold text-blue-400 hover:text-blue-300 focus:outline-none"
+              class="mt-1 cursor-pointer text-xs font-semibold text-blue-400 hover:text-blue-300 focus:outline-none"
               @click="handleAction"
             >
               {{ toast.action.label }}
@@ -50,7 +50,7 @@ const handleAction = (): void => {
           <div class="ml-4 flex shrink-0">
             <button
               type="button"
-              class="inline-flex rounded-md bg-zinc-800 text-zinc-400 hover:text-zinc-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+              class="inline-flex cursor-pointer rounded-md bg-zinc-800 text-zinc-400 hover:text-zinc-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               @click="uiStore.hideToast()"
             >
               <span class="sr-only">Close</span>

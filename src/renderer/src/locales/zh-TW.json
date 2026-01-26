@@ -1,0 +1,80 @@
+{
+  "common": {
+    "confirm": "確認",
+    "cancel": "取消",
+    "save": "儲存",
+    "delete": "刪除",
+    "edit": "編輯",
+    "create": "建立",
+    "back": "返回",
+    "copy": "複製",
+    "copied": "已複製",
+    "format": "格式化",
+    "status": "狀態碼",
+    "latency": "延遲",
+    "ms": "毫秒",
+    "url": "URL",
+    "group": "群組",
+    "description": "描述",
+    "version": "版本",
+    "method": "方法",
+    "path": "路徑",
+    "port": "服務 Port",
+    "name": "名稱",
+    "search": "搜尋",
+    "project": "專案",
+    "route": "路由",
+    "close": "關閉"
+  },
+  "sidebar": {
+    "projects": "專案列表",
+    "settings": "設定",
+    "import": "匯入 OpenAPI",
+    "export": "匯出",
+    "export_json": "匯出 JSON (OpenAPI)",
+    "export_html": "匯出 HTML (Redoc)",
+    "create_project": "建立新專案"
+  },
+  "project": {
+    "new_project": "新專案",
+    "edit_project": "編輯專案",
+    "search_placeholder": "搜尋專案...",
+    "no_projects": "尚無專案",
+    "delete_confirm_title": "刪除專案",
+    "delete_confirm_message": "確定要刪除此專案嗎？此動作無法復原。",
+    "creation_failed": "建立專案失敗",
+    "update_failed": "更新專案失敗",
+    "deletion_failed": "刪除專案失敗",
+    "import_failed": "匯入失敗",
+    "import_success": "匯入成功",
+    "export_success": "匯出成功",
+    "server_running": "運行於 :",
+    "ready": "就緒",
+    "start_server": "啟動服務",
+    "stop_server": "停止服務",
+    "open_docs": "開啟 API 文件"
+  },
+  "route": {
+    "new_route": "新路由",
+    "search_placeholder": "搜尋路由...",
+    "no_routes": "尚無路由，點擊 + 號新增。",
+    "no_match": "無符合搜尋結果。",
+    "delete_confirm_title": "刪除路由",
+    "delete_confirm_message": "確定要刪除此路由嗎？此動作無法復原。",
+    "select_to_edit": "選擇左側路由以進行編輯",
+    "saved": "已儲存",
+    "saving": "儲存中...",
+    "unsaved": "未儲存",
+    "validation_error": "JSON 格式錯誤"
+  },
+  "validation": {
+    "required": "必填",
+    "invalid_format": "格式錯誤"
+  },
+  "welcome": {
+    "title": "歡迎來到 Mocky",
+    "description": "從左側選單選擇專案以開始，或是建立一個新專案來開始您的 API 之旅。",
+    "demo_button": "使用範例專案開始",
+    "demo_creating": "建立中..."
+  }
+}

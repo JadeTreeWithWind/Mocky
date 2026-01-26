@@ -19,8 +19,8 @@ const props = defineProps<{
 // --- 3. 常量宣告 (Constants) ---
 const HTTP_METHOD_OPTIONS = HTTP_METHODS_SCHEMA.options
 
-const SAVE_DELAY_MS = 1000
-const SAVING_INDICATOR_MS = 500
+const SAVE_DELAY_MS = 300
+const SAVING_INDICATOR_MS = 300
 
 // --- 4. 響應式狀態 (State) ---
 // Store use
@@ -227,9 +227,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- TODO: 未來修正 -->
-  <!-- 暫時用 max-w-[65vw] 限制最大寬度 ，避免畫面因為內容過多無限延伸超出視窗-->
-  <div v-if="route" class="relative flex h-full w-full max-w-[65vw] flex-col">
+  <div v-if="route" class="relative flex h-full w-full max-w-[calc(100vw-300px)] flex-col">
     <!-- Stage 16: Editor Header -->
     <header class="border-b border-zinc-800 bg-zinc-900/30 px-6 py-4">
       <div class="flex flex-col gap-4">

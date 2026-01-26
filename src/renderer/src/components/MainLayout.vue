@@ -2,12 +2,25 @@
 // --- 1. 外部引用 (Imports) ---
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { Plus, Pencil, Trash2, Download, FileDown, FileType, ChevronsRight } from 'lucide-vue-next'
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Download,
+  FileDown,
+  FileType,
+  ChevronsRight,
+  Languages,
+  Check,
+  ChevronUp
+} from 'lucide-vue-next'
 
 import { useProjectStore } from '../stores/project'
 import { useUIStore } from '../stores/ui'
-import { toOpenApi } from '../../../shared/utils/openapi-generator'
+import { useProjectExport } from '../composables/useProjectExport'
+import { useProjectImport } from '../composables/useProjectImport'
 import TitleBar from './TitleBar.vue'
 import StatusBar from './StatusBar.vue'
 import ProjectItem from './ProjectItem.vue'
@@ -34,6 +47,9 @@ const route = useRoute()
 const projectStore = useProjectStore()
 const uiStore = useUIStore()
 const { projects } = storeToRefs(projectStore)
+const { locale, t } = useI18n()
+const { exportProjectJson, exportProjectHtml } = useProjectExport()
+const { importProjectFromFile } = useProjectImport()
 
 // --- 4. 響應式狀態 (State) ---
 const isCreateModalOpen = ref(false)
@@ -52,6 +68,7 @@ const contextMenuState = ref({
   y: 0,
   projectId: ''
 })
+const isLangMenuOpen = ref(false)
 
 // --- 5. 計算屬性 (Computed Properties) ---
 
@@ -68,22 +85,22 @@ const selectedProjectId = computed(() => {
  */
 const contextMenuItems = computed(() => [
   {
-    label: 'Edit',
+    label: t('common.edit'),
     icon: Pencil,
     action: () => handleEditProject(contextMenuState.value.projectId)
   },
   {
-    label: 'Export JSON (OpenAPI)',
+    label: t('sidebar.export_json'),
     icon: Download,
     action: () => handleExportProject(contextMenuState.value.projectId)
   },
   {
-    label: 'Export HTML (Redoc)',
+    label: t('sidebar.export_html'),
     icon: FileType,
     action: () => handleExportHtml(contextMenuState.value.projectId)
   },
   {
-    label: 'Delete',
+    label: t('common.delete'),
     icon: Trash2,
     danger: true,
     action: () => triggerDeleteConfirm(contextMenuState.value.projectId)
@@ -95,17 +112,17 @@ const contextMenuItems = computed(() => [
  */
 const statusBarText = computed(() => {
   const id = selectedProjectId.value
-  if (!id) return 'Ready'
+  if (!id) return t('project.ready')
 
   const project = projects.value.find((p) => p.id === id)
-  if (!project) return 'Ready'
+  if (!project) return t('project.ready')
 
   if (project.status === PROJECT_STATUS.RUNNING) {
     const runningPort = projectStore.getRunningPort(id) ?? project.port
-    return `Running on :${runningPort}`
+    return `${t('project.server_running')}${runningPort}`
   }
 
-  return 'Ready'
+  return t('project.ready')
 })
 
 /**
@@ -127,11 +144,6 @@ const statusBarText = computed(() => {
 /**
  * 開啟文件連結
  */
-// const handleOpenDocs = (): void => {
-//   if (statusBarDocsUrl.value) {
-//     window.open(statusBarDocsUrl.value, '_blank')
-//   }
-// }
 
 /**
  * 導航至指定專案詳情頁
@@ -242,30 +254,12 @@ const handleEditProject = (id: string): void => {
  * 處理專案匯出邏輯
  * @param id - 專案 UUID
  */
+/**
+ * 處理專案匯出邏輯
+ * @param id - 專案 UUID
+ */
 const handleExportProject = async (id: string): Promise<void> => {
-  const project = projects.value.find((p) => p.id === id)
-  if (!project) return
-
-  try {
-    // 獲取該專案的所有路由
-    const routes = await window.api.db.getRoutesByProjectId(id)
-
-    // 轉換為 OpenAPI 格式
-    const openApiDoc = toOpenApi(project, routes)
-    const jsonContent = JSON.stringify(openApiDoc, null, 2)
-
-    // 呼叫主進程下載
-    const filename = `${project.name.replace(/\s+/g, '_')}_openapi.json`
-    const success = await window.api.project.export(jsonContent, filename)
-
-    if (success) {
-      console.log('Export successful')
-      uiStore.showToast('Export successful', 'success')
-    }
-  } catch (error) {
-    console.error('[Project] Export failed:', error)
-    uiStore.showToast('Export failed', 'error')
-  }
+  await exportProjectJson(id)
 }
 
 /**
@@ -274,11 +268,12 @@ const handleExportProject = async (id: string): Promise<void> => {
  */
 const handleExportHtml = async (id: string): Promise<void> => {
   try {
-    await projectStore.exportHtml(id)
-    uiStore.showToast('Export HTML successful', 'success')
+    await exportProjectHtml(id)
   } catch (error) {
-    console.error('[Project] Export HTML failed:', error)
-    showError('Export Failed', 'Failed to export documentation to HTML. See console for details.')
+    console.error('[Project] HTML Export failed', error)
+    // Composable usually handles toast, but if it throws we might want to show modal
+    // In this case check if you want specific error modal for HTML export
+    showError(t('common.error'), 'Failed to export to HTML')
   }
 }
 
@@ -299,32 +294,18 @@ const showError = (title: string, message: string): void => {
 /**
  * 處理專案匯入邏輯 (Stage 3 + Stage 5 Enhanced)
  */
+/**
+ * 處理專案匯入邏輯
+ */
 const handleImportProject = async (): Promise<void> => {
   try {
-    const content = await window.api.project.import()
-    if (content) {
-      // Stage 5: Postman 相容性檢查
-      try {
-        const json = JSON.parse(content)
-        if (json.info?.schema?.includes('getpostman.com')) {
-          showError(
-            'Format Not Supported',
-            'Postman Collection format is not currently supported. Please convert it to OpenAPI/Swagger format first.'
-          )
-          return
-        }
-      } catch {
-        // Ignore JSON parse error here, let transformer handle it or it will be caught below
-      }
-
-      const newProjectId = await projectStore.importProject(content)
+    const newProjectId = await importProjectFromFile()
+    if (newProjectId) {
       navigateToProject(newProjectId)
     }
   } catch (error: unknown) {
-    console.error('[Project] Import failed:', error)
-    const errorMessage =
-      error instanceof Error ? error.message : 'An unknown error occurred during import.'
-    showError('Import Failed', errorMessage)
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    showError(t('project.import_failed'), msg)
   }
 }
 
@@ -360,20 +341,22 @@ onMounted(() => {
           "
         >
           <div class="flex items-center justify-between px-4 py-3">
-            <h2 class="text-sm font-bold tracking-widest text-zinc-400 uppercase">Projects</h2>
+            <h2 class="text-sm font-bold tracking-widest text-zinc-400 uppercase">
+              {{ t('sidebar.projects') }}
+            </h2>
             <div class="flex items-center gap-1">
               <button
                 type="button"
-                class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-                title="Import OpenAPI"
+                class="cursor-pointer rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                :title="t('sidebar.import')"
                 @click="handleImportProject"
               >
                 <FileDown :size="14" />
               </button>
               <button
                 type="button"
-                class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-                title="Create Project"
+                class="cursor-pointer rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+                :title="t('sidebar.create_project')"
                 @click="
                   () => {
                     editingProject = undefined
@@ -397,6 +380,69 @@ onMounted(() => {
               @contextmenu.prevent="handleOpenContextMenu($event, project.id)"
             />
           </nav>
+
+          <!-- Language Switcher -->
+          <div class="relative border-t border-zinc-800 p-4">
+            <button
+              type="button"
+              class="flex w-full cursor-pointer items-center justify-between rounded-md bg-zinc-900 px-3 py-2 text-sm text-zinc-300 ring-1 ring-zinc-700 transition-all hover:bg-zinc-800 hover:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              @click="isLangMenuOpen = !isLangMenuOpen"
+            >
+              <div class="flex items-center gap-2">
+                <Languages :size="16" class="text-zinc-400" />
+                <span>{{ locale === 'zh-TW' ? '繁體中文' : 'English' }}</span>
+              </div>
+              <ChevronUp
+                :size="16"
+                class="text-zinc-500 transition-transform duration-200"
+                :class="{ 'rotate-180': isLangMenuOpen }"
+              />
+            </button>
+
+            <!-- Custom Dropdown Menu -->
+            <Transition
+              enter-active-class="transition duration-100 ease-out"
+              enter-from-class="transform scale-95 opacity-0 translate-y-2"
+              enter-to-class="transform scale-100 opacity-100 translate-y-0"
+              leave-active-class="transition duration-75 ease-in"
+              leave-from-class="transform scale-100 opacity-100 translate-y-0"
+              leave-to-class="transform scale-95 opacity-0 translate-y-2"
+            >
+              <div
+                v-if="isLangMenuOpen"
+                class="absolute right-4 bottom-16 left-4 z-50 overflow-hidden rounded-md border border-zinc-700 bg-zinc-900 shadow-xl ring-1 ring-black/20"
+              >
+                <div class="py-1">
+                  <button
+                    v-for="opt in [
+                      { label: '繁體中文', value: 'zh-TW' },
+                      { label: 'English', value: 'en-US' }
+                    ]"
+                    :key="opt.value"
+                    type="button"
+                    class="flex w-full cursor-pointer items-center justify-between px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-800"
+                    :class="locale === opt.value ? 'bg-blue-500/10 text-blue-400' : 'text-zinc-300'"
+                    @click="
+                      () => {
+                        locale = opt.value
+                        isLangMenuOpen = false
+                      }
+                    "
+                  >
+                    <span>{{ opt.label }}</span>
+                    <Check v-if="locale === opt.value" :size="14" class="text-blue-500" />
+                  </button>
+                </div>
+              </div>
+            </Transition>
+
+            <!-- Backdrop to close on click outside -->
+            <div
+              v-if="isLangMenuOpen"
+              class="fixed inset-0 z-40 bg-transparent"
+              @click="isLangMenuOpen = false"
+            ></div>
+          </div>
         </div>
       </aside>
 
@@ -423,9 +469,10 @@ onMounted(() => {
 
     <ConfirmDialog
       :is-open="isConfirmDeleteOpen"
-      title="Delete Project"
-      message="Are you sure you want to delete this project? This action cannot be undone."
-      confirm-text="Delete"
+      :title="t('project.delete_confirm_title')"
+      :message="t('project.delete_confirm_message')"
+      :confirm-text="t('common.delete')"
+      :cancel-text="t('common.cancel')"
       :is-danger="true"
       @close="isConfirmDeleteOpen = false"
       @confirm="handleConfirmDelete"

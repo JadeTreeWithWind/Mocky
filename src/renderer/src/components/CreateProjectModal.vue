@@ -1,7 +1,10 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
 import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { X } from 'lucide-vue-next'
+
+const { t } = useI18n()
 
 // --- 2. 類型定義 (Type Definitions) ---
 interface ProjectPayload {
@@ -169,11 +172,11 @@ onUnmounted(() => {
         >
           <div class="mb-5 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-zinc-100">
-              {{ props.project ? '編輯專案' : '建立新專案' }}
+              {{ props.project ? t('project.edit_project') : t('project.new_project') }}
             </h3>
             <button
               type="button"
-              class="rounded-md p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+              class="cursor-pointer rounded-md p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
               @click="handleClose"
             >
               <X :size="20" aria-hidden="true" />
@@ -183,13 +186,13 @@ onUnmounted(() => {
           <form class="space-y-4" @submit.prevent="handleSubmit">
             <div class="space-y-1.5">
               <label class="text-xs font-medium text-zinc-400">
-                專案名稱 <span class="text-red-500">*</span>
+                {{ t('common.name') }} <span class="text-red-500">*</span>
               </label>
               <input
                 ref="nameInputRef"
                 v-model.trim="projectName"
                 type="text"
-                placeholder="例如: E-commerce API"
+                placeholder="e.g. E-commerce API"
                 class="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                 required
               />
@@ -197,7 +200,7 @@ onUnmounted(() => {
 
             <div class="space-y-1.5">
               <label class="text-xs font-medium text-zinc-400">
-                服務 Port <span class="text-red-500">*</span>
+                {{ t('common.port') }} <span class="text-red-500">*</span>
               </label>
               <input
                 v-model.number="projectPort"
@@ -209,7 +212,7 @@ onUnmounted(() => {
             </div>
 
             <div class="space-y-1.5">
-              <label class="text-xs font-medium text-zinc-400"> 版本 </label>
+              <label class="text-xs font-medium text-zinc-400"> {{ t('common.version') }} </label>
               <input
                 v-model.trim="projectVersion"
                 type="text"
@@ -219,11 +222,11 @@ onUnmounted(() => {
             </div>
 
             <div class="space-y-1.5">
-              <label class="text-xs font-medium text-zinc-400">專案描述</label>
+              <label class="text-xs font-medium text-zinc-400">{{ t('common.description') }}</label>
               <textarea
                 v-model="projectDescription"
                 rows="3"
-                placeholder="輸入專案的簡短描述..."
+                :placeholder="t('common.description')"
                 class="w-full resize-none rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
               ></textarea>
             </div>
@@ -231,17 +234,17 @@ onUnmounted(() => {
             <div class="mt-6 flex justify-end gap-3 pt-2">
               <button
                 type="button"
-                class="rounded-md px-4 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+                class="cursor-pointer rounded-md px-4 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
                 @click="handleClose"
               >
-                取消
+                {{ t('common.cancel') }}
               </button>
               <button
                 type="submit"
                 :disabled="!isFormValid"
-                class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
+                class="cursor-pointer rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
               >
-                {{ props.project ? '儲存變更' : '建立專案' }}
+                {{ props.project ? t('common.save') : t('common.create') }}
               </button>
             </div>
           </form>

@@ -113,7 +113,7 @@ const handleDelete = (e: Event): void => {
     <!-- Delete Button -->
     <button
       :class="[
-        'ml-auto flex h-6 w-6 items-center justify-center rounded text-zinc-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-zinc-700 hover:text-red-400'
+        'ml-auto flex h-6 w-6 cursor-pointer items-center justify-center rounded text-zinc-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-zinc-700 hover:text-red-400'
       ]"
       title="Delete Route"
       @click="handleDelete"

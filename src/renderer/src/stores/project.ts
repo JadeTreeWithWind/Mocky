@@ -196,6 +196,7 @@ export const useProjectStore = defineStore('project', () => {
         method: 'GET' as const,
         path: '/new-endpoint',
         description: 'New API Endpoint',
+        tags: [],
         isActive: true,
         response: {
           statusCode: 200,
@@ -253,7 +254,14 @@ export const useProjectStore = defineStore('project', () => {
   const updateRoute = async (route: Route): Promise<void> => {
     lastError.value = null
     try {
-      await window.api.db.updateRoute(JSON.parse(JSON.stringify(route))) // 確保移除 Proxy
+      const updatedRoute = await window.api.db.updateRoute(JSON.parse(JSON.stringify(route))) // 確保移除 Proxy
+
+      if (updatedRoute) {
+        const index = routes.value.findIndex((r) => r.id === updatedRoute.id)
+        if (index !== -1) {
+          routes.value[index] = updatedRoute
+        }
+      }
 
       // Hot Reload
       await checkAndRestartServer(route.projectId)
@@ -377,6 +385,7 @@ export const useProjectStore = defineStore('project', () => {
           method: route.method || 'GET',
           path: route.path || '/',
           description: route.description || '',
+          tags: route.tags || [],
           isActive: route.isActive ?? true,
           response: {
             statusCode: route.response?.statusCode || 200,

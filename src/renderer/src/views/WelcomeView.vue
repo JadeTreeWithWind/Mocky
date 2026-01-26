@@ -1,6 +1,30 @@
 <script setup lang="ts">
-// --- 1. 外部引用 (Imports) ---
-import { MonitorPlay } from 'lucide-vue-next' // 使用專案統一的圖標庫
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { MonitorPlay, Rocket } from 'lucide-vue-next'
+import { useProjectStore } from '../stores/project'
+import { DEMO_PROJECT } from '../data/demo-project'
+
+const router = useRouter()
+const { t } = useI18n()
+const projectStore = useProjectStore()
+const isCreatingDemo = ref(false)
+
+const handleCreateDemo = async (): Promise<void> => {
+  if (isCreatingDemo.value) return
+
+  isCreatingDemo.value = true
+  try {
+    const jsonString = JSON.stringify(DEMO_PROJECT)
+    const newProjectId = await projectStore.importProject(jsonString)
+    router.push(`/project/${newProjectId}`)
+  } catch (error) {
+    console.error('Failed to create demo project:', error)
+  } finally {
+    isCreatingDemo.value = false
+  }
+} // 使用專案統一的圖標庫
 </script>
 
 <template>
@@ -14,15 +38,30 @@ import { MonitorPlay } from 'lucide-vue-next' // 使用專案統一的圖標庫
     </div>
 
     <h2 id="welcome-title" class="mb-3 text-3xl font-bold tracking-tight text-zinc-100">
-      Welcome to Mocky
+      {{ t('welcome.title') }}
     </h2>
 
     <p class="max-w-[400px] text-base leading-relaxed text-zinc-400">
-      Select a project from the sidebar to get started, or create a new one to begin your API
-      journey.
+      {{ t('welcome.description') }}
     </p>
 
-    <div class="mt-8 h-px w-16 bg-linear-to-r from-transparent via-zinc-700 to-transparent" />
+    <div class="mt-8 flex flex-col items-center gap-4">
+      <button
+        type="button"
+        class="group flex cursor-pointer items-center gap-2 rounded-full bg-zinc-100 px-6 py-2.5 text-sm font-semibold text-zinc-900 shadow-lg shadow-zinc-900/20 transition-all hover:scale-105 hover:bg-white focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:ring-offset-zinc-950 disabled:cursor-not-allowed disabled:opacity-50"
+        :disabled="isCreatingDemo"
+        @click="handleCreateDemo"
+      >
+        <Rocket
+          :size="18"
+          class="text-zinc-600 transition-colors group-hover:text-zinc-900"
+          :class="{ 'animate-pulse': isCreatingDemo }"
+        />
+        <span>{{ isCreatingDemo ? t('welcome.demo_creating') : t('welcome.demo_button') }}</span>
+      </button>
+
+      <div class="h-px w-16 bg-linear-to-r from-transparent via-zinc-800 to-transparent" />
+    </div>
   </div>
 </template>
 

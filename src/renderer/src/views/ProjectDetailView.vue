@@ -2,18 +2,18 @@
 // --- 1. 外部引用 (Imports) ---
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { Plus, Search, Play, Square } from 'lucide-vue-next'
 import { useProjectStore } from '../stores/project'
 import { useUIStore } from '../stores/ui'
 import { PROJECT_STATUS } from '../../../shared/types'
-import RouteItem from '../components/RouteItem.vue'
 import RouteEditor from '../components/RouteEditor.vue'
+import ProjectSidebar from '../components/ProjectSidebar.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
-import Draggable from 'vuedraggable'
 
 // --- 3. 初始化 (Initialization) ---
 const route = useRoute()
+const { t } = useI18n()
 const projectStore = useProjectStore()
 const uiStore = useUIStore()
 const { routes, isLoading, projects } = storeToRefs(projectStore)
@@ -21,8 +21,7 @@ const { routes, isLoading, projects } = storeToRefs(projectStore)
 // --- 4. 響應式狀態 (State) ---
 /** 當前選中的路由 ID */
 const selectedRouteId = ref('')
-/** 路由列表搜尋關鍵字 */
-const searchQuery = ref('')
+
 /** 刪除確認彈窗狀態 */
 const isDeleteConfirmOpen = ref(false)
 /** 待刪除的路由 ID */
@@ -35,6 +34,14 @@ const portBusyMessage = ref('')
 // --- 5. 計算屬性 (Computed Properties) ---
 
 /**
+ * 從路由衍生當前專案 ID (單一事實來源)
+ */
+const projectId = computed(() => {
+  const id = route.params.id
+  return typeof id === 'string' ? id : ''
+})
+
+/**
  * 從專案列表取得當前專案資料
  */
 const currentProject = computed(() => projects.value.find((p) => p.id === projectId.value))
@@ -44,39 +51,49 @@ const currentProject = computed(() => projects.value.find((p) => p.id === projec
  */
 const isServerRunning = computed(() => currentProject.value?.status === PROJECT_STATUS.RUNNING)
 
-/**
- * 從路由衍生當前專案 ID (單一事實來源)
- */
-const projectId = computed(() => {
-  const id = route.params.id
-  return typeof id === 'string' ? id : ''
-})
-
-/**
- * 根據搜尋關鍵字過濾路由列表
- */
-const filteredRoutes = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-  if (!query) return routes.value
-
-  return routes.value.filter(
-    (r) =>
-      r.path.toLowerCase().includes(query) ||
-      (r.description && r.description.toLowerCase().includes(query))
-  )
-})
-
-/**
- * 用於拖拽排序的路由列表 (Writable Computed)
- */
-const routeList = computed({
-  get: () => routes.value,
-  set: (val) => {
-    projectStore.reorderRoutes(projectId.value, val)
-  }
-})
-
 // --- 7. 核心邏輯與函數 (Functions/Methods) ---
+
+/**
+ * 處理群組內的排序 (Drag & Drop)
+ * 將群組內的新順序套用到全域列表，同時保留非此群組項目的位置
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleGroupReorder = (groupName: string, newGroupRoutes: any[]): void => {
+  // 1. 複製當前完整列表
+  const newFullList = [...routes.value]
+
+  // 2. 找出此群組原本包含哪些路由的「全域索引位置」
+  // 邏輯：遍歷全域列表，若該路由屬於此群組，則記錄其 Index
+  const targetIndices: number[] = []
+
+  newFullList.forEach((r, index) => {
+    // 判斷該路由是否屬於目前正在操作的群組
+    const rTags = r.tags || []
+    const isUngrouped = groupName === 'Ungrouped' && rTags.length === 0
+    const hasTag = rTags.includes(groupName)
+
+    if (isUngrouped || hasTag) {
+      targetIndices.push(index)
+    }
+  })
+
+  // 安全檢查：數量應該要一致
+  if (targetIndices.length !== newGroupRoutes.length) {
+    console.warn('[Reorder] Count mismatch, skipping update', {
+      expected: targetIndices.length,
+      actual: newGroupRoutes.length
+    })
+    return
+  }
+
+  // 3. 將新的群組順序，依序填入原本的索引位置 (Preserve Slots)
+  targetIndices.forEach((targetIndex, i) => {
+    newFullList[targetIndex] = newGroupRoutes[i]
+  })
+
+  // 4. 更新 Store
+  projectStore.reorderRoutes(projectId.value, newFullList)
+}
 
 /**
  * 切換伺服器運行狀態
@@ -97,14 +114,18 @@ const toggleServer = async (): Promise<void> => {
         isPortBusyOpen.value = true
 
         // Show Toast with warning
-        uiStore.showToast(`Server started on port ${actualPort} (auto-incremented)`, 'info', {
-          label: 'Open Docs',
-          url: `http://localhost:${actualPort}/docs`
-        })
+        uiStore.showToast(
+          `${t('project.server_running')}${actualPort} (auto-incremented)`,
+          'info',
+          {
+            label: t('project.open_docs'),
+            url: `http://localhost:${actualPort}/docs`
+          }
+        )
       } else {
         // Show Success Toast
-        uiStore.showToast(`Server started on port ${actualPort}`, 'success', {
-          label: 'Open Docs',
+        uiStore.showToast(`${t('project.server_running')}${actualPort}`, 'success', {
+          label: t('project.open_docs'),
           url: `http://localhost:${actualPort}/docs`
         })
       }
@@ -188,8 +209,6 @@ const executeDeleteRoute = async (): Promise<void> => {
   }
 }
 
-// --- 6. 偵聽器 (Watchers) ---
-
 /**
  * 監聽專案 ID 變化，更換專案時重置狀態並重新讀取
  */
@@ -213,150 +232,18 @@ onMounted(() => {
 
 <template>
   <div class="flex h-full w-full overflow-hidden bg-zinc-950">
-    <aside class="flex w-64 flex-col border-r border-zinc-800 bg-zinc-900/30">
-      <!-- Server Control -->
-      <div v-if="currentProject" class="flex flex-col border-b border-zinc-800 bg-zinc-900/50 p-3">
-        <div class="mb-2 flex items-center justify-between">
-          <h2 class="truncate text-sm font-bold text-zinc-100" :title="currentProject.name">
-            {{ currentProject.name }}
-            <span class="ml-2 text-xs font-normal text-zinc-500"
-              >v{{ currentProject.version || '1.0.0' }}</span
-            >
-          </h2>
-          <button
-            v-if="currentProject?.port"
-            type="button"
-            :class="
-              isServerRunning
-                ? 'cursor-pointer hover:bg-zinc-700 hover:text-zinc-200'
-                : 'opacity-50'
-            "
-            class="ml-2 flex items-center gap-1 rounded bg-zinc-800 px-1.5 py-0.5 text-zinc-400"
-            :title="`Open API Documentation (Port: ${currentProject.port})`"
-            :disabled="!isServerRunning"
-            @click.stop="openDocs"
-          >
-            <span class="text-[10px] font-medium">Docs</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-          </button>
-        </div>
-        <button
-          class="flex w-full cursor-pointer items-center justify-center gap-2 rounded px-3 py-1.5 text-xs font-medium transition-colors"
-          :class="
-            isServerRunning
-              ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
-              : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20'
-          "
-          @click="toggleServer"
-        >
-          <component :is="isServerRunning ? Square : Play" :size="12" class="fill-current" />
-          {{ isServerRunning ? 'Stop Server' : 'Start Server' }}
-        </button>
-      </div>
-
-      <div class="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
-        <h3 class="text-xs font-semibold tracking-wider text-zinc-500 uppercase">Routes</h3>
-
-        <div class="flex items-center gap-2">
-          <span class="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">
-            {{ routes.length }}
-          </span>
-
-          <button
-            class="flex items-center justify-center rounded p-1 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-            aria-label="Add Route"
-            @click="handleAddRoute"
-          >
-            <Plus :size="14" />
-          </button>
-        </div>
-      </div>
-
-      <!-- Search Box -->
-      <div class="p-2 pb-0">
-        <div class="group relative">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search routes..."
-            class="w-full rounded border border-zinc-800 bg-zinc-950/50 py-1.5 pr-2 pl-8 text-xs text-zinc-300 placeholder-zinc-600 transition-colors focus:border-zinc-700 focus:outline-none"
-          />
-          <Search
-            :size="12"
-            class="absolute top-1/2 left-2.5 -translate-y-1/2 text-zinc-600 transition-colors group-focus-within:text-zinc-400"
-          />
-        </div>
-      </div>
-
-      <div class="flex-1 space-y-1 overflow-y-auto p-2">
-        <div v-if="isLoading" class="flex h-32 items-center justify-center">
-          <div
-            class="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"
-          />
-        </div>
-
-        <div
-          v-else-if="filteredRoutes.length === 0"
-          class="flex h-32 flex-col items-center justify-center space-y-2 px-4 text-center"
-        >
-          <p v-if="routes.length === 0" class="text-xs text-zinc-600 italic">
-            No routes yet. Click + to add one.
-          </p>
-          <p v-else class="text-xs text-zinc-600 italic">No routes match your search.</p>
-        </div>
-
-        <template v-else>
-          <!-- 搜尋模式下禁用排序 (顯示過濾列表) -->
-          <template v-if="searchQuery">
-            <RouteItem
-              v-for="item in filteredRoutes"
-              :key="item.id"
-              :method="item.method"
-              :path="item.path"
-              :is-selected="selectedRouteId === item.id"
-              :is-enabled="item.isActive"
-              @click="handleSelectRoute(item.id)"
-              @delete="handleDeleteRoute(item.id)"
-            />
-          </template>
-
-          <!-- 一般模式下啟用拖拽排序 -->
-          <Draggable
-            v-else
-            v-model="routeList"
-            item-key="id"
-            :animation="200"
-            ghost-class="ghost"
-            class="flex flex-col space-y-1"
-          >
-            <template #item="{ element }">
-              <RouteItem
-                :method="element.method"
-                :path="element.path"
-                :is-selected="selectedRouteId === element.id"
-                :is-enabled="element.isActive"
-                @click="handleSelectRoute(element.id)"
-                @delete="handleDeleteRoute(element.id)"
-              />
-            </template>
-          </Draggable>
-        </template>
-      </div>
-    </aside>
+    <ProjectSidebar
+      :routes="routes"
+      :is-loading="isLoading"
+      :current-project="currentProject"
+      :selected-route-id="selectedRouteId"
+      @select="handleSelectRoute"
+      @add="handleAddRoute"
+      @delete="handleDeleteRoute"
+      @toggle-server="toggleServer"
+      @open-docs="openDocs"
+      @reorder="handleGroupReorder"
+    />
 
     <main class="flex flex-1 flex-col bg-zinc-950">
       <Transition name="fade" mode="out-in">
@@ -369,9 +256,9 @@ onMounted(() => {
         </div>
 
         <div v-else class="flex flex-1 flex-col items-center justify-center text-center">
-          <p class="mb-2 text-lg font-medium text-zinc-400">Select a route to edit</p>
+          <p class="mb-2 text-lg font-medium text-zinc-400">{{ t('route.select_to_edit') }}</p>
           <p class="font-mono text-xs tracking-tight text-zinc-600">
-            Project: {{ projectId || 'Unknown' }}
+            {{ t('common.project') }}: {{ projectId || 'Unknown' }}
           </p>
         </div>
       </Transition>
@@ -379,9 +266,10 @@ onMounted(() => {
 
     <ConfirmDialog
       :is-open="isDeleteConfirmOpen"
-      title="Delete Route"
-      message="Are you sure you want to delete this route? This action cannot be undone."
-      confirm-text="Delete"
+      :title="t('route.delete_confirm_title')"
+      :message="t('route.delete_confirm_message')"
+      :confirm-text="t('common.delete')"
+      :cancel-text="t('common.cancel')"
       :is-danger="true"
       @close="isDeleteConfirmOpen = false"
       @confirm="executeDeleteRoute"
@@ -408,10 +296,5 @@ onMounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-.ghost {
-  opacity: 0.5;
-  background-color: #27272a; /* zinc-800 */
 }
 </style>

@@ -35,7 +35,8 @@ export const RouteSchema = z.object({
     statusCode: z.number().int(),
     body: z.string(),
     delay: z.number().int().default(0)
-  })
+  }),
+  tags: z.array(z.string()).default([])
 })
 
 export const DBSchema = z.object({

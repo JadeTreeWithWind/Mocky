@@ -13,6 +13,7 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 // 內部資源
 import App from './App.vue'
 import router from './router'
+import i18n from './i18n'
 
 // 樣式引入（最後）
 import './assets/main.css'
@@ -54,4 +55,5 @@ const app = createApp(App)
 
 app.use(pinia)
 app.use(router)
+app.use(i18n)
 app.mount('#app')

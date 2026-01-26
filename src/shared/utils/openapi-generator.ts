@@ -33,6 +33,7 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
     // 2. Build Operation Object
     const operation: OpenAPIV3.OperationObject = {
       summary: route.description || route.path,
+      tags: route.tags,
       responses: {
         [route.response.statusCode.toString()]: {
           description: 'Mock response',
@@ -143,6 +144,7 @@ export const fromOpenApi = (
             path: internalPath,
             method: method.toUpperCase() as Route['method'],
             description: operation.summary || operation.description || '',
+            tags: operation.tags || [],
             isActive: true,
             response: {
               statusCode,

@@ -56,7 +56,7 @@
 - [x] 確保 `electron-vite build` 會同時編譯 Renderer, Main, Preload Process 到 `out/` 目錄。
 
 - **驗證 Checklist**:
-- [x] 手動執行 `npm run build` (不執行 electron-builder)。
+- [x] 手動執行 `pnpm run build` (不執行 electron-builder)。
 - [x] 檢查專案目錄，確認 `out/renderer/index.html` 存在且有內容。
 - [x] 檢查 `out/main/` 資料夾，確認 `index.js` (Main process) 存在且代碼已轉譯。
 
@@ -68,7 +68,7 @@
 - [x] `package.json`: 調整 `win.target` 加入 `"dir"` (資料夾模式) 或直接執行指令參數。
 
 - **功能與操作**:
-- [x] 執行指令：`npx electron-builder --dir` (使用 `npm run build:unpack`)。
+- [x] 執行指令：使用 `pnpm run build:unpack`。
 - [x] 這會產生 `release/win-unpacked/` 資料夾。
 
 - **驗證 Checklist**:

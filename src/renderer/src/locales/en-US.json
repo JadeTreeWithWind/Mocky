@@ -52,7 +52,9 @@
     "ready": "Ready",
     "start_server": "Start Server",
     "stop_server": "Stop Server",
-    "open_docs": "Open Docs"
+    "open_docs": "Open Docs",
+    "export_failed": "Export failed",
+    "docs": "Docs"
   },
   "route": {
     "new_route": "New Route",

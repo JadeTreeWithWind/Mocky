@@ -88,7 +88,7 @@ const handleGroupReorder = (groupName: string, val: Route[]): void => {
           :disabled="!isServerRunning"
           @click.stop="emit('open-docs')"
         >
-          <span class="text-[10px] font-medium">Docs</span>
+          <span class="min-w-10 text-[10px] font-medium">{{ t('project.docs') }}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="10"

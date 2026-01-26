@@ -52,7 +52,9 @@
     "ready": "就緒",
     "start_server": "啟動服務",
     "stop_server": "停止服務",
-    "open_docs": "開啟 API 文件"
+    "open_docs": "開啟 API 文件",
+    "export_failed": "匯出失敗",
+    "docs": "文件"
   },
   "route": {
     "new_route": "新路由",

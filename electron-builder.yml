@@ -44,7 +44,6 @@ appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
-  provider: generic
-  url: https://github.com/JadeTreeWithWind/Mocky/releases
-electronDownload:
-  mirror: https://npmmirror.com/mirrors/electron/
+  provider: github
+  owner: JadeTreeWithWind
+  repo: Mocky

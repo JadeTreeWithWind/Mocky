@@ -31,13 +31,15 @@ export function useProjectExport(): {
       const filename = `${project.name.replace(/\s+/g, '_')}_openapi.json`
       const success = await window.api.project.export(jsonContent, filename)
 
-      if (success) {
-        console.log('Export successful')
-        uiStore.showToast(t('project.export_success'), 'success')
+      if (!success) {
+        uiStore.showToast(t('project.export_failed'), 'error')
+        return
       }
+      console.log('Export successful')
+      uiStore.showToast(t('project.export_success'), 'success')
     } catch (error) {
       console.error('[Project] Export failed:', error)
-      uiStore.showToast('Export failed', 'error')
+      uiStore.showToast(t('project.export_failed'), 'error')
     }
   }
 

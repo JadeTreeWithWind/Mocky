@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "An Electron application with Vue and TypeScript",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "https://github.com/JadeTreeWithWind/",
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --write .",
@@ -27,7 +27,6 @@
     "@fastify/swagger": "^9.6.1",
     "@fastify/swagger-ui": "^5.2.4",
     "@guolao/vue-monaco-editor": "^1.6.0",
-    "@tailwindcss/vite": "^4.1.18",
     "electron-updater": "^6.7.3",
     "fastify": "^5.7.1",
     "lowdb": "^7.0.1",
@@ -35,7 +34,6 @@
     "monaco-editor": "^0.55.1",
     "path-to-regexp": "^8.3.0",
     "pinia": "^3.0.4",
-    "tailwindcss": "^4.1.18",
     "uuid": "^13.0.0",
     "vue-router": "^4.6.4",
     "vuedraggable": "^4.1.0",
@@ -61,7 +59,9 @@
     "vite": "^7.3.1",
     "vue": "^3.5.27",
     "vue-eslint-parser": "^10.2.0",
-    "vue-tsc": "^3.2.4"
+    "vue-tsc": "^3.2.4",
+    "@tailwindcss/vite": "^4.1.18",
+    "tailwindcss": "^4.1.18"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

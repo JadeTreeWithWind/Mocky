@@ -108,14 +108,24 @@ const handleKeydown = (e: KeyboardEvent): void => {
 
 // --- 6. 偵聽器 (Watchers) ---
 // 監聽路由資料變更
+// 監聽路由資料變更
 watch(
   () => route.value,
   (newVal, oldVal) => {
-    // 忽略初次載入或切換路由時的變更
+    // 1. 處理路由切換：重置狀態並不觸發儲存
     if (newVal?.id !== oldVal?.id) {
       saveStatus.value = 'saved'
       return
     }
+
+    // 2. 避免儲存後的迴圈 (Infinite Loop Fix)
+    // 當 save() 成功後，Store 會用後端回傳的新物件替換舊物件 (Reference Changed)。
+    // 此時 newVal !== oldVal，但不代表使用者有修改。
+    // 我們只在 In-place Mutation (即使用者編輯，newVal === oldVal) 時觸發自動儲存。
+    if (newVal !== oldVal) {
+      return
+    }
+
     debouncedSave()
   },
   { deep: true }

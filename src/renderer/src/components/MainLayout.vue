@@ -230,10 +230,7 @@ const handleExportProject = async (id: string): Promise<void> => {
     const success = await window.api.project.export(jsonContent, filename)
 
     if (success) {
-      // TODO: 可以加入 Toast 提示
       console.log('Export successful')
-    }
-    if (success) {
       uiStore.showToast('Export successful', 'success')
     }
   } catch (error) {
@@ -249,7 +246,7 @@ const handleExportProject = async (id: string): Promise<void> => {
 const handleExportHtml = async (id: string): Promise<void> => {
   try {
     await projectStore.exportHtml(id)
-    // 成功Toast提示由 Store 或全域處理較佳，但目前結構在 Store 拋錯
+    uiStore.showToast('Export HTML successful', 'success')
   } catch (error) {
     console.error('[Project] Export HTML failed:', error)
     showError('Export Failed', 'Failed to export documentation to HTML. See console for details.')

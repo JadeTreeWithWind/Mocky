@@ -37,6 +37,7 @@ const { projects } = storeToRefs(projectStore)
 // --- 4. 響應式狀態 (State) ---
 const isCreateModalOpen = ref(false)
 const isConfirmDeleteOpen = ref(false)
+const editingProject = ref<(CreateProjectPayload & { id: string }) | undefined>(undefined)
 const projectToDeleteId = ref<string | null>(null) // 命名語義化
 const errorModalState = ref({
   isOpen: false,
@@ -155,6 +156,24 @@ const handleCreateProject = async (projectData: CreateProjectPayload): Promise<v
 }
 
 /**
+ * 處理專案更新邏輯
+ * @param projectData - 更新後的專案資料
+ */
+const handleUpdateProject = async (
+  projectData: CreateProjectPayload & { id: string }
+): Promise<void> => {
+  try {
+    await projectStore.updateProject(projectData)
+    isCreateModalOpen.value = false
+    editingProject.value = undefined // Reset
+    uiStore.showToast('Project updated successfully', 'success')
+  } catch (error) {
+    console.error('[Project] Update failed:', error)
+    uiStore.showToast('Failed to update project', 'error')
+  }
+}
+
+/**
  * 觸發刪除確認彈窗
  * @param projectId - 要刪除的專案 UUID
  */
@@ -205,8 +224,16 @@ const handleOpenContextMenu = (event: MouseEvent, projectId: string): void => {
  * @param id - 專案 UUID
  */
 const handleEditProject = (id: string): void => {
-  // TODO: 實作專案編輯功能（開啟編輯彈窗）
-  console.log('[Project] Edit requested for:', id)
+  const project = projects.value.find((p) => p.id === id)
+  if (project) {
+    editingProject.value = {
+      id: project.id,
+      name: project.name,
+      port: project.port,
+      description: project.description
+    }
+    isCreateModalOpen.value = true
+  }
 }
 
 /**
@@ -345,7 +372,12 @@ onMounted(() => {
                 type="button"
                 class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                 title="Create Project"
-                @click="isCreateModalOpen = true"
+                @click="
+                  () => {
+                    editingProject = undefined
+                    isCreateModalOpen = true
+                  }
+                "
               >
                 <Plus :size="14" />
               </button>
@@ -376,8 +408,15 @@ onMounted(() => {
 
     <CreateProjectModal
       :is-open="isCreateModalOpen"
-      @close="isCreateModalOpen = false"
+      :project="editingProject"
+      @close="
+        () => {
+          isCreateModalOpen = false
+          editingProject = undefined
+        }
+      "
       @create="handleCreateProject"
+      @update="handleUpdateProject"
     />
 
     <ConfirmDialog

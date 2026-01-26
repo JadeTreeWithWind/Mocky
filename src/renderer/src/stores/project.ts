@@ -61,6 +61,46 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /**
+   * 更新專案
+   * @param project - 更新的專案資料
+   */
+  const updateProject = async (
+    project: Pick<Project, 'id' | 'name' | 'port' | 'description'>
+  ): Promise<Project> => {
+    lastError.value = null
+
+    try {
+      const originalProject = projects.value.find((p) => p.id === project.id)
+      const isPortChanged = originalProject && originalProject.port !== project.port
+      const wasRunning = originalProject && runningPorts.value[project.id]
+
+      // 1. 更新 DB
+      const updatedProject = await window.api.db.updateProject(project)
+
+      // 2. 更新 Store
+      const index = projects.value.findIndex((p) => p.id === project.id)
+      if (index !== -1) {
+        projects.value[index] = updatedProject
+      }
+
+      // 3. 若 Port 改變且原本在運行，需要重啟 Server
+      if (isPortChanged && wasRunning) {
+        console.log('[Store] Port changed, restarting server...')
+        await stopServer(project.id)
+        await startServer(project.id)
+      } else if (isPortChanged && !wasRunning) {
+        // 只是更新了設定，沒在跑，無需動作，下一次啟動會用新 Port
+      }
+
+      return updatedProject
+    } catch (error) {
+      lastError.value = '專案更新失敗'
+      console.error('[Store] Update project failed:', error)
+      throw error
+    }
+  }
+
+  /**
    * 刪除指定專案及其關聯路由
    * @param id - 專案 UUID
    */
@@ -404,6 +444,7 @@ export const useProjectStore = defineStore('project', () => {
     // Actions
     fetchProjects,
     createProject,
+    updateProject,
     deleteProject,
     fetchRoutes,
     createRoute,

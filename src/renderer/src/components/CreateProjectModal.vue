@@ -13,6 +13,8 @@ interface ProjectPayload {
 interface Props {
   /** 彈窗是否顯示 */
   isOpen: boolean
+  /** [Edit Mode] 初始專案資料，若存在則視為編輯模式 */
+  project?: ProjectPayload & { id: string }
 }
 
 // --- 3. 常量宣告 (Constants) ---
@@ -26,6 +28,8 @@ const emit = defineEmits<{
   (e: 'close'): void
   /** 建立專案事件 */
   (e: 'create', payload: ProjectPayload): void
+  /** 更新專案事件 */
+  (e: 'update', payload: ProjectPayload & { id: string }): void
 }>()
 
 // --- 5. 響應式狀態 (State) ---
@@ -55,6 +59,19 @@ const resetForm = (): void => {
 }
 
 /**
+ * 根據傳入的 project prop 初始化表單
+ */
+const initForm = (): void => {
+  if (props.project) {
+    projectName.value = props.project.name
+    projectPort.value = props.project.port
+    projectDescription.value = props.project.description
+  } else {
+    resetForm()
+  }
+}
+
+/**
  * 關閉彈窗並執行清理
  */
 const handleClose = (): void => {
@@ -71,11 +88,17 @@ const handleClose = (): void => {
 const handleSubmit = (): void => {
   if (!isFormValid.value) return // 衛句模式
 
-  emit('create', {
+  const payload = {
     name: projectName.value,
     port: projectPort.value,
     description: projectDescription.value
-  })
+  }
+
+  if (props.project) {
+    emit('update', { ...payload, id: props.project.id })
+  } else {
+    emit('create', payload)
+  }
 
   handleClose()
 }
@@ -99,6 +122,7 @@ watch(
   () => props.isOpen,
   async (opened) => {
     if (opened) {
+      initForm()
       window.addEventListener('keydown', handleKeyDown)
       // 在 DOM 更新後自動聚焦輸入框
       await nextTick()
@@ -138,7 +162,9 @@ onUnmounted(() => {
           aria-modal="true"
         >
           <div class="mb-5 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-zinc-100">建立新專案</h3>
+            <h3 class="text-lg font-semibold text-zinc-100">
+              {{ props.project ? '編輯專案' : '建立新專案' }}
+            </h3>
             <button
               type="button"
               class="rounded-md p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
@@ -199,7 +225,7 @@ onUnmounted(() => {
                 :disabled="!isFormValid"
                 class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
               >
-                建立專案
+                {{ props.project ? '儲存變更' : '建立專案' }}
               </button>
             </div>
           </form>

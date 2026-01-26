@@ -85,6 +85,38 @@ class DBService {
   }
 
   /**
+   * 更新專案資料
+   * @param project - 更新後的專案資料
+   */
+  async updateProject(
+    project: Pick<Project, 'id' | 'name' | 'port' | 'description'>
+  ): Promise<Project> {
+    await this.init()
+    if (!this.db) throw new Error('DB not initialized')
+
+    const now = new Date().toISOString()
+    let updatedProject: Project | null = null
+
+    await this.db.update((data) => {
+      const index = data.projects.findIndex((p) => p.id === project.id)
+      if (index !== -1) {
+        data.projects[index] = {
+          ...data.projects[index],
+          ...project,
+          updatedAt: now
+        }
+        updatedProject = data.projects[index]
+      }
+    })
+
+    if (!updatedProject) {
+      throw new Error(`Project with id ${project.id} not found`)
+    }
+
+    return updatedProject
+  }
+
+  /**
    * 刪除專案及其關聯的所有路由
    * @param id - 專案 ID
    * @returns {Promise<boolean>} 是否刪除成功

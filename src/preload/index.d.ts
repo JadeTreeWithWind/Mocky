@@ -35,6 +35,14 @@ interface DatabaseAPI {
   ) => Promise<Project>
 
   /**
+   * 更新專案
+   * @param project - 更新的專案資料
+   */
+  updateProject: (
+    project: Pick<Project, 'id' | 'name' | 'port' | 'description'>
+  ) => Promise<Project>
+
+  /**
    * 根據 ID 刪除專案
    * @param id - 專案 UUID
    * @returns 是否刪除成功

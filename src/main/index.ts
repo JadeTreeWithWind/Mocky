@@ -107,6 +107,16 @@ function registerIpcHandlers(): void {
     }
   })
 
+  ipcMain.handle(IPC_CHANNELS.DB.UPDATE_PROJECT, async (_, project) => {
+    try {
+      if (!project || !project.id) throw new Error('Missing project data')
+      return await dbService.updateProject(project)
+    } catch (error) {
+      console.error('[IPC] Failed to update project:', error)
+      throw error
+    }
+  })
+
   ipcMain.handle(IPC_CHANNELS.DB.DELETE_PROJECT, async (_, id) => {
     try {
       if (!id) return false

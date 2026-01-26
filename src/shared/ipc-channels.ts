@@ -18,6 +18,7 @@ export const IPC_CHANNELS = {
     GET_PROJECTS: 'db:getProjects',
     ADD_PROJECT: 'db:addProject',
     DELETE_PROJECT: 'db:deleteProject',
+    UPDATE_PROJECT: 'db:updateProject',
     GET_ROUTES: 'db:getRoutesByProjectId',
     ADD_ROUTE: 'db:addRoute',
     UPDATE_ROUTE: 'db:updateRoute',

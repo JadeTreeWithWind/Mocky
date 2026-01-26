@@ -30,6 +30,11 @@ const api = {
       project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'status'>
     ): Promise<Project> => ipcRenderer.invoke(IPC_CHANNELS.DB.ADD_PROJECT, project),
 
+    /** 更新專案 */
+    updateProject: (
+      project: Pick<Project, 'id' | 'name' | 'port' | 'description'>
+    ): Promise<Project> => ipcRenderer.invoke(IPC_CHANNELS.DB.UPDATE_PROJECT, project),
+
     /** 刪除專案 */
     deleteProject: (id: string): Promise<boolean> =>
       ipcRenderer.invoke(IPC_CHANNELS.DB.DELETE_PROJECT, id),

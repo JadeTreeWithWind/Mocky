@@ -46,3 +46,11 @@ export const METHOD_BADGE_THEMES: Record<string, string> = {
 } as const
 
 export const DEFAULT_BADGE_THEME = 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20'
+
+export const SAVE_STATUS = {
+  SAVED: 'saved',
+  SAVING: 'saving',
+  UNSAVED: 'unsaved'
+} as const
+
+export type SaveStatus = (typeof SAVE_STATUS)[keyof typeof SAVE_STATUS]

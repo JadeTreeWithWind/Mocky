@@ -4,14 +4,14 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { useI18n } from 'vue-i18n'
 import { ChevronDown, AlertCircle, Loader2, Check } from 'lucide-vue-next'
-import { HTTP_STATUS_CODES } from '../constants'
+import { HTTP_STATUS_CODES, SAVE_STATUS, type SaveStatus } from '../constants'
 import { validateJSON, prettifyJSON } from '../utils/jsonUtils'
 import type { Route } from '../../../shared/types'
 
 // --- 2. 類型定義 (Type Definitions) ---
 interface Props {
   route: Route
-  saveStatus: 'saved' | 'saving' | 'unsaved'
+  saveStatus: SaveStatus
 }
 
 // --- 3. 常量宣告 (Constants) ---
@@ -293,15 +293,21 @@ onUnmounted(() => {
       :class="jsonError ? 'bottom-12' : 'bottom-4'"
     >
       <span
-        v-if="saveStatus === 'saving'"
+        v-if="saveStatus === SAVE_STATUS.SAVING"
         class="flex items-center justify-center gap-1 text-blue-400"
       >
         <Loader2 :size="12" class="animate-spin" /> {{ t('route.saving') }}
       </span>
-      <span v-else-if="saveStatus === 'saved'" class="flex items-center gap-1 text-zinc-500">
+      <span
+        v-else-if="saveStatus === SAVE_STATUS.SAVED"
+        class="flex items-center gap-1 text-zinc-500"
+      >
         <Check :size="12" class="text-emerald-500" /> {{ t('route.saved') }}
       </span>
-      <span v-else-if="saveStatus === 'unsaved'" class="flex items-center gap-1 text-amber-500">
+      <span
+        v-else-if="saveStatus === SAVE_STATUS.UNSAVED"
+        class="flex items-center gap-1 text-amber-500"
+      >
         <Loader2 :size="12" class="animate-spin" /> {{ t('route.unsaved') }}
       </span>
     </div>

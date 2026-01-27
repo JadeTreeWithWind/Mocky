@@ -3,7 +3,14 @@ import { app } from 'electron'
 import { join } from 'path'
 import { randomUUID } from 'node:crypto'
 import type { Low } from 'lowdb'
-import { type Project, type Route, type DBSchemaType, PROJECT_STATUS } from '../shared/types'
+import {
+  type Project,
+  type Route,
+  type DBSchemaType,
+  PROJECT_STATUS,
+  ProjectSchema,
+  RouteSchema
+} from '../shared/types'
 
 // --- 3. 常量宣告 (Constants) ---
 const DB_FILE_NAME = 'db.json'
@@ -80,6 +87,9 @@ class DBService {
       status: PROJECT_STATUS.STOPPED
     }
 
+    // Runtime Validation
+    ProjectSchema.parse(newProject)
+
     await this.db.update(({ projects }) => projects.push(newProject))
     return newProject
   }
@@ -96,6 +106,9 @@ class DBService {
 
     const now = new Date().toISOString()
     let updatedProject: Project | null = null
+
+    // Runtime Validation (Partial)
+    ProjectSchema.partial().parse(project)
 
     await this.db.update((data) => {
       const index = data.projects.findIndex((p) => p.id === project.id)
@@ -166,6 +179,9 @@ class DBService {
       id: randomUUID()
     }
 
+    // Runtime Validation
+    RouteSchema.parse(newRoute)
+
     // 確保 routes 陣列存在
     if (!this.db.data.routes) {
       this.db.data.routes = []
@@ -231,6 +247,9 @@ class DBService {
     if (!this.db) throw new Error('DB not initialized')
 
     let updatedRoute: Route | null = null
+
+    // Runtime Validation
+    RouteSchema.parse(route)
 
     await this.db.update((data) => {
       if (!data.routes) return

@@ -7,6 +7,7 @@ import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useProjectStore } from '../stores/project'
 import RouteEditorHeader from './RouteEditorHeader.vue'
 import RouteResponseEditor from './RouteResponseEditor.vue'
+import { SAVE_STATUS, type SaveStatus } from '../constants'
 import type { Route } from '../../../shared/types'
 
 // --- 2. 類型定義 (Type Definitions) ---
@@ -23,8 +24,8 @@ const SAVING_INDICATOR_MS = 500
 // Store use
 const projectStore = useProjectStore()
 
-type SaveStatus = 'saved' | 'saving' | 'unsaved'
-const saveStatus = ref<SaveStatus>('saved')
+type SaveStatusType = SaveStatus
+const saveStatus = ref<SaveStatusType>(SAVE_STATUS.SAVED)
 const saveTimeout = ref<ReturnType<typeof setTimeout> | undefined>(undefined)
 
 // --- 5. 計算屬性 (Computed Properties) ---
@@ -63,17 +64,17 @@ const port = computed(() => {
 const save = async (): Promise<void> => {
   if (!route.value) return
 
-  saveStatus.value = 'saving'
+  saveStatus.value = SAVE_STATUS.SAVING
   try {
     // 深拷貝以避免 Proxy 問題 (雖 Store 已處裡，但這裡斷開參照較安全)
     await projectStore.updateRoute({ ...route.value })
     // 短暫延遲以顯示 Saving 狀態 (UX 優化)
     setTimeout(() => {
-      saveStatus.value = 'saved'
+      saveStatus.value = SAVE_STATUS.SAVED
     }, SAVING_INDICATOR_MS)
   } catch (error) {
     console.error('Failed to save route:', error)
-    saveStatus.value = 'unsaved'
+    saveStatus.value = SAVE_STATUS.UNSAVED
   }
 }
 
@@ -90,7 +91,7 @@ const onHeaderChange = (updates: Partial<Route>): void => {
  * 防抖自動儲存 (Debounce)
  */
 const debouncedSave = (): void => {
-  saveStatus.value = 'unsaved'
+  saveStatus.value = SAVE_STATUS.UNSAVED
   clearTimeout(saveTimeout.value)
   saveTimeout.value = setTimeout(() => {
     save()
@@ -114,7 +115,7 @@ watch(
   (newVal, oldVal) => {
     // 1. 處理路由切換：重置狀態並不觸發儲存
     if (newVal?.id !== oldVal?.id) {
-      saveStatus.value = 'saved'
+      saveStatus.value = SAVE_STATUS.SAVED
       return
     }
 

@@ -47,11 +47,11 @@ const indicatorClass = computed(() => {
       :aria-label="`Current status: ${displayStatus}`"
     >
       <div :class="indicatorClass" aria-hidden="true" />
-      <span class="font-medium">{{ displayStatus }}</span>
+      <span class="text-xs">{{ displayStatus }}</span>
     </div>
 
     <div class="flex items-center gap-3">
-      <span class="opacity-80">{{ APP_VERSION }}</span>
+      <span class="text-xs opacity-80">{{ APP_VERSION }}</span>
     </div>
   </footer>
 </template>

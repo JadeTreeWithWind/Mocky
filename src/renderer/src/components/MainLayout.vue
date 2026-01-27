@@ -254,10 +254,6 @@ const handleEditProject = (id: string): void => {
  * 處理專案匯出邏輯
  * @param id - 專案 UUID
  */
-/**
- * 處理專案匯出邏輯
- * @param id - 專案 UUID
- */
 const handleExportProject = async (id: string): Promise<void> => {
   await exportProjectJson(id)
 }
@@ -278,9 +274,6 @@ const handleExportHtml = async (id: string): Promise<void> => {
 }
 
 /**
- * 處理專案匯入邏輯 (Stage 3)
- */
-/**
  * 顯示錯誤彈窗
  */
 const showError = (title: string, message: string): void => {
@@ -291,9 +284,6 @@ const showError = (title: string, message: string): void => {
   }
 }
 
-/**
- * 處理專案匯入邏輯 (Stage 3 + Stage 5 Enhanced)
- */
 /**
  * 處理專案匯入邏輯
  */

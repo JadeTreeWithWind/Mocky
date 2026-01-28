@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
 import { ref, computed } from 'vue'
+import { version } from '../../../../package.json'
 
 // --- 2. 類型定義 (Type Definitions) ---
 interface Props {
@@ -12,7 +13,7 @@ const props = defineProps<Props>()
 
 // --- 3. 常量宣告 (Constants) ---
 /** 應用程式版本號 */
-const APP_VERSION = 'v1.0.0' // TODO: 未來應改為從 package.json 或 API 動態獲取
+const APP_VERSION = `v${version}`
 
 // --- 5. 響應式狀態 (State) ---
 /** 當前系統運作狀態文字 */

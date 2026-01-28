@@ -7,6 +7,7 @@ import { storeToRefs } from 'pinia'
 import { useProjectStore } from '../stores/project'
 import { useUIStore } from '../stores/ui'
 import { PROJECT_STATUS } from '../../../shared/types'
+import { UNGROUPED_NAME } from '../constants'
 import RouteEditor from '../components/RouteEditor.vue'
 import ProjectSidebar from '../components/ProjectSidebar.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
@@ -69,7 +70,7 @@ const handleGroupReorder = (groupName: string, newGroupRoutes: any[]): void => {
   newFullList.forEach((r, index) => {
     // 判斷該路由是否屬於目前正在操作的群組
     const rTags = r.tags || []
-    const isUngrouped = groupName === 'Ungrouped' && rTags.length === 0
+    const isUngrouped = groupName === UNGROUPED_NAME && rTags.length === 0
     const hasTag = rTags.includes(groupName)
 
     if (isUngrouped || hasTag) {
@@ -110,7 +111,10 @@ const toggleServer = async (): Promise<void> => {
       // 檢查 Port 是否變更
       const configuredPort = currentProject.value?.port
       if (typeof actualPort === 'number' && configuredPort && actualPort !== configuredPort) {
-        portBusyMessage.value = `The configured port ${configuredPort} is occupied. The server is now running on port ${actualPort}.`
+        portBusyMessage.value = t('project.port_occupied_message', {
+          configured: configuredPort,
+          actual: actualPort
+        })
         isPortBusyOpen.value = true
 
         // Show Toast with warning
@@ -132,7 +136,7 @@ const toggleServer = async (): Promise<void> => {
     }
   } catch (error) {
     console.error('Failed to toggle server:', error)
-    uiStore.showToast('Failed to toggle server', 'error')
+    uiStore.showToast(t('common.error'), 'error')
   }
 }
 
@@ -179,6 +183,7 @@ const handleAddRoute = async (): Promise<void> => {
     selectedRouteId.value = newRouteId
   } catch (error) {
     console.error('Failed to quick add route', error)
+    uiStore.showToast(t('common.error'), 'error')
   }
 }
 
@@ -203,6 +208,7 @@ const executeDeleteRoute = async (): Promise<void> => {
     }
   } catch (error) {
     console.error('Failed to delete route', error)
+    uiStore.showToast(t('common.error'), 'error')
   } finally {
     isDeleteConfirmOpen.value = false
     routeToDeleteId.value = null
@@ -277,9 +283,9 @@ onMounted(() => {
 
     <ConfirmDialog
       :is-open="isPortBusyOpen"
-      title="Port Occupied"
+      :title="t('project.port_occupied_title')"
       :message="portBusyMessage"
-      confirm-text="OK"
+      :confirm-text="t('common.ok')"
       :cancel-text="''"
       @close="isPortBusyOpen = false"
       @confirm="isPortBusyOpen = false"

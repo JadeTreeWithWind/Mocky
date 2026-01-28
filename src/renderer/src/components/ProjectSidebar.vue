@@ -1,13 +1,14 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
-import { ref, toRef, computed } from 'vue'
+import { ref, toRef, computed, watch } from 'vue'
 import { Plus, Search, Play, Square, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import Draggable from 'vuedraggable'
 import { useI18n } from 'vue-i18n'
 import type { Route, Project } from '../../../shared/types'
 import { PROJECT_STATUS } from '../../../shared/types'
-import RouteItem from './RouteItem.vue'
+import { UNGROUPED_NAME } from '../constants'
 import { useRouteGrouping } from '../composables/useRouteGrouping'
+import RouteItem from './RouteItem.vue'
 
 // --- 2. 類型定義 (Type Definitions) ---
 interface Props {
@@ -52,14 +53,48 @@ const isServerRunning = computed(() => props.currentProject?.status === PROJECT_
 
 /**
  * 切換群組收合狀態 (Accordion)
+ * @param groupName - 群組名稱
  */
 const toggleGroup = (groupName: string): void => {
   if (expandedGroup.value === groupName) {
-    expandedGroup.value = null // Close if clicking same
+    expandedGroup.value = null // 若點擊相同群組則關閉
   } else {
-    expandedGroup.value = groupName // Open new, closes others
+    expandedGroup.value = groupName // 開啟新群組，關閉其他
   }
 }
+
+/** 標記是否已執行過初始化展開 */
+const isInitialized = ref(false)
+
+/**
+ * 監聽專案變更，重置初始化狀態
+ */
+watch(
+  () => props.currentProject?.id,
+  () => {
+    isInitialized.value = false
+    expandedGroup.value = null
+  }
+)
+
+/**
+ * 監聽分組路由變化，若尚未初始化且有資料，預設展開第一組
+ */
+watch(
+  groupedRoutes,
+  (groups) => {
+    if (!isInitialized.value && groups.length > 0) {
+      const firstVisible = groups.find(
+        (g) => g.name && (g.name !== UNGROUPED_NAME || g.routes.length > 0)
+      )
+      if (firstVisible) {
+        expandedGroup.value = firstVisible.name
+        isInitialized.value = true
+      }
+    }
+  },
+  { immediate: true }
+)
 
 const handleGroupReorder = (groupName: string, val: Route[]): void => {
   emit('reorder', groupName, val)
@@ -193,7 +228,7 @@ const handleGroupReorder = (groupName: string, val: Route[]): void => {
           <template v-for="group in groupedRoutes" :key="group.name">
             <!-- Group Header -->
             <div
-              v-if="group.name !== 'Ungrouped' || group.routes.length > 0"
+              v-if="group.name !== UNGROUPED_NAME || group.routes.length > 0"
               class="flex cursor-pointer items-center justify-between rounded px-2 py-1.5 text-xs font-semibold text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
               @click="toggleGroup(group.name)"
             >
@@ -202,8 +237,12 @@ const handleGroupReorder = (groupName: string, val: Route[]): void => {
                   :is="expandedGroup === group.name ? ChevronDown : ChevronRight"
                   :size="12"
                 />
-                <span :class="group.name === 'Ungrouped' ? 'italic opacity-70' : ''">
-                  {{ group.name === 'Ungrouped' ? t('common.group') + ' (None)' : group.name }}
+                <span :class="group.name === UNGROUPED_NAME ? 'italic opacity-70' : ''">
+                  {{
+                    group.name === UNGROUPED_NAME
+                      ? t('common.group') + ' (' + t('common.none') + ')'
+                      : group.name
+                  }}
                 </span>
               </div>
               <span class="text-[10px] text-zinc-600">{{ group.routes.length }}</span>

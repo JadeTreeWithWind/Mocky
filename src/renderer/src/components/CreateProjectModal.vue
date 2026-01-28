@@ -162,7 +162,6 @@ onUnmounted(() => {
       <div
         v-if="props.isOpen"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-        @click.self="handleClose"
       >
         <div
           class="w-[480px] scale-100 transform overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl transition-all"

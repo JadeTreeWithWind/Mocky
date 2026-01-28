@@ -24,7 +24,8 @@
     "search": "搜尋",
     "project": "專案",
     "route": "路由",
-    "close": "關閉"
+    "close": "關閉",
+    "ok": "確定"
   },
   "sidebar": {
     "projects": "專案列表",
@@ -54,7 +55,9 @@
     "stop_server": "停止服務",
     "open_docs": "開啟 API 文件",
     "export_failed": "匯出失敗",
-    "docs": "文件"
+    "docs": "文件",
+    "port_occupied_title": "服務 Port 被佔用",
+    "port_occupied_message": "設定的 Port {configured} 已被佔用。伺服器目前運行於 Port {actual}。"
   },
   "route": {
     "new_route": "新路由",

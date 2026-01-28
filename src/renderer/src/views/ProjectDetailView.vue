@@ -110,7 +110,10 @@ const toggleServer = async (): Promise<void> => {
       // 檢查 Port 是否變更
       const configuredPort = currentProject.value?.port
       if (typeof actualPort === 'number' && configuredPort && actualPort !== configuredPort) {
-        portBusyMessage.value = `The configured port ${configuredPort} is occupied. The server is now running on port ${actualPort}.`
+        portBusyMessage.value = t('project.port_occupied_message', {
+          configured: configuredPort,
+          actual: actualPort
+        })
         isPortBusyOpen.value = true
 
         // Show Toast with warning
@@ -277,9 +280,9 @@ onMounted(() => {
 
     <ConfirmDialog
       :is-open="isPortBusyOpen"
-      title="Port Occupied"
+      :title="t('project.port_occupied_title')"
       :message="portBusyMessage"
-      confirm-text="OK"
+      :confirm-text="t('common.ok')"
       :cancel-text="''"
       @close="isPortBusyOpen = false"
       @confirm="isPortBusyOpen = false"

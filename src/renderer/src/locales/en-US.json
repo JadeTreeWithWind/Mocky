@@ -24,7 +24,8 @@
     "search": "Search",
     "project": "Project",
     "route": "Routes",
-    "close": "Close"
+    "close": "Close",
+    "ok": "OK"
   },
   "sidebar": {
     "projects": "Projects",
@@ -54,7 +55,9 @@
     "stop_server": "Stop Server",
     "open_docs": "Open Docs",
     "export_failed": "Export failed",
-    "docs": "Docs"
+    "docs": "Docs",
+    "port_occupied_title": "Port Occupied",
+    "port_occupied_message": "The configured port {configured} is occupied. The server is now running on port {actual}."
   },
   "route": {
     "new_route": "New Route",

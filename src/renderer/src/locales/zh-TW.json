@@ -29,7 +29,8 @@
     "none": "無",
     "error": "錯誤",
     "unknown_error": "未知錯誤",
-    "unknown_status": "未知狀態"
+    "unknown_status": "未知狀態",
+    "more_options": "更多選項"
   },
   "sidebar": {
     "projects": "專案列表",

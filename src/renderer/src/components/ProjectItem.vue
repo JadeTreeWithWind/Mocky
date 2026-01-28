@@ -1,6 +1,8 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
 import { computed } from 'vue'
+import { MoreVertical } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
 // --- 2. 類型定義 (Type Definitions) ---
 interface Props {
@@ -23,6 +25,8 @@ const emit = defineEmits<{
   /** 右鍵點擊項目時觸發，並傳回 MouseEvent */
   (e: 'contextmenu', event: MouseEvent): void
 }>()
+
+const { t } = useI18n()
 
 // --- 5. 計算屬性 (Computed Properties) ---
 
@@ -79,8 +83,18 @@ const handleContextMenu = (event: MouseEvent): void => {
       <span class="truncate font-medium">{{ name }}</span>
     </div>
 
-    <span :class="badgeClasses">
-      {{ port }}
-    </span>
+    <div class="flex items-center gap-1.5">
+      <span :class="badgeClasses">
+        {{ port }}
+      </span>
+      <button
+        type="button"
+        class="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-zinc-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-zinc-700 hover:text-zinc-200 focus:opacity-100"
+        :title="t('common.more_options')"
+        @click.stop="handleContextMenu"
+      >
+        <MoreVertical :size="14" />
+      </button>
+    </div>
   </div>
 </template>

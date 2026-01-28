@@ -29,7 +29,8 @@
     "none": "None",
     "error": "Error",
     "unknown_error": "Unknown Error",
-    "unknown_status": "Unknown Status"
+    "unknown_status": "Unknown Status",
+    "more_options": "More options"
   },
   "sidebar": {
     "projects": "Projects",

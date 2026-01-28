@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
-import { ref, toRef, computed } from 'vue'
+import { ref, toRef, computed, watch } from 'vue'
 import { Plus, Search, Play, Square, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import Draggable from 'vuedraggable'
 import { useI18n } from 'vue-i18n'
@@ -60,6 +60,36 @@ const toggleGroup = (groupName: string): void => {
     expandedGroup.value = groupName // Open new, closes others
   }
 }
+
+/** 標記是否已執行過初始化展開 */
+const isInitialized = ref(false)
+
+/**
+ * 監聽專案變更，重置初始化狀態
+ */
+watch(
+  () => props.currentProject?.id,
+  () => {
+    isInitialized.value = false
+    expandedGroup.value = null
+  }
+)
+
+/**
+ * 監聽分組路由變化，若尚未初始化且有資料，預設展開第一組
+ */
+watch(
+  groupedRoutes,
+  (groups) => {
+    if (!isInitialized.value && groups.length > 0) {
+      if (groups[0].name) {
+        expandedGroup.value = groups[0].name
+      }
+      isInitialized.value = true
+    }
+  },
+  { immediate: true }
+)
 
 const handleGroupReorder = (groupName: string, val: Route[]): void => {
   emit('reorder', groupName, val)

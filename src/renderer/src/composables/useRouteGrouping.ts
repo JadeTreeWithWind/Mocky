@@ -1,5 +1,6 @@
 import { computed, Ref, ComputedRef } from 'vue'
 import type { Route } from '../../../shared/types'
+import { UNGROUPED_NAME } from '../constants'
 
 export function useRouteGrouping(
   routes: Ref<Route[]>,
@@ -54,13 +55,13 @@ export function useRouteGrouping(
 
     // Add Ungrouped at the end
     if (ungrouped.length > 0) {
-      groups.push({ name: 'Ungrouped', routes: ungrouped })
+      groups.push({ name: UNGROUPED_NAME, routes: ungrouped })
     }
 
     // Special case: if list is not empty but no groups formed (shouldn't happen with ungrouped logic, but safe fallback)
-    // If we have filtered results but they didn't fall into any bucket (impossible unless logic changes), ensure we return something.
+    // 若有篩選結果但未形成分組（邏輯上不應發生），確保仍回傳結果
     if (groups.length === 0 && list.length > 0) {
-      return [{ name: 'Ungrouped', routes: list }]
+      return [{ name: UNGROUPED_NAME, routes: list }]
     }
 
     return groups

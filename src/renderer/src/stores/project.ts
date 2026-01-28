@@ -141,6 +141,7 @@ export const useProjectStore = defineStore('project', () => {
 
     isLoading.value = true
     routes.value = [] // 開始獲取前先清空，避免舊數據閃爍
+    const startTime = Date.now()
 
     try {
       const data = await window.api.db.getRoutesByProjectId(projectId)
@@ -148,6 +149,12 @@ export const useProjectStore = defineStore('project', () => {
     } catch (error) {
       console.error('[Store] Fetch routes failed:', error)
     } finally {
+      // 防止 Loading 畫面閃爍 (至少顯示 300ms)
+      const MIN_LOADING_TIME = 300
+      const elapsed = Date.now() - startTime
+      if (elapsed < MIN_LOADING_TIME) {
+        await new Promise((resolve) => setTimeout(resolve, MIN_LOADING_TIME - elapsed))
+      }
       isLoading.value = false
     }
   }

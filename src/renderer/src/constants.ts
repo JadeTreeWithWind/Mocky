@@ -54,3 +54,5 @@ export const SAVE_STATUS = {
 } as const
 
 export type SaveStatus = (typeof SAVE_STATUS)[keyof typeof SAVE_STATUS]
+
+export const UNGROUPED_NAME = 'Ungrouped'

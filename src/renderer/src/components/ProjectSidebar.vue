@@ -82,10 +82,13 @@ watch(
   groupedRoutes,
   (groups) => {
     if (!isInitialized.value && groups.length > 0) {
-      if (groups[0].name) {
-        expandedGroup.value = groups[0].name
+      const firstVisible = groups.find(
+        (g) => g.name && (g.name !== 'Ungrouped' || g.routes.length > 0)
+      )
+      if (firstVisible) {
+        expandedGroup.value = firstVisible.name
+        isInitialized.value = true
       }
-      isInitialized.value = true
     }
   },
   { immediate: true }

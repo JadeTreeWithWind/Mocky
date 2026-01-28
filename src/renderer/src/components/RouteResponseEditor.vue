@@ -4,6 +4,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
 import { useI18n } from 'vue-i18n'
 import { ChevronDown, AlertCircle, Loader2, Check } from 'lucide-vue-next'
+
 import { HTTP_STATUS_CODES, SAVE_STATUS, type SaveStatus } from '../constants'
 import { validateJSON, prettifyJSON } from '../utils/jsonUtils'
 import type { Route } from '../../../shared/types'
@@ -67,7 +68,7 @@ const responseBody = computed({
 const getStatusLabel = (code?: number): string => {
   if (!code) return ''
   const status = HTTP_STATUS_CODES.find((s) => s.code === code)
-  return status ? status.label : 'Unknown Status'
+  return status ? status.label : t('common.unknown_status')
 }
 
 /**
@@ -94,7 +95,7 @@ const handlePrettifyJSON = (): void => {
 }
 
 const handleKeydown = (e: KeyboardEvent): void => {
-  // Alt + Shift + F (Common formatting shortcut)
+  // Alt + Shift + F (通用格式化快捷鍵)
   if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'f') {
     e.preventDefault()
     handlePrettifyJSON()
@@ -261,7 +262,7 @@ onUnmounted(() => {
         class="h-full w-full"
       />
       <div v-else class="flex h-full items-center justify-center text-zinc-500">
-        Response body not available
+        {{ t('route.response_body_not_available') }}
       </div>
 
       <!-- Error Bar -->

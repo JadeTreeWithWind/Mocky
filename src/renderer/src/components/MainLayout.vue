@@ -16,7 +16,9 @@ import {
   Check,
   ChevronUp
 } from 'lucide-vue-next'
+import { PROJECT_STATUS } from '../../../shared/types'
 
+// Internal Imports
 import { useProjectStore } from '../stores/project'
 import { useUIStore } from '../stores/ui'
 import { useProjectExport } from '../composables/useProjectExport'
@@ -29,9 +31,7 @@ import ConfirmDialog from './ConfirmDialog.vue'
 import LoadingOverlay from './LoadingOverlay.vue'
 import ErrorModal from './ErrorModal.vue'
 import ToastNotification from './ToastNotification.vue'
-
 import ContextMenu from './ContextMenu.vue'
-import { PROJECT_STATUS } from '../../../shared/types'
 
 // --- 2. 類型定義 (Type Definitions) ---
 interface CreateProjectPayload {
@@ -178,11 +178,11 @@ const handleUpdateProject = async (
   try {
     await projectStore.updateProject(projectData)
     isCreateModalOpen.value = false
-    editingProject.value = undefined // Reset
-    uiStore.showToast('Project updated successfully', 'success')
+    editingProject.value = undefined // 重置
+    uiStore.showToast(t('project.update_success'), 'success')
   } catch (error) {
     console.error('[Project] Update failed:', error)
-    uiStore.showToast('Failed to update project', 'error')
+    uiStore.showToast(t('project.update_failed'), 'error')
   }
 }
 
@@ -269,7 +269,7 @@ const handleExportHtml = async (id: string): Promise<void> => {
     console.error('[Project] HTML Export failed', error)
     // Composable usually handles toast, but if it throws we might want to show modal
     // In this case check if you want specific error modal for HTML export
-    showError(t('common.error'), 'Failed to export to HTML')
+    showError(t('common.error'), t('project.export_html_failed'))
   }
 }
 
@@ -294,7 +294,7 @@ const handleImportProject = async (): Promise<void> => {
       navigateToProject(newProjectId)
     }
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Unknown error'
+    const msg = error instanceof Error ? error.message : t('common.unknown_error')
     showError(t('project.import_failed'), msg)
   }
 }

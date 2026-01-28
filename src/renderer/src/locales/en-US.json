@@ -25,7 +25,11 @@
     "project": "Project",
     "route": "Routes",
     "close": "Close",
-    "ok": "OK"
+    "ok": "OK",
+    "none": "None",
+    "error": "Error",
+    "unknown_error": "Unknown Error",
+    "unknown_status": "Unknown Status"
   },
   "sidebar": {
     "projects": "Projects",
@@ -44,8 +48,10 @@
     "delete_confirm_title": "Delete Project",
     "delete_confirm_message": "Are you sure you want to delete this project? This action cannot be undone.",
     "creation_failed": "Project creation failed",
+    "update_success": "Project updated successfully",
     "update_failed": "Project update failed",
     "deletion_failed": "Project deletion failed",
+    "export_html_failed": "Export HTML failed",
     "import_failed": "Import failed",
     "import_success": "Import successful",
     "export_success": "Export successful",
@@ -70,7 +76,8 @@
     "saved": "Saved",
     "saving": "Saving...",
     "unsaved": "Unsaved",
-    "validation_error": "JSON Validation Error"
+    "validation_error": "JSON Validation Error",
+    "response_body_not_available": "Response body not available"
   },
   "validation": {
     "required": "Required",

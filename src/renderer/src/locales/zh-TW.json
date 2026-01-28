@@ -25,7 +25,11 @@
     "project": "專案",
     "route": "路由",
     "close": "關閉",
-    "ok": "確定"
+    "ok": "確定",
+    "none": "無",
+    "error": "錯誤",
+    "unknown_error": "未知錯誤",
+    "unknown_status": "未知狀態"
   },
   "sidebar": {
     "projects": "專案列表",
@@ -44,8 +48,10 @@
     "delete_confirm_title": "刪除專案",
     "delete_confirm_message": "確定要刪除此專案嗎？此動作無法復原。",
     "creation_failed": "建立專案失敗",
+    "update_success": "專案更新成功",
     "update_failed": "更新專案失敗",
     "deletion_failed": "刪除專案失敗",
+    "export_html_failed": "匯出 HTML 失敗",
     "import_failed": "匯入失敗",
     "import_success": "匯入成功",
     "export_success": "匯出成功",
@@ -70,7 +76,8 @@
     "saved": "已儲存",
     "saving": "儲存中...",
     "unsaved": "未儲存",
-    "validation_error": "JSON 格式錯誤"
+    "validation_error": "JSON 格式錯誤",
+    "response_body_not_available": "無法顯示回應內容"
   },
   "validation": {
     "required": "必填",

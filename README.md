@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-    ⚠️ Note: This project is available for personal and non-commercial use only.
+    ⚠️ This project is licensed under the PolyForm Shield License 1.0.0. You are free to use this software for personal and business purposes, but you may not sell it or offer a service that competes with Mocky
 </p>
 
 ---
@@ -152,7 +152,7 @@
 
 ## 📄 授權
 
-本專案採用 [Attribution-NonCommercial-ShareAlike 4.0 International](LICENSE) 規範授權。
+本專案採用 [PolyForm Shield License 1.0.0](LICENSE) 規範授權。
 
 ---
 

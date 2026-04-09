@@ -102,7 +102,7 @@ const handleKeydown = (e: KeyboardEvent): void => {
   }
 }
 
-// --- 6. 偵聽器 (Watchers) ---
+// --- 7. 偵聽器 (Watchers) ---
 // 監聽 Body 變更以即時驗證
 watch(
   () => props.route.response?.body,

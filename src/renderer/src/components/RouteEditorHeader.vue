@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 // --- 1. 外部引用 (Imports) ---
 import { ref, computed, type WritableComputedRef } from 'vue'

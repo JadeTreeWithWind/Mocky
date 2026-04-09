@@ -142,10 +142,13 @@ const toggleServer = async (): Promise<void> => {
 
 /**
  * 開啟 API 文件
+ * 優先使用實際運行的 Port，避免 Port 自動遞增後連結錯誤
  */
 const openDocs = (): void => {
-  if (!currentProject.value?.port) return
-  const url = `http://localhost:${currentProject.value.port}/docs`
+  const runningPort = projectStore.getRunningPort(projectId.value)
+  const port = runningPort ?? currentProject.value?.port
+  if (!port) return
+  const url = `http://localhost:${port}/docs`
   window.open(url, '_blank')
 }
 

@@ -142,6 +142,7 @@ const handleGroupReorder = (groupName: string, val: Route[]): void => {
         </button>
       </div>
       <button
+        type="button"
         class="flex w-full cursor-pointer items-center justify-center gap-2 rounded px-3 py-1.5 text-xs font-medium transition-colors"
         :class="
           isServerRunning

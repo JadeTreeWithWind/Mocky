@@ -21,12 +21,12 @@ const SAVE_DELAY_MS = 300
 const SAVING_INDICATOR_MS = 500
 
 // --- 4. 響應式狀態 (State) ---
-// Store use
 const projectStore = useProjectStore()
 
 type SaveStatusType = SaveStatus
 const saveStatus = ref<SaveStatusType>(SAVE_STATUS.SAVED)
 const saveTimeout = ref<ReturnType<typeof setTimeout> | undefined>(undefined)
+const savingIndicatorTimeout = ref<ReturnType<typeof setTimeout> | undefined>(undefined)
 
 // --- 5. 計算屬性 (Computed Properties) ---
 /**
@@ -66,10 +66,11 @@ const save = async (): Promise<void> => {
 
   saveStatus.value = SAVE_STATUS.SAVING
   try {
-    // 深拷貝以避免 Proxy 問題 (雖 Store 已處裡，但這裡斷開參照較安全)
+    // 深拷貝以避免 Proxy 問題 (雖 Store 已處理，但這裡斷開參照較安全)
     await projectStore.updateRoute({ ...route.value })
     // 短暫延遲以顯示 Saving 狀態 (UX 優化)
-    setTimeout(() => {
+    clearTimeout(savingIndicatorTimeout.value)
+    savingIndicatorTimeout.value = setTimeout(() => {
       saveStatus.value = SAVE_STATUS.SAVED
     }, SAVING_INDICATOR_MS)
   } catch (error) {
@@ -107,8 +108,7 @@ const handleKeydown = (e: KeyboardEvent): void => {
   }
 }
 
-// --- 6. 偵聽器 (Watchers) ---
-// 監聽路由資料變更
+// --- 7. 偵聽器 (Watchers) ---
 // 監聽路由資料變更
 watch(
   () => route.value,
@@ -140,6 +140,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
   clearTimeout(saveTimeout.value)
+  clearTimeout(savingIndicatorTimeout.value)
 })
 </script>
 

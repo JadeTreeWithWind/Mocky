@@ -213,6 +213,7 @@ const handleConfirmDelete = async (): Promise<void> => {
     }
   } catch (error) {
     console.error('[Project] Deletion failed:', error)
+    uiStore.showToast(t('project.deletion_failed'), 'error')
   } finally {
     projectToDeleteId.value = null
   }

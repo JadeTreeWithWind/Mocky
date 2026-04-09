@@ -42,7 +42,9 @@ export const METHOD_BADGE_THEMES: Record<string, string> = {
   POST: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
   PUT: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
   DELETE: 'text-red-400 bg-red-500/10 border-red-500/20',
-  PATCH: 'text-green-400 bg-green-500/10 border-green-500/20'
+  PATCH: 'text-green-400 bg-green-500/10 border-green-500/20',
+  OPTIONS: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+  HEAD: 'text-teal-400 bg-teal-500/10 border-teal-500/20'
 } as const
 
 export const DEFAULT_BADGE_THEME = 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20'

@@ -15,6 +15,8 @@ export const useProjectStore = defineStore('project', () => {
   const lastError = ref<string | null>(null)
   /** 儲存各專案實際運行的 Port (Key: ProjectId, Value: Port) */
   const runningPorts = ref<Record<string, number>>({})
+  /** 追蹤各專案是否正在重啟伺服器 (防止重複觸發) */
+  const isRestarting = ref<Record<string, boolean>>({})
 
   // --- 7. 核心邏輯與函數 (Actions) ---
 
@@ -115,13 +117,14 @@ export const useProjectStore = defineStore('project', () => {
     if (!id) return // 衛句模式
 
     try {
+      // 若伺服器仍在運行，先停止再刪除，避免殭屍進程
+      if (runningPorts.value[id]) {
+        await stopServer(id)
+      }
+
       const success = await window.api.db.deleteProject(id)
       if (success) {
         projects.value = projects.value.filter((p) => p.id !== id)
-        // 同步清除運行狀態
-        if (runningPorts.value[id]) {
-          delete runningPorts.value[id]
-        }
       }
     } catch (error) {
       console.error('[Store] Delete project failed:', error)
@@ -158,9 +161,6 @@ export const useProjectStore = defineStore('project', () => {
       isLoading.value = false
     }
   }
-
-  /** 追蹤各專案是否正在重啟伺服器 (防止重複觸發) */
-  const isRestarting = ref<Record<string, boolean>>({})
 
   /**
    * 檢查並重啟伺服器 (Hot Reload)

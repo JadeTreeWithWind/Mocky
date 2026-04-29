@@ -24,6 +24,15 @@ export const ProjectSchema = z.object({
   status: z.enum([PROJECT_STATUS.STOPPED, PROJECT_STATUS.RUNNING]).default(PROJECT_STATUS.STOPPED)
 })
 
+export const RouteParameterSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  in: z.enum(['query', 'path', 'header', 'cookie']),
+  type: z.enum(['string', 'number', 'integer', 'boolean', 'array', 'object']),
+  required: z.boolean().default(false),
+  description: z.string().optional()
+})
+
 export const RouteSchema = z.object({
   id: z.string().uuid(),
   projectId: z.string().uuid(),
@@ -36,7 +45,8 @@ export const RouteSchema = z.object({
     body: z.string(),
     delay: z.number().int().default(0)
   }),
-  tags: z.array(z.string()).default([])
+  tags: z.array(z.string()).default([]),
+  parameters: z.array(RouteParameterSchema).default([])
 })
 
 export const DBSchema = z.object({
@@ -47,4 +57,5 @@ export const DBSchema = z.object({
 // --- 10. 對外暴露 (Exports) ---
 export type Project = z.infer<typeof ProjectSchema>
 export type Route = z.infer<typeof RouteSchema>
+export type RouteParameter = z.infer<typeof RouteParameterSchema>
 export type DBSchemaType = z.infer<typeof DBSchema>

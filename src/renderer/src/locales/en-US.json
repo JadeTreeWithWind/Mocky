@@ -78,7 +78,13 @@
     "saving": "Saving...",
     "unsaved": "Unsaved",
     "validation_error": "JSON Validation Error",
-    "response_body_not_available": "Response body not available"
+    "response_body_not_available": "Response body not available",
+    "params": "Params",
+    "add_param": "Add Param",
+    "param_name_placeholder": "param name",
+    "param_desc_placeholder": "description (optional)",
+    "no_params": "No parameters yet",
+    "param_required": "Required"
   },
   "validation": {
     "required": "Required",

@@ -3,8 +3,12 @@
 // --- 1. 外部引用 (Imports) ---
 import { ref, computed, type WritableComputedRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Check, Copy, ChevronDown } from 'lucide-vue-next'
-import { HTTP_METHODS as HTTP_METHODS_SCHEMA, type Route } from '../../../shared/types'
+import { Check, Copy, ChevronDown, Plus, Trash2 } from 'lucide-vue-next'
+import {
+  HTTP_METHODS as HTTP_METHODS_SCHEMA,
+  type Route,
+  type RouteParameter
+} from '../../../shared/types'
 import { METHOD_THEMES } from '../constants'
 
 // --- 2. 類型定義 (Type Definitions) ---
@@ -39,6 +43,7 @@ const routeMethod = useRouteProperty('method')
 const routePath = useRouteProperty('path')
 const routeIsActive = useRouteProperty('isActive')
 const routeDescription = useRouteProperty('description')
+const routeParameters = useRouteProperty('parameters')
 
 /**
  * Group name (Single Tag) - Getter/Setter proxy for props.route.tags
@@ -79,6 +84,37 @@ const copyPath = async (): Promise<void> => {
   } catch (err) {
     console.error('Failed to copy URL:', err)
   }
+}
+
+const PARAM_TYPES: RouteParameter['type'][] = [
+  'string',
+  'number',
+  'integer',
+  'boolean',
+  'array',
+  'object'
+]
+const PARAM_LOCATIONS: RouteParameter['in'][] = ['query', 'path', 'header', 'cookie']
+
+const addParameter = (): void => {
+  const newParam: RouteParameter = {
+    id: crypto.randomUUID(),
+    name: '',
+    in: 'query',
+    type: 'string',
+    required: false
+  }
+  routeParameters.value = [...(routeParameters.value ?? []), newParam]
+}
+
+const updateParameter = (id: string, updates: Partial<Omit<RouteParameter, 'id'>>): void => {
+  routeParameters.value = (routeParameters.value ?? []).map((p) =>
+    p.id === id ? { ...p, ...updates } : p
+  )
+}
+
+const removeParameter = (id: string): void => {
+  routeParameters.value = (routeParameters.value ?? []).filter((p) => p.id !== id)
 }
 </script>
 
@@ -215,24 +251,123 @@ const copyPath = async (): Promise<void> => {
         </div>
       </div>
 
-      <!-- Inputs Container -->
+      <!-- Description Input -->
       <div class="flex items-center">
         <div
           class="relative mr-2 shrink-0 rounded-md border border-zinc-700 bg-zinc-900 p-1.5 text-sm"
         >
           {{ t('common.description') }}
         </div>
-        <div class="flex-1 space-y-3">
-          <!-- Description Input -->
-          <div>
+        <div class="flex-1">
+          <input
+            v-model="routeDescription"
+            type="text"
+            :placeholder="t('common.description') + '...'"
+            class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm text-zinc-300 placeholder-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- Parameters Section -->
+      <div class="flex flex-col gap-2">
+        <!-- Section Header -->
+        <div class="flex items-center justify-between">
+          <div
+            class="relative shrink-0 rounded-md border border-zinc-700 bg-zinc-900 p-1.5 text-sm"
+          >
+            {{ t('route.params') }}
+          </div>
+          <button
+            type="button"
+            class="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-xs text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
+            @click="addParameter"
+          >
+            <Plus :size="12" />
+            {{ t('route.add_param') }}
+          </button>
+        </div>
+
+        <!-- Column Headers -->
+        <div
+          v-if="routeParameters && routeParameters.length > 0"
+          class="grid grid-cols-[1fr_5rem_5rem_4rem_2rem] gap-2 px-1"
+        >
+          <span class="text-xs text-zinc-500">{{ t('common.name') }}</span>
+          <span class="text-xs text-zinc-500">In</span>
+          <span class="text-xs text-zinc-500">Type</span>
+          <span class="text-center text-xs text-zinc-500">{{ t('route.param_required') }}</span>
+          <span></span>
+        </div>
+
+        <!-- Parameter Rows -->
+        <div
+          v-for="param in routeParameters"
+          :key="param.id"
+          class="grid grid-cols-[1fr_5rem_5rem_4rem_2rem] items-center gap-2"
+        >
+          <!-- Name -->
+          <input
+            :value="param.name"
+            type="text"
+            :placeholder="t('route.param_name_placeholder')"
+            class="w-full rounded border border-zinc-800 bg-zinc-900/50 px-2 py-1 font-mono text-xs text-zinc-300 placeholder-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
+            @input="
+              updateParameter(param.id, {
+                name: ($event.target as HTMLInputElement).value
+              })
+            "
+          />
+          <!-- Location (in) -->
+          <select
+            :value="param.in"
+            class="w-full cursor-pointer rounded border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-300 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
+            @change="
+              updateParameter(param.id, {
+                in: ($event.target as HTMLSelectElement).value as RouteParameter['in']
+              })
+            "
+          >
+            <option v-for="loc in PARAM_LOCATIONS" :key="loc" :value="loc">{{ loc }}</option>
+          </select>
+          <!-- Type -->
+          <select
+            :value="param.type"
+            class="w-full cursor-pointer rounded border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-300 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
+            @change="
+              updateParameter(param.id, {
+                type: ($event.target as HTMLSelectElement).value as RouteParameter['type']
+              })
+            "
+          >
+            <option v-for="typ in PARAM_TYPES" :key="typ" :value="typ">{{ typ }}</option>
+          </select>
+          <!-- Required Toggle -->
+          <div class="flex justify-center">
             <input
-              v-model="routeDescription"
-              type="text"
-              :placeholder="t('common.description') + '...'"
-              class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-4 py-1.5 text-sm text-zinc-300 placeholder-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
+              type="checkbox"
+              :checked="param.required"
+              class="h-4 w-4 cursor-pointer rounded border-zinc-600 bg-zinc-800 accent-blue-500"
+              @change="
+                updateParameter(param.id, {
+                  required: ($event.target as HTMLInputElement).checked
+                })
+              "
             />
           </div>
+          <!-- Delete -->
+          <button
+            type="button"
+            class="flex cursor-pointer items-center justify-center rounded p-1 text-zinc-600 transition-colors hover:bg-zinc-800 hover:text-red-400"
+            @click="removeParameter(param.id)"
+          >
+            <Trash2 :size="13" />
+          </button>
         </div>
+
+        <!-- Empty State -->
+        <p v-if="!routeParameters || routeParameters.length === 0" class="text-xs text-zinc-600">
+          {{ t('route.no_params') }}
+        </p>
       </div>
     </div>
   </header>

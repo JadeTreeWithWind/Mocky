@@ -47,15 +47,31 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
     }
 
     // 3. Add parameters
-    if (pathParams.length > 0) {
-      operation.parameters = pathParams.map((name) => ({
+    // User-defined params (query / path / header / cookie) take priority
+    const userParams: OpenAPIV3.ParameterObject[] = (route.parameters ?? []).map((p) => ({
+      name: p.name,
+      in: p.in,
+      required: p.required,
+      ...(p.description ? { description: p.description } : {}),
+      schema: { type: p.type } as OpenAPIV3.SchemaObject
+    }))
+
+    // Auto-generate path params from the URL only for names not already defined by the user
+    const userPathParamNames = new Set(
+      userParams.filter((p) => p.in === 'path').map((p) => p.name)
+    )
+    const autoPathParams: OpenAPIV3.ParameterObject[] = pathParams
+      .filter((name) => !userPathParamNames.has(name))
+      .map((name) => ({
         name,
         in: 'path',
         required: true,
-        schema: {
-          type: 'string'
-        }
+        schema: { type: 'string' } as OpenAPIV3.SchemaObject
       }))
+
+    const allParams = [...autoPathParams, ...userParams]
+    if (allParams.length > 0) {
+      operation.parameters = allParams
     }
 
     // 4. Assign to paths

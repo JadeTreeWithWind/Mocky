@@ -205,6 +205,7 @@ export const useProjectStore = defineStore('project', () => {
         description: 'New API Endpoint',
         tags: [],
         isActive: true,
+        parameters: [],
         response: {
           statusCode: 200,
           body: '{\n  "message": "Hello World"\n}',

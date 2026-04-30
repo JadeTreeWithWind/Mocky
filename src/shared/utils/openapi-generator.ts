@@ -53,7 +53,10 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
       in: p.in,
       required: p.required,
       ...(p.description ? { description: p.description } : {}),
-      schema: { type: p.type } as OpenAPIV3.SchemaObject
+      schema: {
+        type: p.type,
+        ...(p.default !== undefined && p.default !== '' ? { default: p.default } : {})
+      } as OpenAPIV3.SchemaObject
     }))
 
     // Auto-generate path params from the URL only for names not already defined by the user
@@ -74,10 +77,28 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
       operation.parameters = allParams
     }
 
-    // 4. Assign to paths
+    // 4. Add requestBody (only for methods that carry a body)
+    const BODY_METHODS = ['post', 'put', 'patch', 'delete']
     const method = route.method.toLowerCase() as OpenAPIV3.HttpMethods
+    if (route.requestBody && BODY_METHODS.includes(method)) {
+      operation.requestBody = {
+        ...(route.requestBody.description ? { description: route.requestBody.description } : {}),
+        required: route.requestBody.required,
+        content: {
+          'application/json': {
+            schema: parseBody(route.requestBody.schema) as OpenAPIV3.SchemaObject
+          }
+        }
+      }
+    }
+
+    // 5. Assign to paths
     paths[openApiPath]![method] = operation
   })
+
+  const sortedTags = Array.from(
+    new Set(routes.filter((r) => r.isActive).flatMap((r) => r.tags))
+  ).sort()
 
   const doc: OpenAPIV3.Document = {
     openapi: '3.0.0',
@@ -86,6 +107,7 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
       description: project.description,
       version: 'version' in project && project.version ? project.version : '1.0.0'
     },
+    tags: sortedTags.map((name) => ({ name })),
     paths
   }
 

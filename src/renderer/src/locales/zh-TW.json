@@ -84,7 +84,13 @@
     "param_name_placeholder": "參數名稱",
     "param_desc_placeholder": "說明 (選填)",
     "no_params": "尚無參數",
-    "param_required": "必填"
+    "param_required": "必填",
+    "param_default_placeholder": "預設值",
+    "request_body": "Request Body",
+    "response": "Response",
+    "request_body_required": "必填",
+    "request_body_description_placeholder": "Body 說明 (選填)",
+    "fill_sample": "填入範例"
   },
   "validation": {
     "required": "必填",

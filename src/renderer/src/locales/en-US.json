@@ -84,7 +84,13 @@
     "param_name_placeholder": "param name",
     "param_desc_placeholder": "description (optional)",
     "no_params": "No parameters yet",
-    "param_required": "Required"
+    "param_required": "Required",
+    "param_default_placeholder": "default",
+    "request_body": "Request Body",
+    "response": "Response",
+    "request_body_required": "Required",
+    "request_body_description_placeholder": "Body description (optional)",
+    "fill_sample": "Fill Example"
   },
   "validation": {
     "required": "Required",

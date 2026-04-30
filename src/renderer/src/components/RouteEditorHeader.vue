@@ -290,11 +290,12 @@ const removeParameter = (id: string): void => {
         <!-- Column Headers -->
         <div
           v-if="routeParameters && routeParameters.length > 0"
-          class="grid grid-cols-[1fr_5rem_5rem_4rem_2rem] gap-2 px-1"
+          class="grid grid-cols-[1fr_5rem_5rem_5rem_4rem_2rem] gap-2 px-1"
         >
           <span class="text-xs text-zinc-500">{{ t('common.name') }}</span>
           <span class="text-xs text-zinc-500">In</span>
           <span class="text-xs text-zinc-500">Type</span>
+          <span class="text-xs text-zinc-500">{{ t('route.param_default_placeholder') }}</span>
           <span class="text-center text-xs text-zinc-500">{{ t('route.param_required') }}</span>
           <span></span>
         </div>
@@ -303,7 +304,7 @@ const removeParameter = (id: string): void => {
         <div
           v-for="param in routeParameters"
           :key="param.id"
-          class="grid grid-cols-[1fr_5rem_5rem_4rem_2rem] items-center gap-2"
+          class="grid grid-cols-[1fr_5rem_5rem_5rem_4rem_2rem] items-center gap-2"
         >
           <!-- Name -->
           <input
@@ -341,6 +342,18 @@ const removeParameter = (id: string): void => {
           >
             <option v-for="typ in PARAM_TYPES" :key="typ" :value="typ">{{ typ }}</option>
           </select>
+          <!-- Default Value -->
+          <input
+            :value="param.default ?? ''"
+            type="text"
+            :placeholder="t('route.param_default_placeholder')"
+            class="w-full rounded border border-zinc-800 bg-zinc-900/50 px-2 py-1 font-mono text-xs text-zinc-300 placeholder-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 focus:outline-none"
+            @input="
+              updateParameter(param.id, {
+                default: ($event.target as HTMLInputElement).value || undefined
+              })
+            "
+          />
           <!-- Required Toggle -->
           <div class="flex justify-center">
             <input

@@ -55,7 +55,8 @@ const RouteParameterSchema = zod.z.object({
   in: zod.z.enum(["query", "path", "header", "cookie"]),
   type: zod.z.enum(["string", "number", "integer", "boolean", "array", "object"]),
   required: zod.z.boolean().default(false),
-  description: zod.z.string().optional()
+  description: zod.z.string().optional(),
+  default: zod.z.string().optional()
 });
 const RouteSchema = zod.z.object({
   id: zod.z.string().uuid(),
@@ -70,7 +71,12 @@ const RouteSchema = zod.z.object({
     delay: zod.z.number().int().default(0)
   }),
   tags: zod.z.array(zod.z.string()).default([]),
-  parameters: zod.z.array(RouteParameterSchema).default([])
+  parameters: zod.z.array(RouteParameterSchema).default([]),
+  requestBody: zod.z.object({
+    required: zod.z.boolean().default(false),
+    description: zod.z.string().optional(),
+    schema: zod.z.string().default("{}")
+  }).optional()
 });
 zod.z.object({
   projects: zod.z.array(ProjectSchema),
@@ -295,7 +301,10 @@ const toOpenApi = (project, routes) => {
       in: p.in,
       required: p.required,
       ...p.description ? { description: p.description } : {},
-      schema: { type: p.type }
+      schema: {
+        type: p.type,
+        ...p.default !== void 0 && p.default !== "" ? { default: p.default } : {}
+      }
     }));
     const userPathParamNames = new Set(
       userParams.filter((p) => p.in === "path").map((p) => p.name)
@@ -310,9 +319,24 @@ const toOpenApi = (project, routes) => {
     if (allParams.length > 0) {
       operation.parameters = allParams;
     }
+    const BODY_METHODS = ["post", "put", "patch", "delete"];
     const method = route.method.toLowerCase();
+    if (route.requestBody && BODY_METHODS.includes(method)) {
+      operation.requestBody = {
+        ...route.requestBody.description ? { description: route.requestBody.description } : {},
+        required: route.requestBody.required,
+        content: {
+          "application/json": {
+            schema: parseBody(route.requestBody.schema)
+          }
+        }
+      };
+    }
     paths[openApiPath][method] = operation;
   });
+  const sortedTags = Array.from(
+    new Set(routes.filter((r) => r.isActive).flatMap((r) => r.tags))
+  ).sort();
   const doc = {
     openapi: "3.0.0",
     info: {
@@ -320,6 +344,7 @@ const toOpenApi = (project, routes) => {
       description: project.description,
       version: "version" in project && project.version ? project.version : "1.0.0"
     },
+    tags: sortedTags.map((name) => ({ name })),
     paths
   };
   if ("serverUrl" in project && project.serverUrl) {

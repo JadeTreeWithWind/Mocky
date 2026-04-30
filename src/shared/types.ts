@@ -30,7 +30,8 @@ export const RouteParameterSchema = z.object({
   in: z.enum(['query', 'path', 'header', 'cookie']),
   type: z.enum(['string', 'number', 'integer', 'boolean', 'array', 'object']),
   required: z.boolean().default(false),
-  description: z.string().optional()
+  description: z.string().optional(),
+  default: z.string().optional()
 })
 
 export const RouteSchema = z.object({
@@ -46,7 +47,14 @@ export const RouteSchema = z.object({
     delay: z.number().int().default(0)
   }),
   tags: z.array(z.string()).default([]),
-  parameters: z.array(RouteParameterSchema).default([])
+  parameters: z.array(RouteParameterSchema).default([]),
+  requestBody: z
+    .object({
+      required: z.boolean().default(false),
+      description: z.string().optional(),
+      schema: z.string().default('{}')
+    })
+    .optional()
 })
 
 export const DBSchema = z.object({

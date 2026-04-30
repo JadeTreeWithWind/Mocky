@@ -36,8 +36,17 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 // --- 5. 響應式狀態 (State) ---
-/** 路由列表搜尋關鍵字 */
+/** 路由列表搜尋關鍵字 (Debounced) */
 const searchQuery = ref('')
+const searchInput = ref('')
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+
+watch(searchInput, (newVal) => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    searchQuery.value = newVal
+  }, 300)
+})
 /** 當前展開的群組名稱 (Accordion Only One) */
 const expandedGroup = ref<string | null>(null)
 
@@ -179,7 +188,7 @@ const handleGroupReorder = (groupName: string, val: Route[]): void => {
     <div class="p-2 pb-0">
       <div class="group relative">
         <input
-          v-model="searchQuery"
+          v-model="searchInput"
           type="text"
           :placeholder="t('route.search_placeholder')"
           class="w-full rounded border border-zinc-800 bg-zinc-950/50 py-1.5 pr-2 pl-8 text-xs text-zinc-300 placeholder-zinc-600 transition-colors focus:border-zinc-700 focus:outline-none"

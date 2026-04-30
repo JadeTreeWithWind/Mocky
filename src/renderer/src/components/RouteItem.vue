@@ -87,14 +87,7 @@ const handleDelete = (e: Event): void => {
 </script>
 
 <template>
-  <div
-    :class="containerClasses"
-    role="button"
-    :tabindex="0"
-    :aria-pressed="isSelected"
-    @click="handleClick"
-    @keydown.enter="handleClick"
-  >
+  <button :class="containerClasses" type="button" :aria-pressed="isSelected" @click="handleClick">
     <!-- Method Badge -->
     <span :class="badgeClasses">
       {{ formattedMethod }}
@@ -120,5 +113,5 @@ const handleDelete = (e: Event): void => {
     >
       <Trash2 :size="14" />
     </button>
-  </div>
+  </button>
 </template>

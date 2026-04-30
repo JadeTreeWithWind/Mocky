@@ -69,13 +69,11 @@ const handleContextMenu = (event: MouseEvent): void => {
 </script>
 
 <template>
-  <div
+  <button
     :class="containerClasses"
-    role="button"
-    :tabindex="0"
+    type="button"
     :aria-current="isActive ? 'true' : undefined"
     @click="handleClick"
-    @keydown.enter="handleClick"
     @contextmenu.prevent.stop="handleContextMenu($event)"
   >
     <div class="flex items-center gap-2 overflow-hidden">
@@ -96,5 +94,5 @@ const handleContextMenu = (event: MouseEvent): void => {
         <MoreVertical :size="14" />
       </button>
     </div>
-  </div>
+  </button>
 </template>

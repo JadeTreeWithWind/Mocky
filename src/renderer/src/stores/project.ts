@@ -25,6 +25,7 @@ export const useProjectStore = defineStore('project', () => {
   const fetchProjects = async (): Promise<void> => {
     isLoading.value = true
     lastError.value = null
+    const startTime = Date.now()
 
     try {
       // 移除 @ts-ignore，直接使用定義好的 API
@@ -34,6 +35,11 @@ export const useProjectStore = defineStore('project', () => {
       lastError.value = '無法載入專案列表'
       console.error('[Store] Fetch projects failed:', error)
     } finally {
+      const MIN_LOADING_TIME = 300
+      const elapsed = Date.now() - startTime
+      if (elapsed < MIN_LOADING_TIME) {
+        await new Promise((resolve) => setTimeout(resolve, MIN_LOADING_TIME - elapsed))
+      }
       isLoading.value = false
     }
   }
@@ -433,6 +439,7 @@ export const useProjectStore = defineStore('project', () => {
     if (!project) return
 
     isLoading.value = true
+    const startTime = Date.now()
     try {
       // 確保路由是最新狀態
       const currentRoutes = routes.value.length > 0 ? routes.value : []
@@ -454,6 +461,11 @@ export const useProjectStore = defineStore('project', () => {
       lastError.value = 'HTML 匯出失敗'
       throw error // 讓 UI 顯示錯誤
     } finally {
+      const MIN_LOADING_TIME = 300
+      const elapsed = Date.now() - startTime
+      if (elapsed < MIN_LOADING_TIME) {
+        await new Promise((resolve) => setTimeout(resolve, MIN_LOADING_TIME - elapsed))
+      }
       isLoading.value = false
     }
   }

@@ -28,5 +28,15 @@ const router = createRouter({
   routes
 })
 
+router.beforeResolve((to, from, next) => {
+  if (to.path !== from.path && document.startViewTransition) {
+    document.startViewTransition(() => {
+      next()
+    })
+  } else {
+    next()
+  }
+})
+
 // --- 10. 對外暴露 (Exports) ---
 export default router

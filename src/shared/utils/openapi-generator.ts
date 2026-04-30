@@ -60,9 +60,7 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
     }))
 
     // Auto-generate path params from the URL only for names not already defined by the user
-    const userPathParamNames = new Set(
-      userParams.filter((p) => p.in === 'path').map((p) => p.name)
-    )
+    const userPathParamNames = new Set(userParams.filter((p) => p.in === 'path').map((p) => p.name))
     const autoPathParams: OpenAPIV3.ParameterObject[] = pathParams
       .filter((name) => !userPathParamNames.has(name))
       .map((name) => ({

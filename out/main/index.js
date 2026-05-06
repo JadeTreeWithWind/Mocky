@@ -306,9 +306,7 @@ const toOpenApi = (project, routes) => {
         ...p.default !== void 0 && p.default !== "" ? { default: p.default } : {}
       }
     }));
-    const userPathParamNames = new Set(
-      userParams.filter((p) => p.in === "path").map((p) => p.name)
-    );
+    const userPathParamNames = new Set(userParams.filter((p) => p.in === "path").map((p) => p.name));
     const autoPathParams = pathParams.filter((name) => !userPathParamNames.has(name)).map((name) => ({
       name,
       in: "path",

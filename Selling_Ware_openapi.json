@@ -1,0 +1,1364 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Selling Ware",
+    "description": "本專案為矽菱企業官網重構 前台部分 的 Mock Api",
+    "version": "1.0.1"
+  },
+  "tags": [
+    {
+      "name": "/"
+    },
+    {
+      "name": "brands"
+    },
+    {
+      "name": "contact"
+    },
+    {
+      "name": "news"
+    },
+    {
+      "name": "products"
+    }
+  ],
+  "paths": {
+    "/contacts": {
+      "post": {
+        "summary": "聯絡表單",
+        "tags": [
+          "contact"
+        ],
+        "responses": {
+          "201": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "f001",
+                  "message": "成功",
+                  "createdAt": "2026-03-15T00:00:00+08:00"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "產品諮詢",
+                      "技術支援",
+                      "索取報價",
+                      "合作洽談",
+                      "其他"
+                    ]
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "phone",
+                  "type",
+                  "content"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "產品列表",
+        "tags": [
+          "products"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "p001",
+                      "model": [
+                        "silicon wafer 200mm",
+                        "silicon wafer 250mm"
+                      ],
+                      "title": "矽晶圓 200mm",
+                      "brand": {
+                        "id": "b001",
+                        "title": "Nitto Denko"
+                      },
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "高純度 200mm 矽晶圓,適用於先進 IC 製程。"
+                    },
+                    {
+                      "id": "p002",
+                      "model": [
+                        "silicon wafer 300mm",
+                        "silicon wafer 350mm"
+                      ],
+                      "title": "矽晶圓 300mm",
+                      "brand": {
+                        "id": "b002",
+                        "title": "SUMCO"
+                      },
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "超平坦 300mm 矽晶圓,符合 7nm 以下製程需求。"
+                    },
+                    {
+                      "id": "p003",
+                      "model": [
+                        "dicing tape uv 90"
+                      ],
+                      "title": "UV 切割膠帶 UV-90",
+                      "brand": {
+                        "id": "b003",
+                        "title": "Lintec"
+                      },
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "UV 照射後黏著力大幅下降,適用於晶圓切割後輕鬆剝離。"
+                    },
+                    {
+                      "id": "p004",
+                      "model": [
+                        "back grinding tape bg 200"
+                      ],
+                      "title": "背面研磨膠帶 BG-200",
+                      "brand": {
+                        "id": "b004",
+                        "title": "LiMitsui Chemicalsntec"
+                      },
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "高耐磨背磨膠帶,有效保護晶圓正面結構,降低翹曲。"
+                    },
+                    {
+                      "id": "p005",
+                      "model": [
+                        "photoresist krf positive"
+                      ],
+                      "title": "KrF 正型光阻劑",
+                      "brand": {
+                        "id": "b005",
+                        "title": "TOK"
+                      },
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "248nm KrF 微影製程專用正型光阻,高解析度與優異製程窗口。"
+                    },
+                    {
+                      "id": "p006",
+                      "model": [
+                        "cmp slurry cu 1000"
+                      ],
+                      "title": "銅製程 CMP 研磨液 CU-1000",
+                      "brand": {
+                        "id": "b006",
+                        "title": "Cabot Microelectronics"
+                      },
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "高選擇比銅金屬層化學機械研磨液,表面缺陷率低。"
+                    },
+                    {
+                      "id": "p007",
+                      "model": [
+                        "wafer carrier foup 300"
+                      ],
+                      "title": "300mm 晶圓盒 FOUP",
+                      "brand": {
+                        "id": "b007",
+                        "title": "Entegris"
+                      },
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "符合 SEMI 標準的 25 片裝 300mm 前開式晶圓傳送盒。"
+                    },
+                    {
+                      "id": "p008",
+                      "model": [
+                        "sputtering target ti 99999"
+                      ],
+                      "title": "鈦濺鍍靶材 5N 級",
+                      "brand": {
+                        "id": "b008",
+                        "title": "JX Nippon"
+                      },
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "純度 99.999% 鈦靶材,適用於阻障層與黏著層 PVD 製程。"
+                    },
+                    {
+                      "id": "p009",
+                      "model": [
+                        "wet etchant buffered hf"
+                      ],
+                      "title": "緩衝氫氟酸蝕刻液",
+                      "brand": {
+                        "id": "b009",
+                        "title": "Stella Chemifa"
+                      },
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "BOE 蝕刻液,適用於 SiO₂ 選擇性濕蝕刻,蝕刻速率穩定。"
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "pageSize": 9,
+                    "total": 9
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array"
+            }
+          },
+          {
+            "name": "application",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "9"
+            }
+          }
+        ]
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "summary": "產品詳細內容",
+        "tags": [
+          "products"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "p001",
+                    "model": [
+                      "silicon wafe 200mm",
+                      "silicon wafe 200mm"
+                    ],
+                    "title": "VSP-88D Pro+ 電漿清洗機",
+                    "brand": "Vision Semicon",
+                    "salesEmail": "sales@selling-ware.com",
+                    "categories": [
+                      {
+                        "id": "pc001",
+                        "label": "導線架"
+                      },
+                      {
+                        "id": "pc002",
+                        "label": "封裝材料"
+                      }
+                    ],
+                    "applications": [
+                      {
+                        "id": "pa001",
+                        "label": "半導體封裝"
+                      },
+                      {
+                        "id": "pa002",
+                        "label": "LED 製程"
+                      }
+                    ],
+                    "image": {
+                      "alt": "圖片替代文字",
+                      "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800"
+                    },
+                    "gallery": [
+                      {
+                        "alt": "圖片替代文字",
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800"
+                      },
+                      {
+                        "alt": "圖片替代文字",
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800"
+                      }
+                    ],
+                    "content": "<p>產品詳細html內容</p>"
+                  },
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    },
+    "/product-categories": {
+      "get": {
+        "summary": "產品分類列表",
+        "tags": [
+          "products"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "pc001",
+                      "label": "導線架"
+                    },
+                    {
+                      "id": "pc002",
+                      "label": "封裝材料"
+                    },
+                    {
+                      "id": "pc003",
+                      "label": "設備"
+                    }
+                  ],
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    },
+    "/product-applications": {
+      "get": {
+        "summary": "應用場景列表",
+        "tags": [
+          "products"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "pa001",
+                      "label": "半導體封裝"
+                    },
+                    {
+                      "id": "pa002",
+                      "label": "LED 製程"
+                    },
+                    {
+                      "id": "pa003",
+                      "label": "PCB 組裝"
+                    }
+                  ],
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    },
+    "/brands": {
+      "get": {
+        "summary": "廠牌列表",
+        "tags": [
+          "brands"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "b001",
+                      "title": "Vision Semicon (VSP)",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "韓國 Vision Semicon 是全球領先的電漿清洗設備製造商，專注於半導體、LED 及光電產業的表面處理解決方案。擁有超過 20 年的研發經驗，提供高品質、高穩定性的電漿清洗系統。",
+                      "products": [
+                        {
+                          "id": "p101",
+                          "title": "拋光晶圓 P-type"
+                        },
+                        {
+                          "id": "p102",
+                          "title": "磊晶晶圓 N-type"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "b002",
+                      "title": "Tokyo Electron (TEL)",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "日本 Tokyo Electron 為全球前三大半導體設備供應商，產品涵蓋塗佈顯影、蝕刻、薄膜沉積與晶圓測試系統。以高精度、高良率著稱，廣泛應用於先進製程節點的量產線上。",
+                      "products": [
+                        {
+                          "id": "p201",
+                          "title": "塗佈顯影機 CLEAN TRACK"
+                        },
+                        {
+                          "id": "p202",
+                          "title": "電漿蝕刻機 Tactras"
+                        },
+                        {
+                          "id": "p203",
+                          "title": "薄膜沉積系統 Triase+"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "b003",
+                      "title": "Applied Materials (AMAT)",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "美國應用材料公司是全球最大半導體設備製造商，提供完整的晶圓加工解決方案。產品線涵蓋 CVD、PVD、CMP、離子佈植與檢測設備，為先進邏輯與記憶體製程的核心供應商。",
+                      "products": [
+                        {
+                          "id": "p301",
+                          "title": "PVD 物理氣相沉積設備 Endura"
+                        },
+                        {
+                          "id": "p302",
+                          "title": "CMP 化學機械研磨機 Reflexion"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "b004",
+                      "title": "ASML Holding",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "荷蘭 ASML 為全球唯一 EUV 極紫外光微影設備供應商，掌握 7nm 以下先進製程的關鍵技術。其 NXE 與 EXE 系列微影機是台積電、三星、Intel 等大廠不可或缺的核心生產設備。",
+                      "products": [
+                        {
+                          "id": "p401",
+                          "title": "EUV 微影機 NXE:3800E"
+                        },
+                        {
+                          "id": "p402",
+                          "title": "DUV 浸潤式微影機 NXT:2100i"
+                        },
+                        {
+                          "id": "p403",
+                          "title": "次世代 High-NA EUV EXE:5000"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "b005",
+                      "title": "Lam Research",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "美國科林研發為晶圓蝕刻與沉積設備領導廠商，在 3D NAND 與 DRAM 市場具有壓倒性市占率。以原子層蝕刻 (ALE) 與選擇性沉積技術聞名，服務全球主要記憶體與邏輯晶片製造商。",
+                      "products": [
+                        {
+                          "id": "p501",
+                          "title": "電漿蝕刻系統 Kiyo"
+                        },
+                        {
+                          "id": "p502",
+                          "title": "ALD 原子層沉積機 ALTUS"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "b006",
+                      "title": "KLA Corporation",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "美國科磊半導體為製程控制與良率管理設備龍頭，提供晶圓檢測、光罩檢驗與計量量測系統。協助晶圓廠在奈米級製程中即時偵測缺陷，是先進製程良率提升的關鍵夥伴。",
+                      "products": [
+                        {
+                          "id": "p601",
+                          "title": "晶圓缺陷檢測機 29xx 系列"
+                        },
+                        {
+                          "id": "p602",
+                          "title": "光學式關鍵尺寸量測 SpectraShape"
+                        },
+                        {
+                          "id": "p603",
+                          "title": "電子束檢測系統 eSL10"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "b007",
+                      "title": "Disco Corporation",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "日本 DISCO 是全球切割、研磨與拋光設備的標竿企業，市占率超過 70%。其晶圓切割鋸、雷射切割機與背面研磨設備為半導體後段製程的關鍵生產工具，技術精度業界第一。",
+                      "products": [
+                        {
+                          "id": "p701",
+                          "title": "全自動切割機 DFD6362"
+                        },
+                        {
+                          "id": "p702",
+                          "title": "雷射切割系統 DFL7361"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "b008",
+                      "title": "Hitachi High-Tech",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "日本日立先端科技在電子束檢測、CD-SEM 與蝕刻設備領域擁有領先技術。產品廣泛應用於半導體、生技醫療與先進材料分析，並為全球頂尖晶圓廠提供量測與製程設備。",
+                      "products": [
+                        {
+                          "id": "p801",
+                          "title": "CD-SEM 線寬量測機 CG6300"
+                        },
+                        {
+                          "id": "p802",
+                          "title": "電漿蝕刻機 M9000 系列"
+                        },
+                        {
+                          "id": "p803",
+                          "title": "聚焦離子束系統 NX9000"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "b009",
+                      "title": "Screen Holdings",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                        "alt": "圖片替代文字"
+                      },
+                      "description": "日本 SCREEN 為晶圓清洗與塗佈設備領導廠商，全球單片式清洗機市占率第一。產品涵蓋濕式製程設備、熱處理系統與塗佈顯影機，為先進製程不可或缺的合作夥伴。",
+                      "products": [
+                        {
+                          "id": "p901",
+                          "title": "單片式清洗機 SU-3300"
+                        },
+                        {
+                          "id": "p902",
+                          "title": "塗佈顯影機 SOKUDO DUO"
+                        }
+                      ]
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "pageSize": 9,
+                    "total": 9
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "9"
+            }
+          }
+        ]
+      }
+    },
+    "/brands/{id}": {
+      "get": {
+        "summary": "廠牌詳細內容",
+        "tags": [
+          "brands"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "b001",
+                    "title": "VSP-88D Pro+ 電漿清洗機",
+                    "image": {
+                      "alt": "主要圖片替代文字",
+                      "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800"
+                    },
+                    "content": "<p>廠牌詳細html內容</p>",
+                    "products": [
+                      {
+                        "id": "p001",
+                        "title": "VSP-88D Pro+ 電漿清洗機",
+                        "model": "VSP-88D Pro+",
+                        "categories": [
+                          {
+                            "id": "bc001",
+                            "label": "設備"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "p002",
+                        "title": "VSP-88D Pro+ 電漿清洗機",
+                        "model": "VSP-88D Pro+",
+                        "categories": [
+                          {
+                            "id": "bc001",
+                            "label": "設備"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "p003",
+                        "title": "VSP-88D Pro+ 電漿清洗機",
+                        "model": "VSP-88D Pro+",
+                        "categories": [
+                          {
+                            "id": "bc001",
+                            "label": "設備"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "p004",
+                        "title": "VSP-88D Pro+ 電漿清洗機",
+                        "model": "VSP-88D Pro+",
+                        "categories": [
+                          {
+                            "id": "bc001",
+                            "label": "設備"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    },
+    "/brand-categories": {
+      "get": {
+        "summary": "廠牌分類列表",
+        "tags": [
+          "brands"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "bc001",
+                      "label": "半導體材料"
+                    },
+                    {
+                      "id": "bc002",
+                      "label": "半導體設備"
+                    },
+                    {
+                      "id": "bc003",
+                      "label": "檢測測量設備"
+                    }
+                  ],
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    },
+    "/news": {
+      "get": {
+        "summary": "新聞列表",
+        "tags": [
+          "news"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "message": "ok",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "n001",
+                        "title": "全新 VSP-88D Pro+ 電漿清洗機正式上市",
+                        "categories": {
+                          "id": "nc001",
+                          "label": "產品發布"
+                        },
+                        "image": {
+                          "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                          "alt": "VSP-88D Pro+ 電漿清洗機外觀"
+                        },
+                        "description": "全新一代電漿清洗機,提升製程效率 30%,適用於先進半導體封裝。",
+                        "publishedAt": "2026-03-15T00:00:00+08:00"
+                      }
+                    ],
+                    "meta": {
+                      "total": 0,
+                      "page": 1,
+                      "limit": 2,
+                      "totalPages": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          },
+          {
+            "name": "isTop",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "6"
+            }
+          }
+        ]
+      }
+    },
+    "/news/{id}": {
+      "get": {
+        "summary": "新聞詳細內容",
+        "tags": [
+          "news"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "n001",
+                    "title": "矽菱企業榮獲 2024 年半導體材料傑出代理商獎",
+                    "categories": {
+                      "id": "nc003",
+                      "label": "公司動態"
+                    },
+                    "image": {
+                      "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                      "alt": "矽菱企業榮獲 2024 年半導體材料傑出代理商獎"
+                    },
+                    "content": "<p>產品詳細html內容</p>",
+                    "publishedAt": "2026-03-15T00:00:00+08:00",
+                    "relatedNews": [
+                      {
+                        "id": "n001",
+                        "title": "矽菱企業榮獲 2024 年半導體材料傑出代理商獎",
+                        "categories": {
+                          "id": "nc003",
+                          "label": "公司動態"
+                        },
+                        "image": {
+                          "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                          "alt": "矽菱企業榮獲 2024 年半導體材料傑出代理商獎"
+                        },
+                        "publishedAt": "2026-03-10T00:00:00+08:00"
+                      },
+                      {
+                        "id": "n002",
+                        "title": "矽菱企業榮獲 2025 年半導體材料傑出代理商獎",
+                        "categories": {
+                          "id": "nc003",
+                          "label": "公司動態"
+                        },
+                        "image": {
+                          "url": "https://images.unsplash.com/photo-1616996691973-0560486764f7?w=800",
+                          "alt": "矽菱企業榮獲 2025 年半導體材料傑出代理商獎"
+                        },
+                        "publishedAt": "2026-03-10T00:00:00+08:00"
+                      }
+                    ]
+                  },
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    },
+    "/news-categories": {
+      "get": {
+        "summary": "新聞分類列表",
+        "tags": [
+          "news"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "nc001",
+                      "label": "產品發布"
+                    },
+                    {
+                      "id": "nc002",
+                      "label": "活動展覽"
+                    },
+                    {
+                      "id": "nc003",
+                      "label": "公司動態"
+                    }
+                  ],
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    },
+    "/home": {
+      "get": {
+        "summary": "首頁",
+        "tags": [
+          "/"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "title": "專業材料與設備",
+                      "subtitle": "驅動產業創新",
+                      "description": "我們專注於提供半導體封裝材料、電漿清洗系統、測試檢測設備等高品質產品。從導線架、封裝線到先進的電漿清洗機，每一項產品都經過嚴格的品質把關，確保符合國際標準與客戶需求。",
+                      "image": {
+                        "url": "blob:bhttps://039ca09c-01ec-4a70-9ea1-dbacd3d03cbe-v3-figmaiframepreview.figma.site/5b64085d-c192-4ebf-8579-201c8b16c74a#filename=e2ddf94928148fc6e0657577cb6254d5dfac4699.png",
+                        "alt": "專業半導體設備"
+                      },
+                      "layout": "bullet-list",
+                      "imagePosition": "right",
+                      "items": [
+                        {
+                          "title": "半導體封裝材料",
+                          "content": "高精度導線架、封裝銅線、DAF膠帶等專業材料"
+                        },
+                        {
+                          "title": "電漿清洗系統",
+                          "content": "先進的清洗技術，提升產品良率與製程效能"
+                        },
+                        {
+                          "title": "測試檢測設備",
+                          "content": "精密的測試板與檢測儀器，確保產品品質"
+                        }
+                      ]
+                    },
+                    {
+                      "title": "代理全球頂尖品牌",
+                      "subtitle": "提供卓越產品",
+                      "description": "我們與日本、韓國、美國、德國等國際知名品牌建立長期合作關係，代理 MKE、Vision Semicon、INNOX、SURAGUS、AMADA WELD TECH、KURODA 等 20+ 個頂尖品牌。為客戶提供最先進的技術與產品，確保供應鏈的穩定性與可靠性。",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1745847768380-2caeadbb3b71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMGhhbmRzaGFrZSUyMHBhcnRuZXJzaGlwJTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc3MzcxNDk3NHww&ixlib=rb-4.1.0&q=80&w=1080",
+                        "alt": "商業合作夥伴握手"
+                      },
+                      "layout": "stats",
+                      "imagePosition": "left",
+                      "stats": [
+                        {
+                          "value": "20+",
+                          "label": "國際品牌"
+                        },
+                        {
+                          "value": "4",
+                          "label": "國家地區"
+                        }
+                      ]
+                    },
+                    {
+                      "title": "專業技術團隊",
+                      "subtitle": "即時支援服務",
+                      "description": "擁有超過 33 年的產業經驗，我們的技術團隊深入了解半導體製程的每個環節。從產品選型、安裝調試到售後維護，提供全方位的技術支援服務。我們的工程師具備豐富的實戰經驗，能快速解決您在生產過程中遇到的各種技術難題。",
+                      "image": {
+                        "url": "https://images.unsplash.com/photo-1758691737278-3af15b37af48?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBc2lhbiUyMGJ1c2luZXNzJTIwdGVhbSUyMHByb2Zlc3Npb25hbCUyMG9mZmljZXxlbnwxfHx8fDE3NzM4MTg5Nzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+                        "alt": "專業技術團隊"
+                      },
+                      "layout": "checklist",
+                      "imagePosition": "right",
+                      "checklist": {
+                        "title": "服務承諾",
+                        "items": [
+                          "24 小時快速響應",
+                          "專業工程師現場支援",
+                          "完整的教育訓練課程",
+                          "長期技術諮詢服務"
+                        ]
+                      }
+                    }
+                  ],
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    },
+    "/service-locations": {
+      "get": {
+        "summary": "服務據點",
+        "tags": [
+          "/"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "1",
+                      "title": "總公司 (新竹)",
+                      "address": "台灣地區新竹市科學園區",
+                      "tel": "+886-3-1234567",
+                      "fax": "+886-3-1234567",
+                      "email": "hsinchu@selling-ware.com",
+                      "mapUrl": "https://www.google.com/maps",
+                      "businessHours": "週一至週五 08:30-17:30"
+                    },
+                    {
+                      "id": "2",
+                      "title": "台中辦事處",
+                      "address": "台中工業區",
+                      "tel": "+886-4-XXX-XXXX",
+                      "fax": "+886-4-XXX-XXXX",
+                      "email": "taichung@sellingware.com",
+                      "mapUrl": "https://www.google.com/maps",
+                      "businessHours": "週一至週五 08:30-17:30"
+                    },
+                    {
+                      "id": "3",
+                      "title": "高雄辦事處",
+                      "address": "高雄科學園區",
+                      "tel": "+886-5-1234567",
+                      "fax": "+886-5-1234567",
+                      "email": "kaohsiung@sellingware.com",
+                      "mapUrl": "https://www.google.com/maps",
+                      "businessHours": "週一至週五 08:30-17:30"
+                    },
+                    {
+                      "id": "4",
+                      "title": "蘇州辦事處",
+                      "address": "蘇州工業園區",
+                      "tel": "+86-512-XXXX-XXXX",
+                      "fax": "+86-512-XXXX-XXXX",
+                      "email": "suzhou@sellingware.com",
+                      "mapUrl": "https://www.google.com/maps",
+                      "businessHours": "週一至週五 09:00-18:00"
+                    },
+                    {
+                      "id": "5",
+                      "title": "深圳辦事處",
+                      "address": "深圳科技園",
+                      "tel": "+86-755-XXXX-XXXX",
+                      "fax": "+86-755-XXXX-XXXX",
+                      "email": "shenzhen@sellingware.com",
+                      "mapUrl": "https://www.google.com/maps",
+                      "businessHours": "週一至週五 09:00-18:00"
+                    },
+                    {
+                      "id": "6",
+                      "title": "上海辦事處",
+                      "address": "上海浦東新區",
+                      "tel": "+86-21-XXXX-XXXX",
+                      "fax": "+86-21-XXXX-XXXX",
+                      "email": "shanghai@sellingware.com",
+                      "mapUrl": "https://www.google.com/maps",
+                      "businessHours": "週一至週五 09:00-18:00"
+                    }
+                  ],
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    },
+    "/milestones": {
+      "get": {
+        "summary": "發展歷程",
+        "tags": [
+          "/"
+        ],
+        "responses": {
+          "200": {
+            "description": "Mock response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "year": "1990",
+                      "description": "矽菱企業成立於新竹"
+                    },
+                    {
+                      "year": "1995",
+                      "description": "擴展至台中與高雄據點"
+                    },
+                    {
+                      "year": "2000",
+                      "description": "進軍大陸市場，設立蘇州辦事處"
+                    },
+                    {
+                      "year": "2005",
+                      "description": "深圳、上海據點相繼成立"
+                    },
+                    {
+                      "year": "2010",
+                      "description": "成為多家國際品牌總代理"
+                    },
+                    {
+                      "year": "2015",
+                      "description": "擴展醫療輔具產品線"
+                    },
+                    {
+                      "year": "2020",
+                      "description": "數位轉型，強化技術支援能力"
+                    },
+                    {
+                      "year": "2026",
+                      "description": "持續創新，邁向永續發展"
+                    }
+                  ],
+                  "meta": {}
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-TW"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

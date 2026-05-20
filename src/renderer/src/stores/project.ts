@@ -401,6 +401,8 @@ export const useProjectStore = defineStore('project', () => {
           description: route.description || '',
           tags: route.tags || [],
           isActive: route.isActive ?? true,
+          parameters: route.parameters || [],
+          ...(route.requestBody ? { requestBody: route.requestBody } : {}),
           response: {
             statusCode: route.response?.statusCode || 200,
             body: route.response?.body || '{}',

@@ -1,6 +1,6 @@
 import { OpenAPIV3 } from 'openapi-types'
 import { v4 as uuidv4 } from 'uuid'
-import { Project, Route } from '../types'
+import { Project, Route, RouteParameter } from '../types'
 
 export interface ProjectInfo {
   name: string
@@ -172,8 +172,50 @@ export const fromOpenApi = (
           }
 
           // Convert path parameters back: /{id} -> /:id
-          // This is a heuristic simple conversion
           const internalPath = path.replace(/\{([a-zA-Z0-9_]+)\}/g, ':$1')
+
+          // Parse parameters
+          const parameters: RouteParameter[] = []
+          if (operation.parameters) {
+            for (const paramOrRef of operation.parameters) {
+              if ('$ref' in paramOrRef) continue
+              const param = paramOrRef as OpenAPIV3.ParameterObject
+              const schema =
+                param.schema && !('$ref' in param.schema)
+                  ? (param.schema as OpenAPIV3.SchemaObject)
+                  : undefined
+              const paramType = schema?.type
+              parameters.push({
+                id: uuidv4(),
+                name: param.name,
+                in: param.in as RouteParameter['in'],
+                type: (paramType as RouteParameter['type']) || 'string',
+                required: param.required || false,
+                ...(param.description ? { description: param.description } : {}),
+                ...(schema?.default !== undefined ? { default: String(schema.default) } : {})
+              })
+            }
+          }
+
+          // Parse requestBody (only for methods that carry a body)
+          const BODY_METHODS = ['post', 'put', 'patch', 'delete']
+          let requestBody: Route['requestBody'] | undefined
+          if (operation.requestBody && BODY_METHODS.includes(method)) {
+            const reqBodyOrRef = operation.requestBody
+            if (!('$ref' in reqBodyOrRef)) {
+              const reqBody = reqBodyOrRef as OpenAPIV3.RequestBodyObject
+              let schema = '{}'
+              const jsonContent = reqBody.content?.['application/json']?.schema
+              if (jsonContent && !('$ref' in jsonContent)) {
+                schema = JSON.stringify(jsonContent, null, 2)
+              }
+              requestBody = {
+                required: reqBody.required || false,
+                ...(reqBody.description ? { description: reqBody.description } : {}),
+                schema
+              }
+            }
+          }
 
           const route: Partial<Route> = {
             id: uuidv4(),
@@ -186,7 +228,9 @@ export const fromOpenApi = (
               statusCode,
               body,
               delay: 0
-            }
+            },
+            parameters,
+            ...(requestBody ? { requestBody } : {})
           }
           routes.push(route)
         }

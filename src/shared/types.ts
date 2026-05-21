@@ -44,7 +44,8 @@ export const RouteSchema = z.object({
   response: z.object({
     statusCode: z.number().int(),
     body: z.string(),
-    delay: z.number().int().default(0)
+    delay: z.number().int().default(0),
+    contentType: z.enum(['json', 'html', 'text', 'xml', 'pdf']).default('json')
   }),
   tags: z.array(z.string()).default([]),
   parameters: z.array(RouteParameterSchema).default([]),

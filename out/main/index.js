@@ -68,7 +68,8 @@ const RouteSchema = zod.z.object({
   response: zod.z.object({
     statusCode: zod.z.number().int(),
     body: zod.z.string(),
-    delay: zod.z.number().int().default(0)
+    delay: zod.z.number().int().default(0),
+    contentType: zod.z.enum(["json", "html", "text", "xml", "pdf"]).default("json")
   }),
   tags: zod.z.array(zod.z.string()).default([]),
   parameters: zod.z.array(RouteParameterSchema).default([]),
@@ -282,6 +283,23 @@ const toOpenApi = (project, routes) => {
     if (!paths[openApiPath]) {
       paths[openApiPath] = {};
     }
+    const routeContentType = route.response.contentType ?? "json";
+    const mimeTypeMap = {
+      json: "application/json",
+      html: "text/html",
+      text: "text/plain",
+      xml: "application/xml",
+      pdf: "application/pdf"
+    };
+    const responseMimeType = mimeTypeMap[routeContentType] ?? "application/json";
+    let responseMediaType;
+    if (routeContentType === "pdf") {
+      responseMediaType = { schema: { type: "string", format: "binary" } };
+    } else if (routeContentType === "json") {
+      responseMediaType = { example: parseBody(route.response.body) };
+    } else {
+      responseMediaType = { example: route.response.body };
+    }
     const operation = {
       summary: route.description || route.path,
       tags: route.tags,
@@ -289,9 +307,7 @@ const toOpenApi = (project, routes) => {
         [route.response.statusCode.toString()]: {
           description: "Mock response",
           content: {
-            "application/json": {
-              example: parseBody(route.response.body)
-            }
+            [responseMimeType]: responseMediaType
           }
         }
       }
@@ -464,12 +480,26 @@ class ServerManager {
                 await new Promise((resolve) => setTimeout(resolve, route.response.delay));
               }
               reply.code(route.response.statusCode);
-              try {
-                const jsonBody = JSON.parse(route.response.body);
-                return jsonBody;
-              } catch {
-                return route.response.body;
+              const contentType = route.response.contentType ?? "json";
+              const mimeType = { json: "application/json", html: "text/html", text: "text/plain", xml: "application/xml", pdf: "application/pdf" }[contentType] ?? "application/json";
+              if (contentType === "json") {
+                try {
+                  reply.type(mimeType);
+                  return JSON.parse(route.response.body);
+                } catch {
+                  return reply.type("text/plain").send(route.response.body);
+                }
               }
+              if (contentType === "pdf") {
+                try {
+                  const buffer = Buffer.from(route.response.body, "base64");
+                  reply.header("Content-Disposition", 'inline; filename="response.pdf"');
+                  return reply.type(mimeType).send(buffer);
+                } catch {
+                  return reply.type(mimeType).send(route.response.body);
+                }
+              }
+              return reply.type(mimeType).send(route.response.body);
             }
           });
           console.log(`[Server] Mounted ${route.method} ${route.path}`);

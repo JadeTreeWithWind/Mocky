@@ -90,7 +90,9 @@
     "response": "Response",
     "request_body_required": "必填",
     "request_body_description_placeholder": "Body 說明 (選填)",
-    "fill_sample": "填入範例"
+    "fill_sample": "填入範例",
+    "response_format": "格式",
+    "pdf_base64_hint": "PDF 格式需輸入 Base64 編碼內容，伺服器將解碼後以二進位格式回傳。"
   },
   "validation": {
     "required": "必填",

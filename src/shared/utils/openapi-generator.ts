@@ -31,6 +31,29 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
     }
 
     // 2. Build Operation Object
+    const routeContentType = route.response.contentType ?? 'json'
+    const mimeTypeMap: Record<string, string> = {
+      json: 'application/json',
+      html: 'text/html',
+      text: 'text/plain',
+      xml: 'application/xml',
+      pdf: 'application/pdf'
+    }
+    const responseMimeType = mimeTypeMap[routeContentType] ?? 'application/json'
+
+    let responseMediaType: OpenAPIV3.MediaTypeObject
+    if (routeContentType === 'pdf') {
+      responseMediaType = { schema: { type: 'string', format: 'binary' } as OpenAPIV3.SchemaObject }
+    } else if (routeContentType === 'json') {
+      const parsed = parseBody(route.response.body)
+      responseMediaType = {
+        schema: inferSchema(parsed) as OpenAPIV3.SchemaObject,
+        example: parsed
+      }
+    } else {
+      responseMediaType = { example: route.response.body }
+    }
+
     const operation: OpenAPIV3.OperationObject = {
       summary: route.description || route.path,
       tags: route.tags,
@@ -38,9 +61,7 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
         [route.response.statusCode.toString()]: {
           description: 'Mock response',
           content: {
-            'application/json': {
-              example: parseBody(route.response.body)
-            }
+            [responseMimeType]: responseMediaType
           }
         }
       }
@@ -249,4 +270,27 @@ function parseBody(body: string): any {
   } catch {
     return body
   }
+}
+
+function inferSchema(value: unknown): OpenAPIV3.SchemaObject {
+  if (value === null || value === undefined) return { nullable: true }
+  if (typeof value === 'boolean') return { type: 'boolean' }
+  if (typeof value === 'number') {
+    return Number.isInteger(value) ? { type: 'integer' } : { type: 'number' }
+  }
+  if (typeof value === 'string') return { type: 'string' }
+  if (Array.isArray(value)) {
+    return {
+      type: 'array',
+      items: value.length > 0 ? inferSchema(value[0]) : {}
+    } as OpenAPIV3.ArraySchemaObject
+  }
+  if (typeof value === 'object') {
+    const properties: Record<string, OpenAPIV3.SchemaObject> = {}
+    for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+      properties[key] = inferSchema(val)
+    }
+    return { type: 'object', properties }
+  }
+  return {}
 }

@@ -158,15 +158,31 @@ class ServerManager {
               // 2. Status Code
               reply.code(route.response.statusCode)
 
-              // 3. Body
-              try {
-                // Attempt to parse JSON strings
-                const jsonBody = JSON.parse(route.response.body)
-                return jsonBody
-              } catch {
-                // If not JSON, return as string
-                return route.response.body
+              // 3. Content-Type & Body
+              const contentType = route.response.contentType ?? 'json'
+              const mimeType =
+                ({ json: 'application/json', html: 'text/html', text: 'text/plain', xml: 'application/xml', pdf: 'application/pdf' } as Record<string, string>)[contentType] ?? 'application/json'
+
+              if (contentType === 'json') {
+                try {
+                  reply.type(mimeType)
+                  return JSON.parse(route.response.body)
+                } catch {
+                  return reply.type('text/plain').send(route.response.body)
+                }
               }
+
+              if (contentType === 'pdf') {
+                try {
+                  const buffer = Buffer.from(route.response.body, 'base64')
+                  reply.header('Content-Disposition', 'inline; filename="response.pdf"')
+                  return reply.type(mimeType).send(buffer)
+                } catch {
+                  return reply.type(mimeType).send(route.response.body)
+                }
+              }
+
+              return reply.type(mimeType).send(route.response.body)
             }
           })
           console.log(`[Server] Mounted ${route.method} ${route.path}`)

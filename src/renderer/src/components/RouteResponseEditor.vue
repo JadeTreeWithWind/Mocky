@@ -18,6 +18,16 @@ interface Props {
 // --- 3. 常量宣告 (Constants) ---
 type ActiveTab = 'request' | 'response'
 
+type ResponseContentType = 'json' | 'html' | 'text' | 'xml' | 'pdf'
+
+const RESPONSE_FORMATS: { label: string; value: ResponseContentType; monacoLang: string }[] = [
+  { label: 'JSON', value: 'json', monacoLang: 'json' },
+  { label: 'HTML', value: 'html', monacoLang: 'html' },
+  { label: 'XML', value: 'xml', monacoLang: 'xml' },
+  { label: 'Text', value: 'text', monacoLang: 'plaintext' },
+  { label: 'PDF', value: 'pdf', monacoLang: 'plaintext' }
+]
+
 // --- 4. 屬性與事件 (Props & Emits) ---
 const props = defineProps<Props>()
 
@@ -63,6 +73,15 @@ const responseBody = computed({
   set: (val) => updateResponse({ body: val })
 })
 
+const responseContentType = computed({
+  get: () => (props.route.response?.contentType ?? 'json') as ResponseContentType,
+  set: (val) => updateResponse({ contentType: val })
+})
+
+const monacoLanguage = computed(
+  () => RESPONSE_FORMATS.find((f) => f.value === responseContentType.value)?.monacoLang ?? 'json'
+)
+
 const requestBodySchema = computed({
   get: () => props.route.requestBody?.schema ?? '{}',
   set: (val) => updateRequestBody({ schema: val })
@@ -86,7 +105,7 @@ const getStatusLabel = (code?: number): string => {
 }
 
 const handleValidateJSON = (content: string): void => {
-  jsonError.value = validateJSON(content)
+  jsonError.value = responseContentType.value === 'json' ? validateJSON(content) : null
 }
 
 const handleValidateRequestBodyJSON = (content: string): void => {
@@ -385,10 +404,36 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
               </div>
             </div>
           </div>
+
+          <!-- Content Type Selector -->
+          <div class="flex items-center gap-2 border-l border-zinc-700 pl-4">
+            <span
+              class="flex h-5 items-center rounded bg-zinc-800 px-1.5 text-[10px] font-bold tracking-wider text-zinc-400 uppercase"
+            >
+              {{ t('route.response_format') }}
+            </span>
+            <div class="flex items-center gap-px">
+              <button
+                v-for="fmt in RESPONSE_FORMATS"
+                :key="fmt.value"
+                type="button"
+                class="cursor-pointer rounded border border-transparent px-2 py-1 text-[10px] font-medium transition-colors"
+                :class="
+                  responseContentType === fmt.value
+                    ? 'border-blue-500/30 bg-blue-500/20 text-blue-400'
+                    : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                "
+                @click="responseContentType = fmt.value"
+              >
+                {{ fmt.label }}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Format JSON Button -->
+        <!-- Format JSON Button (only for JSON format) -->
         <button
+          v-if="responseContentType === 'json'"
           type="button"
           class="flex cursor-pointer items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-zinc-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           title="Format JSON (Alt+Shift+F)"
@@ -412,13 +457,22 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
         </button>
       </div>
 
+      <!-- PDF Binary Hint -->
+      <div
+        v-if="responseContentType === 'pdf'"
+        class="flex shrink-0 items-center gap-2 border-b border-amber-500/20 bg-amber-900/20 px-4 py-2"
+      >
+        <AlertCircle :size="13" class="shrink-0 text-amber-400" />
+        <span class="text-xs text-amber-300">{{ t('route.pdf_base64_hint') }}</span>
+      </div>
+
       <!-- Body / Monaco Editor -->
       <div class="relative flex-1 bg-[#1e1e1e]">
         <VueMonacoEditor
           v-if="route.response"
           v-model:value="responseBody"
           theme="vs-dark"
-          language="json"
+          :language="monacoLanguage"
           :options="{
             minimap: { enabled: false },
             automaticLayout: true,
@@ -443,7 +497,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
           leave-to-class="opacity-0 translate-y-2"
         >
           <div
-            v-if="jsonError"
+            v-if="jsonError && responseContentType === 'json'"
             class="absolute right-0 bottom-0 left-0 z-10 flex items-center gap-3 border-t border-red-500/30 bg-red-900/90 px-4 py-2 text-red-200 backdrop-blur-md"
           >
             <div
@@ -461,7 +515,8 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
     <div
       class="absolute right-6 text-xs font-medium transition-all duration-300"
       :class="
-        (activeTab === 'response' && jsonError) || (activeTab === 'request' && requestBodyError)
+        (activeTab === 'response' && jsonError && responseContentType === 'json') ||
+        (activeTab === 'request' && requestBodyError)
           ? 'bottom-12'
           : 'bottom-4'
       "

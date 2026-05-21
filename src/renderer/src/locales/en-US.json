@@ -90,7 +90,9 @@
     "response": "Response",
     "request_body_required": "Required",
     "request_body_description_placeholder": "Body description (optional)",
-    "fill_sample": "Fill Example"
+    "fill_sample": "Fill Example",
+    "response_format": "Format",
+    "pdf_base64_hint": "PDF format requires Base64-encoded content. The server will decode it and return binary data."
   },
   "validation": {
     "required": "Required",

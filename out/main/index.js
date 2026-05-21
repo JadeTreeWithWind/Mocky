@@ -296,7 +296,11 @@ const toOpenApi = (project, routes) => {
     if (routeContentType === "pdf") {
       responseMediaType = { schema: { type: "string", format: "binary" } };
     } else if (routeContentType === "json") {
-      responseMediaType = { example: parseBody(route.response.body) };
+      const parsed = parseBody(route.response.body);
+      responseMediaType = {
+        schema: inferSchema(parsed),
+        example: parsed
+      };
     } else {
       responseMediaType = { example: route.response.body };
     }
@@ -372,6 +376,28 @@ function parseBody(body) {
   } catch {
     return body;
   }
+}
+function inferSchema(value) {
+  if (value === null || value === void 0) return { nullable: true };
+  if (typeof value === "boolean") return { type: "boolean" };
+  if (typeof value === "number") {
+    return Number.isInteger(value) ? { type: "integer" } : { type: "number" };
+  }
+  if (typeof value === "string") return { type: "string" };
+  if (Array.isArray(value)) {
+    return {
+      type: "array",
+      items: value.length > 0 ? inferSchema(value[0]) : {}
+    };
+  }
+  if (typeof value === "object") {
+    const properties = {};
+    for (const [key, val] of Object.entries(value)) {
+      properties[key] = inferSchema(val);
+    }
+    return { type: "object", properties };
+  }
+  return {};
 }
 const MAX_PORT_ATTEMPTS = 100;
 const DEFAULT_HOST = "127.0.0.1";

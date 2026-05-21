@@ -58,6 +58,13 @@ const containerClasses = computed(() => [
     : 'border-transparent text-zinc-400'
 ])
 
+const handleKeyDown = (e: KeyboardEvent): void => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    emit('click')
+  }
+}
+
 /**
  * 路徑文字的樣式
  */
@@ -87,7 +94,14 @@ const handleDelete = (e: Event): void => {
 </script>
 
 <template>
-  <button :class="containerClasses" type="button" :aria-pressed="isSelected" @click="handleClick">
+  <div
+    :class="containerClasses"
+    role="button"
+    tabindex="0"
+    :aria-pressed="isSelected"
+    @click="handleClick"
+    @keydown="handleKeyDown"
+  >
     <!-- Method Badge -->
     <span :class="badgeClasses">
       {{ formattedMethod }}
@@ -108,10 +122,11 @@ const handleDelete = (e: Event): void => {
       :class="[
         'ml-auto flex h-6 w-6 cursor-pointer items-center justify-center rounded text-zinc-500 opacity-0 transition-all group-hover:opacity-100 hover:bg-zinc-700 hover:text-red-400'
       ]"
+      type="button"
       title="Delete Route"
       @click="handleDelete"
     >
       <Trash2 :size="14" />
     </button>
-  </button>
+  </div>
 </template>

@@ -273,7 +273,19 @@ class DBService {
 const dbService = new DBService();
 const toOpenApi = (project, routes) => {
   const paths = {};
-  routes.forEach((route) => {
+  const sortedTags = Array.from(
+    new Set(routes.filter((r) => r.isActive).flatMap((r) => r.tags))
+  ).sort();
+  const tagOrderIndex = new Map(sortedTags.map((t, i) => [t, i]));
+  const routeGroupOrder = (r) => {
+    if (!r.tags || r.tags.length === 0) return Number.POSITIVE_INFINITY;
+    return Math.min(...r.tags.map((t) => tagOrderIndex.get(t) ?? Number.POSITIVE_INFINITY));
+  };
+  const orderedRoutes = routes.map((r, idx) => ({ r, idx })).sort((a, b) => {
+    const diff = routeGroupOrder(a.r) - routeGroupOrder(b.r);
+    return diff !== 0 ? diff : a.idx - b.idx;
+  }).map(({ r }) => r);
+  orderedRoutes.forEach((route) => {
     if (!route.isActive) return;
     const pathParams = [];
     const openApiPath = route.path.replace(/:([a-zA-Z0-9_]+)/g, (_, paramName) => {
@@ -340,21 +352,18 @@ const toOpenApi = (project, routes) => {
     const BODY_METHODS = ["post", "put", "patch", "delete"];
     const method = route.method.toLowerCase();
     if (route.requestBody && BODY_METHODS.includes(method)) {
+      const parsedReq = parseBody(route.requestBody.schema);
+      const reqMediaType = looksLikeSchema(parsedReq) ? { schema: parsedReq } : { schema: inferSchema(parsedReq), example: parsedReq };
       operation.requestBody = {
         ...route.requestBody.description ? { description: route.requestBody.description } : {},
         required: route.requestBody.required,
         content: {
-          "application/json": {
-            schema: parseBody(route.requestBody.schema)
-          }
+          "application/json": reqMediaType
         }
       };
     }
     paths[openApiPath][method] = operation;
   });
-  const sortedTags = Array.from(
-    new Set(routes.filter((r) => r.isActive).flatMap((r) => r.tags))
-  ).sort();
   const doc = {
     openapi: "3.0.0",
     info: {
@@ -377,6 +386,13 @@ function parseBody(body) {
     return body;
   }
 }
+function looksLikeSchema(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const obj = value;
+  if ("$ref" in obj || "oneOf" in obj || "anyOf" in obj || "allOf" in obj) return true;
+  const schemaTypes = ["object", "array", "string", "number", "integer", "boolean", "null"];
+  return typeof obj.type === "string" && schemaTypes.includes(obj.type);
+}
 function inferSchema(value) {
   if (value === null || value === void 0) return { nullable: true };
   if (typeof value === "boolean") return { type: "boolean" };
@@ -385,9 +401,14 @@ function inferSchema(value) {
   }
   if (typeof value === "string") return { type: "string" };
   if (Array.isArray(value)) {
+    let items = {};
+    for (const item of value) {
+      const itemSchema = inferSchema(item);
+      items = Object.keys(items).length === 0 ? itemSchema : mergeSchemas(items, itemSchema);
+    }
     return {
       type: "array",
-      items: value.length > 0 ? inferSchema(value[0]) : {}
+      items
     };
   }
   if (typeof value === "object") {
@@ -398,6 +419,32 @@ function inferSchema(value) {
     return { type: "object", properties };
   }
   return {};
+}
+function mergeSchemas(a, b) {
+  if (a.nullable && !a.type) return b.type ? { ...b, nullable: true } : a;
+  if (b.nullable && !b.type) return a.type ? { ...a, nullable: true } : b;
+  if ((a.type === "integer" || a.type === "number") && (b.type === "integer" || b.type === "number")) {
+    return { type: a.type === "integer" && b.type === "integer" ? "integer" : "number" };
+  }
+  if (a.type !== b.type) return a;
+  if (a.type === "object" && b.type === "object") {
+    const aProps = a.properties || {};
+    const bProps = b.properties || {};
+    const properties = { ...aProps };
+    for (const [key, schema] of Object.entries(bProps)) {
+      properties[key] = properties[key] ? mergeSchemas(properties[key], schema) : schema;
+    }
+    return { type: "object", properties };
+  }
+  if (a.type === "array" && b.type === "array") {
+    const aItems = a.items || {};
+    const bItems = b.items || {};
+    return {
+      type: "array",
+      items: mergeSchemas(aItems, bItems)
+    };
+  }
+  return a;
 }
 const MAX_PORT_ATTEMPTS = 100;
 const DEFAULT_HOST = "127.0.0.1";

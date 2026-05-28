@@ -16,7 +16,25 @@ export interface ProjectInfo {
 export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): OpenAPIV3.Document => {
   const paths: OpenAPIV3.PathsObject = {}
 
-  routes.forEach((route) => {
+  // Match the sidebar display order: tag groups sorted alphabetically,
+  // untagged routes last, stable within each group (drag-drop order preserved).
+  const sortedTags = Array.from(
+    new Set(routes.filter((r) => r.isActive).flatMap((r) => r.tags))
+  ).sort()
+  const tagOrderIndex = new Map(sortedTags.map((t, i) => [t, i]))
+  const routeGroupOrder = (r: Route): number => {
+    if (!r.tags || r.tags.length === 0) return Number.POSITIVE_INFINITY
+    return Math.min(...r.tags.map((t) => tagOrderIndex.get(t) ?? Number.POSITIVE_INFINITY))
+  }
+  const orderedRoutes = routes
+    .map((r, idx) => ({ r, idx }))
+    .sort((a, b) => {
+      const diff = routeGroupOrder(a.r) - routeGroupOrder(b.r)
+      return diff !== 0 ? diff : a.idx - b.idx
+    })
+    .map(({ r }) => r)
+
+  orderedRoutes.forEach((route) => {
     if (!route.isActive) return
 
     // 1. Convert path parameters: /users/:id -> /users/{id}
@@ -100,13 +118,15 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
     const BODY_METHODS = ['post', 'put', 'patch', 'delete']
     const method = route.method.toLowerCase() as OpenAPIV3.HttpMethods
     if (route.requestBody && BODY_METHODS.includes(method)) {
+      const parsedReq = parseBody(route.requestBody.schema)
+      const reqMediaType: OpenAPIV3.MediaTypeObject = looksLikeSchema(parsedReq)
+        ? { schema: parsedReq as OpenAPIV3.SchemaObject }
+        : { schema: inferSchema(parsedReq) as OpenAPIV3.SchemaObject, example: parsedReq }
       operation.requestBody = {
         ...(route.requestBody.description ? { description: route.requestBody.description } : {}),
         required: route.requestBody.required,
         content: {
-          'application/json': {
-            schema: parseBody(route.requestBody.schema) as OpenAPIV3.SchemaObject
-          }
+          'application/json': reqMediaType
         }
       }
     }
@@ -114,10 +134,6 @@ export const toOpenApi = (project: ProjectInfo | Project, routes: Route[]): Open
     // 5. Assign to paths
     paths[openApiPath]![method] = operation
   })
-
-  const sortedTags = Array.from(
-    new Set(routes.filter((r) => r.isActive).flatMap((r) => r.tags))
-  ).sort()
 
   const doc: OpenAPIV3.Document = {
     openapi: '3.0.0',
@@ -225,10 +241,12 @@ export const fromOpenApi = (
             const reqBodyOrRef = operation.requestBody
             if (!('$ref' in reqBodyOrRef)) {
               const reqBody = reqBodyOrRef as OpenAPIV3.RequestBodyObject
+              const jsonContent = reqBody.content?.['application/json']
               let schema = '{}'
-              const jsonContent = reqBody.content?.['application/json']?.schema
-              if (jsonContent && !('$ref' in jsonContent)) {
-                schema = JSON.stringify(jsonContent, null, 2)
+              if (jsonContent?.example !== undefined) {
+                schema = JSON.stringify(jsonContent.example, null, 2)
+              } else if (jsonContent?.schema && !('$ref' in jsonContent.schema)) {
+                schema = JSON.stringify(jsonContent.schema, null, 2)
               }
               requestBody = {
                 required: reqBody.required || false,
@@ -272,6 +290,14 @@ function parseBody(body: string): any {
   }
 }
 
+function looksLikeSchema(value: unknown): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const obj = value as Record<string, unknown>
+  if ('$ref' in obj || 'oneOf' in obj || 'anyOf' in obj || 'allOf' in obj) return true
+  const schemaTypes = ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null']
+  return typeof obj.type === 'string' && schemaTypes.includes(obj.type)
+}
+
 function inferSchema(value: unknown): OpenAPIV3.SchemaObject {
   if (value === null || value === undefined) return { nullable: true }
   if (typeof value === 'boolean') return { type: 'boolean' }
@@ -280,9 +306,14 @@ function inferSchema(value: unknown): OpenAPIV3.SchemaObject {
   }
   if (typeof value === 'string') return { type: 'string' }
   if (Array.isArray(value)) {
+    let items: OpenAPIV3.SchemaObject = {}
+    for (const item of value) {
+      const itemSchema = inferSchema(item)
+      items = Object.keys(items).length === 0 ? itemSchema : mergeSchemas(items, itemSchema)
+    }
     return {
       type: 'array',
-      items: value.length > 0 ? inferSchema(value[0]) : {}
+      items
     } as OpenAPIV3.ArraySchemaObject
   }
   if (typeof value === 'object') {
@@ -293,4 +324,41 @@ function inferSchema(value: unknown): OpenAPIV3.SchemaObject {
     return { type: 'object', properties }
   }
   return {}
+}
+
+function mergeSchemas(
+  a: OpenAPIV3.SchemaObject,
+  b: OpenAPIV3.SchemaObject
+): OpenAPIV3.SchemaObject {
+  // nullable propagation: a "null" sample contributes only nullability
+  if (a.nullable && !a.type) return b.type ? { ...b, nullable: true } : a
+  if (b.nullable && !b.type) return a.type ? { ...a, nullable: true } : b
+
+  // widen integer to number if any sample is non-integer
+  if ((a.type === 'integer' || a.type === 'number') && (b.type === 'integer' || b.type === 'number')) {
+    return { type: a.type === 'integer' && b.type === 'integer' ? 'integer' : 'number' }
+  }
+
+  if (a.type !== b.type) return a
+
+  if (a.type === 'object' && b.type === 'object') {
+    const aProps = (a.properties || {}) as Record<string, OpenAPIV3.SchemaObject>
+    const bProps = (b.properties || {}) as Record<string, OpenAPIV3.SchemaObject>
+    const properties: Record<string, OpenAPIV3.SchemaObject> = { ...aProps }
+    for (const [key, schema] of Object.entries(bProps)) {
+      properties[key] = properties[key] ? mergeSchemas(properties[key], schema) : schema
+    }
+    return { type: 'object', properties }
+  }
+
+  if (a.type === 'array' && b.type === 'array') {
+    const aItems = ((a as OpenAPIV3.ArraySchemaObject).items || {}) as OpenAPIV3.SchemaObject
+    const bItems = ((b as OpenAPIV3.ArraySchemaObject).items || {}) as OpenAPIV3.SchemaObject
+    return {
+      type: 'array',
+      items: mergeSchemas(aItems, bItems)
+    } as OpenAPIV3.ArraySchemaObject
+  }
+
+  return a
 }
